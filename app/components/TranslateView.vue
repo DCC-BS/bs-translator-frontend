@@ -1,37 +1,33 @@
 <script lang="ts" setup>
-import type { Domain } from '~/models/domain';
-import type { Tone } from '~/models/tone';
+
+const { tone, domain, sourceLanguage, targetLanguage, sourceText, translatedText, translate } = useTranslate();
 
 
-const sourceText = ref("");
-const translatedText = ref("");
-
-const sourceLanguage = ref("en");
-const targetLanguage = ref("de");
-
-const selectedTone = ref<Tone>("default"); // Default tone
-const selectedDomain = ref<Domain>("None"); // Default domain
 
 </script>
 
 <template>
+    <ToneSelectionView v-model:selectedTone="tone" />
+    <DomainSelectionView v-model:selectedDomain="domain" />
 
-  <ToneSelectionView v-model:selectedTone="selectedTone" />
-  <DomainSelectionView v-model:selectedDomain="selectedDomain" />
-
-  <div class="flex flex-row gap-4 p-4">
-    <div>
-      <LanguageSelectionView v-model:selectedLanguage="sourceLanguage" />
-      <UTextarea v-model="sourceText" class="w-full h-full" placeholder="Enter text to translate..." />
+    <div class="flex flex-row gap-4 p-4 w-full justify-stretch items-stretch">
+        <div class="flex-1">
+            <LanguageSelectionView v-model="sourceLanguage" />
+            <UTextarea :rows="5" v-model="sourceText" class="w-full h-full" placeholder="Enter text to translate..." />
+        </div>
+        <div class="flex-1">
+            <LanguageSelectionView v-model="targetLanguage" />
+            <UTextarea :rows="5" v-model="translatedText" class="w-full h-full"
+                placeholder="Translation will appear here..." />
+        </div>
     </div>
     <div>
-      <LanguageSelectionView v-model:selectedLanguage="targetLanguage" />
-      <UTextarea v-model="translatedText" class="w-full h-full" placeholder="Translation will appear here..." />
-    </div>
-  </div>
-  <div>
 
-  </div>
+        <UButton @click="translate" class="w-full" :disabled="!sourceText || !targetLanguage">
+            Translate
+        </UButton>
+
+    </div>
 </template>
 
 
