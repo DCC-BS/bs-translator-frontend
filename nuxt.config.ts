@@ -33,6 +33,7 @@ export default defineNuxtConfig({
         "@dcc-bs/logger.bs.js",
         "@dcc-bs/feedback-control.bs.js",
         "@dcc-bs/dependency-injection.bs.js",
+        "@nuxtjs/mdc",
     ],
     "feedback-control.bs.js": {
         repo: "Feedback",

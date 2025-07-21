@@ -15,9 +15,20 @@ export const useTranslate = () => {
 
     const sourceText = ref<string>("");
     const translatedText = ref<string>("");
+    const isTranslating = ref<boolean>(false);
+    const abortController = ref<AbortController | undefined>(undefined);
 
+    /**
+     * Translates the source text using the configured settings
+     * Can be aborted with the abort() function
+     */
     async function translate(): Promise<void> {
         translatedText.value = ""; // Clear previous translation
+        isTranslating.value = true;
+
+        // Create a new AbortController for this translation operation
+        abortController.value = new AbortController();
+        const signal = abortController.value.signal;
 
         const config: TranslationConfig = {
             source_language: sourceLanguage.value,
@@ -27,10 +38,35 @@ export const useTranslate = () => {
             glossary: glossary.value,
         };
 
-        const batches = translationService.translate(sourceText.value, config);
+        try {
+            const batches = translationService.translate(
+                sourceText.value,
+                config,
+                signal,
+            );
 
-        for await (const chunk of batches) {
-            translatedText.value += chunk;
+            for await (const chunk of batches) {
+                if (signal.aborted) {
+                    break;
+                }
+                translatedText.value += chunk;
+            }
+        } catch (error) {
+            if (!signal.aborted) {
+                console.error("Translation error:", error);
+            }
+        } finally {
+            isTranslating.value = false;
+        }
+    }
+
+    /**
+     * Aborts the current translation process if one is in progress
+     */
+    function abort(): void {
+        if (abortController.value && isTranslating.value) {
+            abortController.value.abort();
+            isTranslating.value = false;
         }
     }
 
@@ -42,6 +78,8 @@ export const useTranslate = () => {
         targetLanguage,
         sourceText,
         translatedText,
+        isTranslating,
         translate,
+        abort,
     };
 };

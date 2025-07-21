@@ -9,11 +9,13 @@ export class TranslationService {
      * Translates text using streaming response
      * @param text - The text to translate
      * @param config - Translation configuration
+     * @param signal - Optional AbortSignal to cancel the translation
      * @returns An async iterable of translated text chunks
      */
     async *translate(
         text: string,
         config: TranslationConfig,
+        signal?: AbortSignal,
     ): AsyncIterable<string> {
         const body: TranslationInput = {
             text,
@@ -24,6 +26,7 @@ export class TranslationService {
             responseType: "stream",
             method: "POST",
             body: body,
+            signal,
         })) as ReadableStream<Uint8Array>;
 
         const reader = response.getReader();
