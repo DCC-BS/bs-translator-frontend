@@ -13,7 +13,11 @@ const availableLocales = computed(() => {
 
 // Navigation menu items
 const items = computed<NavigationMenuItem[][]>(() => [
-  [],
+  [
+    {
+      slot: "disclaimer"
+    }
+  ],
   [],
   [
     {
@@ -30,6 +34,10 @@ const items = computed<NavigationMenuItem[][]>(() => [
 
 <template>
   <div>
-    <UNavigationMenu content-orientation="vertical" :items="items" class="w-full justify-between z-50" />
+    <UNavigationMenu content-orientation="vertical" :items="items" class="w-full justify-between z-50">
+      <template #disclaimer>
+        <DisclaimerLlm />
+      </template>
+    </UNavigationMenu>
   </div>
 </template>

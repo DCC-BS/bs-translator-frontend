@@ -2,14 +2,16 @@ import type { Domain } from "~/models/domain";
 import type { Tone } from "~/models/tone";
 import type { TranslationConfig } from "~/models/translationConfig";
 import { TranslationService } from "~/services/tanslationService";
+import { useStorage } from "@vueuse/core";
 
 export const useTranslate = () => {
     const translationService = useService(TranslationService);
 
-    const tone = ref<Tone>("default");
-    const domain = ref<Domain>("None");
-    const sourceLanguage = ref<string>("de");
-    const targetLanguage = ref<string>("en");
+    const tone = useStorage<Tone>("tone", "default");
+    const domain = useStorage<Domain>("domain", "None");
+    const glossary = useStorage<string>("glossary", "");
+    const sourceLanguage = useStorage<string>("sourceLanguage", "auto");
+    const targetLanguage = useStorage<string>("targetLanguage", "en");
 
     const sourceText = ref<string>("");
     const translatedText = ref<string>("");
@@ -22,6 +24,7 @@ export const useTranslate = () => {
             target_language: targetLanguage.value,
             domain: domain.value,
             tone: tone.value,
+            glossary: glossary.value,
         };
 
         const batches = translationService.translate(sourceText.value, config);
@@ -34,6 +37,7 @@ export const useTranslate = () => {
     return {
         tone,
         domain,
+        glossary,
         sourceLanguage,
         targetLanguage,
         sourceText,
