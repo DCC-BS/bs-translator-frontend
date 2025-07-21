@@ -1,5 +1,5 @@
 export default defineBackendHandler({
-    url: "/translation/translate",
+    url: "/translation/text",
     method: "POST",
     fetcher: async (url, method, body, headers) => {
         return await fetch(url, {

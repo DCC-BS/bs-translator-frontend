@@ -22,12 +22,12 @@ export type BackendHandler<T, D> = (response: T) => Promise<D>;
  * Function type for making HTTP requests to the backend
  * @template T - The response type from the backend
  */
-export type Fetcher<T> = (
+export type Fetcher<TBody, TResponse> = (
     url: string,
     method: "GET" | "POST" | "PUT" | "DELETE",
-    body: unknown,
+    body: TBody,
     headers: Record<string, string>,
-) => Promise<T>;
+) => Promise<TResponse>;
 
 /**
  * Default body provider that extracts and parses the request body using H3's readBody
@@ -92,15 +92,15 @@ const defaultOptions = {
     fetcher: defaultFetcher,
 };
 
-function getDefaultBodyProvider<TRequest extends EventHandlerRequest>(
+function getDefaultBodyProvider<TRequest extends EventHandlerRequest, TBody>(
     method?: "GET" | "POST" | "PUT" | "DELETE",
-): BodyProvider<TRequest, unknown> {
+): BodyProvider<TRequest, TBody> {
     switch (method) {
         case undefined:
-            return noBody;
+            return noBody as BodyProvider<TRequest, TBody>;
         case "GET":
         case "DELETE":
-            return noBody;
+            return noBody as BodyProvider<TRequest, TBody>;
         default:
             return extractEventBody;
     }
@@ -158,14 +158,18 @@ export const defineBackendHandler = <
     method?: "POST" | "GET" | "PUT" | "DELETE";
     bodyProvider?: BodyProvider<TRequest, TBody>;
     handler?: BackendHandler<TBackendResponse, TResponse>;
-    fetcher?: Fetcher<TBackendResponse>;
+    fetcher?: Fetcher<TBody, TBackendResponse>;
 }): EventHandler<TRequest, Promise<TResponse>> =>
     defineEventHandler<TRequest>(async (event) => {
         try {
             // Merge provided options with defaults
             const { url, method, bodyProvider, handler, fetcher } = {
                 ...defaultOptions,
-                ...{ bodyProvider: getDefaultBodyProvider(options.method) },
+                ...{
+                    bodyProvider: getDefaultBodyProvider<TRequest, TBody>(
+                        options.method,
+                    ),
+                },
                 ...options,
             };
 

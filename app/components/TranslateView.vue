@@ -15,14 +15,24 @@ const {
     abort
 } = useTranslate();
 
-// Track character count for source text
+/**
+ * Initialize file conversion with callback for processed text
+ */
+const {
+    dropZoneRef,
+    isOverDropZone,
+    isConverting,
+    error: conversionError,
+    fileName,
+    handleFileSelect,
+    clearError
+} = useFileConvert((text) => {
+    sourceText.value = text;
+});
+
 const charCount = computed(() => sourceText.value?.length || 0);
+const fileInputRef = ref<HTMLInputElement | null>(null);
 
-// Track copy success state
-const copySuccess = ref(false);
-
-// For test purposes - allows testing the copyToClipboard function
-const testCopyResult = ref<{ success: boolean; text: string | null }>({ success: false, text: null });
 
 /**
  * Swaps values between two refs
@@ -58,65 +68,36 @@ async function handleTranslate(): Promise<void> {
     await translate();
 }
 
-/**
- * Clears both source and translated text
- */
-function clearText(): void {
-    sourceText.value = '';
-    translatedText.value = '';
-}
-
-/**
- * Copies translated text to clipboard
- * Uses clipboard API when available, falls back to document.execCommand
- */
-function copyToClipboard(): void {
-    // Don't attempt to copy if no text is available
-    if (!translatedText.value) {
-        testCopyResult.value = { success: false, text: null };
-        return;
-    }
-
-    // Only run in client context
-    if (import.meta.client) {
-        try {
-            if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-                navigator.clipboard.writeText(translatedText.value)
-                    .then(() => {
-                        copySuccess.value = true;
-                        testCopyResult.value = { success: true, text: translatedText.value };
-                        setTimeout(() => {
-                            copySuccess.value = false;
-                        }, 2000);
-                    })
-                    .catch((err) => {
-                        console.error('Failed to copy text: ', err);
-                        testCopyResult.value = { success: false, text: null };
-                    });
-
-                return;
-            }
-            return;
-        } catch (err) {
-            console.error('Copy failed:', err);
-            testCopyResult.value = { success: false, text: null };
-            return;
-        }
-    }
-
-    // Handle non-client context
-    testCopyResult.value = { success: false, text: null };
-}
-
 watchDebounced(sourceText, () => {
     if (sourceText.value && targetLanguage.value) {
         handleTranslate();
     }
 }, { debounce: 1000 })
+
+/**
+ * Triggers the file input click event
+ */
+function triggerFileUpload(): void {
+    if (fileInputRef.value) {
+        fileInputRef.value.click();
+    }
+}
+
+/**
+ * Handles file selection and emits the event
+ * @param event File input change event
+ */
+function onFileSelect(event: Event): void {
+    handleFileSelect(event);
+    // Reset the input so the same file can be selected again
+    if (fileInputRef.value) {
+        fileInputRef.value.value = '';
+    }
+}
 </script>
 
 <template>
-    <UContainer class="p-4 max-w-6xl mx-auto">
+    <div class="p-4 mx-auto">
         <!-- Translation settings panel -->
         <UCard class="mb-6 bg-gray-50 dark:bg-gray-900 shadow-sm">
             <template #header>
@@ -163,48 +144,35 @@ watchDebounced(sourceText, () => {
             </div>
         </div>
 
-        <!-- Text editor area -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Source text area -->
-            <div class="flex flex-col h-full">
-                <div class="flex justify-between">
+        <div class="flex justify-between gap-2">
+            <div class="flex flex-1 justify-between mb-2">
+                <div class="flex items-center gap-2">
                     <UBadge color="neutral" variant="soft">Source Text</UBadge>
-                    <UBadge v-if="charCount > 0" color="primary" variant="soft">{{ charCount }} characters</UBadge>
+                    <UButton size="xs" color="primary" @click="triggerFileUpload" :loading="isConverting"
+                        :disabled="isConverting" icon="i-lucide-file-up" variant="soft">
+                        {{ isConverting ? 'Uploading...' : 'Upload File' }}
+                    </UButton>
+                    <input type="file" ref="fileInputRef" class="hidden" @change="onFileSelect"
+                        accept=".txt,.doc,.docx,.pdf,.md,.html,.rtf" />
                 </div>
-                <div class="relative flex-1">
-                    <UTextarea v-model="sourceText" class="w-full h-full min-h-[200px]"
-                        :ui="{ base: 'relative transition-all duration-300 flex-1' }"
-                        placeholder="Enter text to translate..." :rows="8" autofocus />
-                    <UButton v-if="sourceText" icon="i-lucide-x" variant="link" color="neutral" size="xs"
-                        class="absolute top-3 right-1 opacity-50 hover:opacity-100" @click="clearText" />
-                </div>
-            </div>
 
-            <!-- Translation result area -->
-            <div class="flex flex-col h-full">
-                <div class="flex justify-between">
-                    <UBadge color="neutral" variant="soft">Translation</UBadge>
-                    <UBadge v-if="translatedText" color="success" variant="soft">Completed</UBadge>
-                </div>
-                <div class="relative flex-1 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                    <UTextarea v-model="translatedText" class="w-full h-full min-h-[200px]"
-                        :ui="{ base: 'relative transition-all duration-300 flex-1 bg-gray-50 dark:bg-gray-900' }"
-                        placeholder="Translation will appear here..." :rows="8" readonly />
-                    <div v-if="isTranslating"
-                        class="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-black/50 backdrop-blur-sm">
-                        <UIcon name="i-lucide-loader-2" class="animate-spin text-3xl text-primary-500" />
-                    </div>
-                    <div class="absolute bottom-4 right-4 flex gap-2" data-test="copy-button-container">
-                        <UButton v-if="translatedText" :icon="copySuccess ? 'i-lucide-check' : 'i-lucide-clipboard'"
-                            variant="soft" :color="copySuccess ? 'success' : 'neutral'" size="sm"
-                            data-test="copy-to-clipboard-button" @click="copyToClipboard">
-                            Copy to Clipboard
-                        </UButton>
-                    </div>
-                </div>
+                <UBadge v-if="charCount > 0" color="primary" variant="soft">{{ charCount }} characters</UBadge>
+            </div>
+            <div class="flex justify-between mb-2 flex-1">
+                <UBadge color="neutral" variant="soft">Translation</UBadge>
+                <UBadge v-if="translatedText && !isTranslating" color="success" variant="soft">Completed</UBadge>
+                <UBadge v-else-if="translatedText" color="info" variant="soft">In Progress</UBadge>
             </div>
         </div>
-    </UContainer>
+
+        <!-- Text editor area -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-auto max-h-[500px]">
+            <SourceTextView v-model="sourceText" :is-over-drop-zone="isOverDropZone" :is-converting="isConverting"
+                :error="conversionError" :fileName="fileName" class="h-full" ref="dropZoneRef"
+                @clear-error="clearError" />
+            <TargetTextView v-model="translatedText" :is-translating="isTranslating" class="h-full" />
+        </div>
+    </div>
 </template>
 
 
