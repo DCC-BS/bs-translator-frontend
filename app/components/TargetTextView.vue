@@ -25,71 +25,6 @@ function toggleMarkdown(): void {
 }
 
 /**
- * Converts MDC parsed AST node to HTML string
- * Recursively processes the AST nodes and converts them to HTML
- */
-function astToHtml(node: unknown): string {
-    if (!node) return '';
-
-    if (typeof node === 'string') {
-        return node;
-    }
-
-    if (Array.isArray(node)) {
-        return node.map(astToHtml).join('');
-    }
-
-    const nodeObj = node as Record<string, unknown>;
-
-    if (nodeObj.type === 'text') {
-        return String(nodeObj.value || '');
-    }
-
-    if (nodeObj.type === 'element') {
-        const tag = String(nodeObj.tag || 'div');
-        const children = nodeObj.children ? astToHtml(nodeObj.children) : '';
-        const props = (nodeObj.props as Record<string, unknown>) || {};
-
-        // Build attributes string
-        const attributes = Object.entries(props)
-            .filter(([, value]) => value !== undefined && value !== null)
-            .map(([key, value]) => `${key}="${String(value).replace(/"/g, '&quot;')}"`)
-            .join(' ');
-
-        const attributesStr = attributes ? ` ${attributes}` : '';
-
-        // Self-closing tags
-        if (['img', 'br', 'hr', 'input', 'meta', 'link'].includes(tag)) {
-            return `<${tag}${attributesStr} />`;
-        }
-
-        return `<${tag}${attributesStr}>${children}</${tag}>`;
-    }
-
-    // Handle other node types
-    if (nodeObj.children) {
-        return astToHtml(nodeObj.children);
-    }
-
-    return '';
-}
-
-/**
- * Converts markdown to HTML using MDC's parseMarkdown function
- * Provides better markdown parsing than the simple regex approach
- */
-async function markdownToHtml(markdown: string): Promise<string> {
-    try {
-        const parsed = await parseMarkdown(markdown);
-        if (parsed?.body) {
-            return astToHtml(parsed.body);
-        }
-        return markdown; // Fallback to original text
-    } catch (error) {
-        console.warn('Failed to parse markdown with MDC, falling back to original text:', error);
-        return markdown; // Fallback to original text
-    }
-}/**
  * Copies translated text to clipboard
  * When in markdown view, copies as rich text for better formatting in Word documents
  * Falls back to plain text when rich text is not supported
@@ -105,10 +40,12 @@ async function copyToClipboard(): Promise<void> {
         try {
             if (navigator.clipboard && typeof navigator.clipboard.write === 'function' && showMarkdown.value) {
                 // Convert markdown to HTML for rich text copying
-                const htmlContent = await markdownToHtml(translatedText.value);
+                const html = await markdownToHtml(translatedText.value)
+
+                console.log(html);
 
                 const clipboardItem = new ClipboardItem({
-                    'text/html': new Blob([htmlContent], { type: 'text/html' }),
+                    'text/html': new Blob([html], { type: 'text/html' }),
                     'text/plain': new Blob([translatedText.value], { type: 'text/plain' })
                 });
 
