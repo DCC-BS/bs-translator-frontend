@@ -1,10 +1,12 @@
 <script lang="ts" setup>
+import { parseMarkdown, } from '@nuxtjs/mdc/runtime'
 
 const props = defineProps<{
     isTranslating?: boolean;
 }>();
 
 const translatedText = defineModel<string>();
+
 
 
 const showMarkdown = ref(false);
@@ -23,10 +25,76 @@ function toggleMarkdown(): void {
 }
 
 /**
- * Copies translated text to clipboard
- * Uses clipboard API when available, falls back to document.execCommand
+ * Converts MDC parsed AST node to HTML string
+ * Recursively processes the AST nodes and converts them to HTML
  */
-function copyToClipboard(): void {
+function astToHtml(node: unknown): string {
+    if (!node) return '';
+
+    if (typeof node === 'string') {
+        return node;
+    }
+
+    if (Array.isArray(node)) {
+        return node.map(astToHtml).join('');
+    }
+
+    const nodeObj = node as Record<string, unknown>;
+
+    if (nodeObj.type === 'text') {
+        return String(nodeObj.value || '');
+    }
+
+    if (nodeObj.type === 'element') {
+        const tag = String(nodeObj.tag || 'div');
+        const children = nodeObj.children ? astToHtml(nodeObj.children) : '';
+        const props = (nodeObj.props as Record<string, unknown>) || {};
+
+        // Build attributes string
+        const attributes = Object.entries(props)
+            .filter(([, value]) => value !== undefined && value !== null)
+            .map(([key, value]) => `${key}="${String(value).replace(/"/g, '&quot;')}"`)
+            .join(' ');
+
+        const attributesStr = attributes ? ` ${attributes}` : '';
+
+        // Self-closing tags
+        if (['img', 'br', 'hr', 'input', 'meta', 'link'].includes(tag)) {
+            return `<${tag}${attributesStr} />`;
+        }
+
+        return `<${tag}${attributesStr}>${children}</${tag}>`;
+    }
+
+    // Handle other node types
+    if (nodeObj.children) {
+        return astToHtml(nodeObj.children);
+    }
+
+    return '';
+}
+
+/**
+ * Converts markdown to HTML using MDC's parseMarkdown function
+ * Provides better markdown parsing than the simple regex approach
+ */
+async function markdownToHtml(markdown: string): Promise<string> {
+    try {
+        const parsed = await parseMarkdown(markdown);
+        if (parsed?.body) {
+            return astToHtml(parsed.body);
+        }
+        return markdown; // Fallback to original text
+    } catch (error) {
+        console.warn('Failed to parse markdown with MDC, falling back to original text:', error);
+        return markdown; // Fallback to original text
+    }
+}/**
+ * Copies translated text to clipboard
+ * When in markdown view, copies as rich text for better formatting in Word documents
+ * Falls back to plain text when rich text is not supported
+ */
+async function copyToClipboard(): Promise<void> {
     // Don't attempt to copy if no text is available
     if (!translatedText.value) {
         return;
@@ -35,17 +103,33 @@ function copyToClipboard(): void {
     // Only run in client context
     if (import.meta.client) {
         try {
+            if (navigator.clipboard && typeof navigator.clipboard.write === 'function' && showMarkdown.value) {
+                // Convert markdown to HTML for rich text copying
+                const htmlContent = await markdownToHtml(translatedText.value);
+
+                const clipboardItem = new ClipboardItem({
+                    'text/html': new Blob([htmlContent], { type: 'text/html' }),
+                    'text/plain': new Blob([translatedText.value], { type: 'text/plain' })
+                });
+
+                await navigator.clipboard.write([clipboardItem]);
+
+                copySuccess.value = true;
+                setTimeout(() => {
+                    copySuccess.value = false;
+                }, 2000);
+
+                return;
+            }
+
             if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-                navigator.clipboard.writeText(translatedText.value)
-                    .then(() => {
-                        copySuccess.value = true;
-                        setTimeout(() => {
-                            copySuccess.value = false;
-                        }, 2000);
-                    })
-                    .catch((err) => {
-                        console.error('Failed to copy text: ', err);
-                    });
+                // Fallback to plain text copying
+                await navigator.clipboard.writeText(translatedText.value);
+
+                copySuccess.value = true;
+                setTimeout(() => {
+                    copySuccess.value = false;
+                }, 2000);
 
                 return;
             }
@@ -59,17 +143,15 @@ function copyToClipboard(): void {
 </script>
 
 <template>
-    <div class="relative flex-1 bg-gray-50 dark:bg-gray-900 rounded-lg">
+    <div class="relative flex-1 bg-gray-50 p-[5px] dark:bg-gray-900 rounded-md max-h-[500px]"
+        :class="{ 'translating-border': props.isTranslating }">
         <div v-if="showMarkdown && translatedText"
-            class="w-full h-full mb-6 min-h-[200px] p-4 overflow-auto prose dark:prose-invert max-w-none">
+            class="w-full h-full pb-12 overflow-auto prose dark:prose-invert max-w-none">
             <MDC :value="translatedText" />
         </div>
-        <UTextarea v-else v-model="translatedText" class="w-full h-full"
+        <UTextarea v-else v-model="translatedText" class="w-full h-full" variant="none"
             :ui="{ base: 'pb-12 transition-all duration-300 flex-1 bg-gray-50 dark:bg-gray-900 h-full' }"
             placeholder="Translation will appear here..." autoresize readonly />
-        <div v-if="props.isTranslating" class="absolute inset-0 flex items-center justify-center">
-            <UIcon name="i-lucide-loader-2" class="animate-spin text-3xl text-primary-500" />
-        </div>
         <div class="absolute bottom-4 right-4 flex gap-2" data-test="copy-button-container">
             <UButton v-if="translatedText" :icon="markdownIcon" variant="soft" size="sm" class="mr-2"
                 :color="showMarkdown ? 'primary' : 'neutral'" @click="toggleMarkdown"
@@ -79,8 +161,58 @@ function copyToClipboard(): void {
             <UButton v-if="translatedText" :icon="copySuccess ? 'i-lucide-check' : 'i-lucide-clipboard'" variant="soft"
                 :color="copySuccess ? 'success' : 'neutral'" size="sm" data-test="copy-to-clipboard-button"
                 @click="copyToClipboard">
-                Copy to Clipboard
+                {{ copySuccess ? 'Copied!' : (showMarkdown ? 'Copy as Rich Text' : 'Copy to Clipboard') }}
             </UButton>
         </div>
     </div>
 </template>
+
+<style scoped>
+/**
+ * Smooth rainbow animated border for translation state
+ * Adapted from rainbow border technique with theme-appropriate colors
+ */
+.translating-border {
+    position: relative;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.translating-border::before {
+    content: '';
+    position: absolute;
+    z-index: -2;
+    left: -450%;
+    top: -450%;
+    width: 1000%;
+    height: 1000%;
+    background-repeat: no-repeat;
+    background-image: repeating-conic-gradient(#3b82f6 10%, #6bbda2 20%, #8b5cf6 30%);
+    animation: rotate-border 4s linear infinite;
+}
+
+.translating-border::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    left: 3px;
+    top: 3px;
+    width: calc(100% - 6px);
+    height: calc(100% - 6px);
+    background: white;
+    border-radius: calc(0.5rem - 3px);
+}
+
+.dark .translating-border::after {
+    background: rgb(17 24 39);
+}
+
+/**
+ * Rainbow rotation animation
+ */
+@keyframes rotate-border {
+    100% {
+        transform: rotate(1turn);
+    }
+}
+</style>

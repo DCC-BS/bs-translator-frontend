@@ -33,7 +33,6 @@ const {
 const charCount = computed(() => sourceText.value?.length || 0);
 const fileInputRef = ref<HTMLInputElement | null>(null);
 
-
 /**
  * Swaps values between two refs
  * @param a First ref value
@@ -166,7 +165,7 @@ function onFileSelect(event: Event): void {
         </div>
 
         <!-- Text editor area -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-auto max-h-[500px]">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[300px]">
             <SourceTextView v-model="sourceText" :is-over-drop-zone="isOverDropZone" :is-converting="isConverting"
                 :error="conversionError" :fileName="fileName" class="h-full" ref="dropZoneRef"
                 @clear-error="clearError" />
