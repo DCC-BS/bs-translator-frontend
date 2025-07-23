@@ -12,6 +12,7 @@ const emit = defineEmits<{
 }>();
 
 const toast = useToast();
+const { t } = useI18n();
 const sourceText = defineModel<string>();
 
 /**
@@ -27,14 +28,14 @@ function clearText(): void {
 watch(() => props.error, (newError) => {
     if (newError) {
         toast.add({
-            title: 'Error',
-            description: `${newError}. Please try again with a different file.`,
+            title: t('ui.error'),
+            description: `${newError}. ${t('ui.errorDescription')}`,
             color: 'error',
             icon: 'i-lucide-alert-circle',
             duration: 5000,
             actions: [
                 {
-                    label: 'Dismiss',
+                    label: t('ui.dismiss'),
                     onClick: () => emit('clear-error')
                 }
             ]
@@ -48,7 +49,7 @@ watch(() => props.error, (newError) => {
 watch(() => props.fileName, (newFileName, oldFileName) => {
     if (newFileName && !props.error && !props.isConverting && newFileName !== oldFileName) {
         toast.add({
-            title: 'File converted successfully',
+            title: t('ui.fileConvertedSuccess'),
             description: newFileName,
             color: 'success',
             icon: 'i-lucide-check-circle',
@@ -67,21 +68,21 @@ watch(() => props.fileName, (newFileName, oldFileName) => {
             <div class="text-5xl text-primary-500 mb-2">
                 <div class="i-lucide-file-down animate-bounce"></div>
             </div>
-            <span class="text-lg font-medium text-primary-600 dark:text-primary-400">Drop file to convert</span>
-            <span class="text-sm text-gray-500 dark:text-gray-400">Supported formats: TXT, DOC, DOCX, PDF, MD, HTML,
-                RTF</span>
+            <span class="text-lg font-medium text-primary-600 dark:text-primary-400">{{ t('ui.dropFileToConvert')
+                }}</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400">{{ t('ui.supportedFormats') }}</span>
         </div>
 
         <!-- Loading overlay -->
         <div v-if="isConverting"
             class="absolute inset-0 bg-gray-50/90 dark:bg-gray-900/90 rounded-lg flex flex-col items-center justify-center z-10">
             <ULoading size="lg" color="primary" class="mb-2" />
-            <span class="text-gray-600 dark:text-gray-300">Converting file...</span>
+            <span class="text-gray-600 dark:text-gray-300">{{ t('ui.convertingFile') }}</span>
         </div>
 
         <UTextarea v-model="sourceText" class="w-full h-full min-h-[200px]"
             :ui="{ base: 'relative transition-all duration-300 flex-1 h-full' }"
-            placeholder="Enter text to translate or drop a file here..." autoresize autofocus />
+            :placeholder="t('ui.enterTextPlaceholder')" autoresize autofocus />
 
         <UButton v-if="sourceText" icon="i-lucide-x" variant="link" color="neutral" size="xs"
             class="absolute top-1 right-1 opacity-50 hover:opacity-100" @click="clearText" />

@@ -22,6 +22,6 @@ export default defineBackendHandler<never, { file: File }, string, string>({
             throw new Error("Failed to upload file");
         }
 
-        return await response.text();
+        return await response.json();
     },
 });

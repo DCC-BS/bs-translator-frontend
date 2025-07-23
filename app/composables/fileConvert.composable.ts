@@ -1,4 +1,5 @@
 import { useDropZone } from "@vueuse/core";
+import type { ConverstionResult } from "~/models/convertionResult";
 
 /**
  * Composable for handling file conversion and drop zone functionality
@@ -24,21 +25,53 @@ export const useFileConvert = (onComplete: (text: string) => void) => {
             const formData = new FormData();
             formData.append("file", file);
 
-            let result = await $fetch<string>("/api/convert", {
+            const result = await $fetch<ConverstionResult>("/api/convert", {
                 method: "POST",
                 body: formData,
             });
 
+            console.log("Conversion result:", result);
+            console.log(typeof result);
+
             // remove " at start and end of the string
-            if (result.startsWith('"') && result.endsWith('"')) {
-                result = result.slice(1, -1);
+            if (
+                result.markdown.startsWith('"') &&
+                result.markdown.endsWith('"')
+            ) {
+                result.markdown = result.markdown.slice(1, -1);
             }
 
-            result = result.replace(/\\n/g, "\n"); // Replace escaped newlines with actual newlines
-            result = result.replace(/\\t/g, "\t"); // Replace escaped tabs with actual tabs
-            result = result.replace(/\\r/g, "\r"); // Replace escaped carriage returns with actual carriage returns
+            result.markdown = result.markdown.replace(/\\n/g, "\n"); // Replace escaped newlines with actual newlines
+            result.markdown = result.markdown.replace(/\\t/g, "\t"); // Replace escaped tabs with actual tabs
+            result.markdown = result.markdown.replace(/\\r/g, "\r"); // Replace escaped carriage returns with actual carriage returns
 
-            onComplete(result);
+            // Convert images to data URLs
+            for (const [index, base64] of Object.entries(result.images)) {
+                // const dataUrl = `data:image/png;base64,${base64}`;
+
+                const base64WithoutPrefix = base64.replace(
+                    /^data:image\/png;base64,/,
+                    "",
+                );
+
+                const blob = new Blob(
+                    [
+                        Uint8Array.from(atob(base64WithoutPrefix), (c) =>
+                            c.charCodeAt(0),
+                        ),
+                    ],
+                    { type: "image/png" },
+                );
+
+                const link = URL.createObjectURL(blob);
+
+                result.markdown = result.markdown.replace(
+                    `(img${index}.png)`,
+                    `(${link})`,
+                );
+            }
+
+            onComplete(result.markdown);
         } catch (err) {
             error.value =
                 err instanceof Error ? err.message : "Failed to convert file";

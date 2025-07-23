@@ -6,10 +6,10 @@ const props = defineProps<{
 }>();
 
 const translatedText = defineModel<string>();
+const { t } = useI18n();
+const toast = useToast();
 
-
-
-const showMarkdown = ref(false);
+const showMarkdown = ref(true);
 const copySuccess = ref(false);
 
 /**
@@ -56,6 +56,14 @@ async function copyToClipboard(): Promise<void> {
                     copySuccess.value = false;
                 }, 2000);
 
+                // Show success toast
+                toast.add({
+                    title: t('ui.copySuccess'),
+                    color: 'success',
+                    icon: 'i-lucide-check-circle',
+                    duration: 2000
+                });
+
                 return;
             }
 
@@ -68,11 +76,26 @@ async function copyToClipboard(): Promise<void> {
                     copySuccess.value = false;
                 }, 2000);
 
+                // Show success toast
+                toast.add({
+                    title: t('ui.copySuccess'),
+                    color: 'success',
+                    icon: 'i-lucide-check-circle',
+                    duration: 2000
+                });
+
                 return;
             }
             return;
         } catch (err) {
             console.error('Copy failed:', err);
+            // Show error toast
+            toast.add({
+                title: t('ui.copyFailed'),
+                color: 'error',
+                icon: 'i-lucide-alert-circle',
+                duration: 3000
+            });
             return;
         }
     }
@@ -88,17 +111,17 @@ async function copyToClipboard(): Promise<void> {
         </div>
         <UTextarea v-else v-model="translatedText" class="w-full h-full" variant="none"
             :ui="{ base: 'pb-12 transition-all duration-300 flex-1 bg-gray-50 dark:bg-gray-900 h-full' }"
-            placeholder="Translation will appear here..." autoresize readonly />
+            :placeholder="t('ui.translationPlaceholder')" autoresize readonly />
         <div class="absolute bottom-4 right-4 flex gap-2" data-test="copy-button-container">
             <UButton v-if="translatedText" :icon="markdownIcon" variant="soft" size="sm" class="mr-2"
                 :color="showMarkdown ? 'primary' : 'neutral'" @click="toggleMarkdown"
                 data-test="toggle-markdown-button">
-                {{ showMarkdown ? 'View Plain Text' : 'View as Markdown' }}
+                {{ showMarkdown ? t('ui.viewPlainText') : t('ui.viewAsMarkdown') }}
             </UButton>
             <UButton v-if="translatedText" :icon="copySuccess ? 'i-lucide-check' : 'i-lucide-clipboard'" variant="soft"
                 :color="copySuccess ? 'success' : 'neutral'" size="sm" data-test="copy-to-clipboard-button"
                 @click="copyToClipboard">
-                {{ copySuccess ? 'Copied!' : (showMarkdown ? 'Copy as Rich Text' : 'Copy to Clipboard') }}
+                {{ copySuccess ? t('ui.copied') : (showMarkdown ? t('ui.copyAsRichText') : t('ui.copyToClipboard')) }}
             </UButton>
         </div>
     </div>

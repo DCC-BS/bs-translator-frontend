@@ -85,5 +85,47 @@
         "technical": "Technical",
         "creative": "Creative",
         "concise": "Concise"
+    },
+    "ui": {
+        "translationSettings": "Translation Settings",
+        "tone": "Tone",
+        "toneHelp": "Choose the desired writing style for the translation.",
+        "domain": "Domain",
+        "domainHelp": "Choose the appropriate domain for your translation.",
+        "glossary": "Glossary",
+        "glossaryHelp": "Provide a custom glossary",
+        "glossaryPlaceholder": "Term1: Description1; Term2: Description2",
+        "sourceLanguage": "Source Language",
+        "targetLanguage": "Target Language",
+        "sourceText": "Source Text",
+        "translation": "Translation",
+        "characters": "characters",
+        "completed": "Completed",
+        "inProgress": "In Progress",
+        "uploadFile": "Upload File",
+        "uploading": "Uploading...",
+        "error": "Error",
+        "errorDescription": "Please try again with a different file.",
+        "dismiss": "Dismiss",
+        "fileConvertedSuccess": "File converted successfully",
+        "dropFileToConvert": "Drop file to convert",
+        "supportedFormats": "Supported formats: TXT, DOCX, PPTX, XLSX, PDF",
+        "convertingFile": "Converting file...",
+        "enterTextPlaceholder": "Enter text to translate or drop a file here...",
+        "translating": "Translating...",
+        "copySuccess": "Copied to clipboard!",
+        "copyFailed": "Failed to copy text",
+        "translationPlaceholder": "Translation will appear here...",
+        "viewPlainText": "View Plain Text",
+        "viewAsMarkdown": "View as Markdown",
+        "copied": "Copied!",
+        "copyAsRichText": "Copy as Rich Text",
+        "copyToClipboard": "Copy to Clipboard"
+    },
+    "navigation": {
+        "languages": "Languages"
+    },
+    "pages": {
+        "title": "BS Translator"
     }
 }

@@ -3,13 +3,14 @@
  * Index page component with fancy animated title
  * Uses Tailwind CSS for styling and transitions
  */
+const { t } = useI18n();
 </script>
 
 <template>
-  <div>
+  <div class="mb-4">
     <div class="title-container py-6 mb-6 text-center">
       <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-teal-400 bg-clip-text text-transparent">
-        BS-Übersetzer
+        {{ t('pages.title') }}
       </h1>
     </div>
 

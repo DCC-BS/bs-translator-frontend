@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import { watchDebounced } from '@vueuse/core';
 
+// Get i18n translation function
+const { t } = useI18n();
+
 // Get translation states and functions from the translate composable
 const {
     tone,
@@ -101,22 +104,21 @@ function onFileSelect(event: Event): void {
         <UCard class="mb-6 bg-gray-50 dark:bg-gray-900 shadow-sm">
             <template #header>
                 <div class="flex justify-between items-center">
-                    <h3 class="text-lg font-medium">Translation Settings</h3>
+                    <h3 class="text-lg font-medium">{{ t('ui.translationSettings') }}</h3>
                 </div>
             </template>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <UFormField label="Tonalität" help="Wählen Sie den gewünschten Schreibstil für die Übersetzung.">
+                <UFormField :label="t('ui.tone')" :help="t('ui.toneHelp')">
                     <ToneSelectionView v-model="tone" class="w-full" />
                 </UFormField>
 
-                <UFormField label="Domäne" help="Wählen Sie das passende Fachgebiet für Ihre Übersetzung.">
+                <UFormField :label="t('ui.domain')" :help="t('ui.domainHelp')">
                     <DomainSelectionView v-model="domain" class="w-full" />
                 </UFormField>
 
-                <UFormField label="Glossar" help="Geben Sie ein benutzerdefiniertes Glossar an">
-                    <UInput v-model="glossary" placeholder="Begriff1: Beschreibung1;Begriff2: Beschreibung2"
-                        class="w-full" />
+                <UFormField :label="t('ui.glossary')" :help="t('ui.glossaryHelp')">
+                    <UInput v-model="glossary" :placeholder="t('ui.glossaryPlaceholder')" class="w-full" />
                 </UFormField>
             </div>
         </UCard>
@@ -124,7 +126,7 @@ function onFileSelect(event: Event): void {
         <!-- Language selection area -->
         <div class="flex items-center gap-4 mb-4 bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
             <div class="flex-1">
-                <UFormGroup label="Source Language" class="mb-0">
+                <UFormGroup :label="t('ui.sourceLanguage')" class="mb-0">
                     <LanguageSelectionView v-model="sourceLanguage" include-auto-detect />
                 </UFormGroup>
             </div>
@@ -137,7 +139,7 @@ function onFileSelect(event: Event): void {
             </div>
 
             <div class="flex-1">
-                <UFormGroup label="Target Language" class="mb-0">
+                <UFormGroup :label="t('ui.targetLanguage')" class="mb-0">
                     <LanguageSelectionView v-model="targetLanguage" />
                 </UFormGroup>
             </div>
@@ -146,21 +148,23 @@ function onFileSelect(event: Event): void {
         <div class="flex justify-between gap-2">
             <div class="flex flex-1 justify-between mb-2">
                 <div class="flex items-center gap-2">
-                    <UBadge color="neutral" variant="soft">Source Text</UBadge>
+                    <UBadge color="neutral" variant="soft">{{ t('ui.sourceText') }}</UBadge>
                     <UButton size="xs" color="primary" @click="triggerFileUpload" :loading="isConverting"
                         :disabled="isConverting" icon="i-lucide-file-up" variant="soft">
-                        {{ isConverting ? 'Uploading...' : 'Upload File' }}
+                        {{ isConverting ? t('ui.uploading') : t('ui.uploadFile') }}
                     </UButton>
                     <input type="file" ref="fileInputRef" class="hidden" @change="onFileSelect"
                         accept=".txt,.doc,.docx,.pdf,.md,.html,.rtf" />
                 </div>
 
-                <UBadge v-if="charCount > 0" color="primary" variant="soft">{{ charCount }} characters</UBadge>
+                <UBadge v-if="charCount > 0" color="primary" variant="soft">{{ charCount }} {{ t('ui.characters') }}
+                </UBadge>
             </div>
             <div class="flex justify-between mb-2 flex-1">
-                <UBadge color="neutral" variant="soft">Translation</UBadge>
-                <UBadge v-if="translatedText && !isTranslating" color="success" variant="soft">Completed</UBadge>
-                <UBadge v-else-if="translatedText" color="info" variant="soft">In Progress</UBadge>
+                <UBadge color="neutral" variant="soft">{{ t('ui.translation') }}</UBadge>
+                <UBadge v-if="translatedText && !isTranslating" color="success" variant="soft">{{ t('ui.completed') }}
+                </UBadge>
+                <UBadge v-else-if="translatedText" color="info" variant="soft">{{ t('ui.inProgress') }}</UBadge>
             </div>
         </div>
 

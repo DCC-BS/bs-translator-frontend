@@ -85,5 +85,47 @@
         "technical": "Technisch",
         "creative": "Kreativ",
         "concise": "Prägnant"
+    },
+    "ui": {
+        "translationSettings": "Übersetzungseinstellungen",
+        "tone": "Tonalität",
+        "toneHelp": "Wählen Sie den gewünschten Schreibstil für die Übersetzung.",
+        "domain": "Domäne",
+        "domainHelp": "Wählen Sie das passende Fachgebiet für Ihre Übersetzung.",
+        "glossary": "Glossar",
+        "glossaryHelp": "Geben Sie ein benutzerdefiniertes Glossar an",
+        "glossaryPlaceholder": "Begriff1: Beschreibung1; Begriff2: Beschreibung2",
+        "sourceLanguage": "Quellsprache",
+        "targetLanguage": "Zielsprache",
+        "sourceText": "Quelltext",
+        "translation": "Übersetzung",
+        "characters": "Zeichen",
+        "completed": "Abgeschlossen",
+        "inProgress": "In Bearbeitung",
+        "uploadFile": "Datei hochladen",
+        "uploading": "Hochladen...",
+        "error": "Fehler",
+        "errorDescription": "Bitte versuchen Sie es mit einer anderen Datei erneut.",
+        "dismiss": "Verwerfen",
+        "fileConvertedSuccess": "Datei erfolgreich konvertiert",
+        "dropFileToConvert": "Datei zum Konvertieren ablegen",
+        "supportedFormats": "Unterstützte Formate: TXT, DOCX, PPTX, XLSX, PDF",
+        "convertingFile": "Datei wird konvertiert...",
+        "enterTextPlaceholder": "Text eingeben oder Datei hier ablegen...",
+        "translating": "Übersetzen...",
+        "copySuccess": "In die Zwischenablage kopiert!",
+        "copyFailed": "Fehler beim Kopieren des Textes",
+        "translationPlaceholder": "Die Übersetzung wird hier angezeigt...",
+        "viewPlainText": "Als Klartext anzeigen",
+        "viewAsMarkdown": "Als Markdown anzeigen",
+        "copied": "Kopiert!",
+        "copyAsRichText": "Als formatierten Text kopieren",
+        "copyToClipboard": "In Zwischenablage kopieren"
+    },
+    "navigation": {
+        "languages": "Sprachen"
+    },
+    "pages": {
+        "title": "BS-Übersetzer"
     }
 }
