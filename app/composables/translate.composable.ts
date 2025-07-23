@@ -70,11 +70,7 @@ export const useTranslate = () => {
         }
     }
 
-    watch(targetLanguage, () => {
-        translate();
-    });
-
-    watch(sourceLanguage, () => {
+    watch([targetLanguage, sourceLanguage, tone, domain, glossary], () => {
         translate();
     });
 
