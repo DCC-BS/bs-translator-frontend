@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { parseMarkdown, } from '@nuxtjs/mdc/runtime'
-
 const props = defineProps<{
     isTranslating?: boolean;
 }>();
@@ -100,6 +98,48 @@ async function copyToClipboard(): Promise<void> {
         }
     }
 }
+
+async function downloadWord(): Promise<void> {
+    if (!translatedText.value) {
+        return;
+    }
+
+    // Only run in client context
+    if (import.meta.client) {
+        try {
+            const markdown = translatedText.value;
+            const filename = `translated-${new Date().toISOString().slice(0, 10)}.docx`;
+
+            // Convert markdown to DOCX and download
+            const blob = await markdownToDocx(markdown);
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            // Show success toast
+            toast.add({
+                title: t('ui.downloadSuccess'),
+                description: filename,
+                color: 'success',
+                icon: 'i-lucide-check-circle',
+                duration: 3000
+            });
+        } catch (err) {
+            console.error('Download failed:', err);
+            // Show error toast
+            toast.add({
+                title: t('ui.downloadFailed'),
+                color: 'error',
+                icon: 'i-lucide-alert-circle',
+                duration: 3000
+            });
+        }
+    }
+}
 </script>
 
 <template>
@@ -122,6 +162,10 @@ async function copyToClipboard(): Promise<void> {
                 :color="copySuccess ? 'success' : 'neutral'" size="sm" data-test="copy-to-clipboard-button"
                 @click="copyToClipboard">
                 {{ copySuccess ? t('ui.copied') : (showMarkdown ? t('ui.copyAsRichText') : t('ui.copyToClipboard')) }}
+            </UButton>
+            <UButton v-if="translatedText" icon="i-lucide-download" variant="soft" size="sm" color="primary"
+                @click="downloadWord" data-test="download-translated-text-button">
+                {{ t('ui.downloadTranslatedText') }}
             </UButton>
         </div>
     </div>
