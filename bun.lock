@@ -19,6 +19,7 @@
       },
       "devDependencies": {
         "@biomejs/biome": "latest",
+        "@iconify-json/flag": "^1.2.6",
         "@iconify-json/lucide": "latest",
         "@types/bun": "latest",
         "jiti": "^2.4.2",
@@ -220,6 +221,8 @@
     "@humanwhocodes/module-importer": ["@humanwhocodes/module-importer@1.0.1", "", {}, "sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA=="],
 
     "@humanwhocodes/retry": ["@humanwhocodes/retry@0.4.3", "", {}, "sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ=="],
+
+    "@iconify-json/flag": ["@iconify-json/flag@1.2.6", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-taDE+AbfSrm/fnQXTrq2pdq+YIsjZG0YX1aFocLrTc107Qhcd5j1A58UrfLQBcCCsbJuskRk7OOt23G0Pm0xPA=="],
 
     "@iconify-json/lucide": ["@iconify-json/lucide@1.2.57", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-I1CIObdPBIL/9v75KKoyHWNhq+qqN6ef8+iJY4AVpHLtnRu0Vbp6K0TKcoYZ70U+EgiL6krEbFdcjK3+fwpfHQ=="],
 

@@ -11,6 +11,10 @@ export interface Language {
  * Icons are sourced from https://icones.js.org/collection/flag
  */
 export const languages: Language[] = [
+    { code: "de", icon: "flag:de-4x3" }, // German - Germany
+    { code: "en", icon: "flag:gb-4x3" }, // English - United Kingdom
+    { code: "fr", icon: "flag:fr-4x3" }, // French - France
+    { code: "it", icon: "flag:it-4x3" }, // Italian - Italy
     { code: "af", icon: "flag:za-4x3" }, // Afrikaans - South Africa
     { code: "ar", icon: "flag:sa-4x3" }, // Arabic - Saudi Arabia
     { code: "bg", icon: "flag:bg-4x3" }, // Bulgarian - Bulgaria
@@ -19,21 +23,17 @@ export const languages: Language[] = [
     { code: "cs", icon: "flag:cz-4x3" }, // Czech - Czech Republic
     { code: "cy", icon: "flag:gb-wls-4x3" }, // Welsh - Wales
     { code: "da", icon: "flag:dk-4x3" }, // Danish - Denmark
-    { code: "de", icon: "flag:de-4x3" }, // German - Germany
     { code: "el", icon: "flag:gr-4x3" }, // Greek - Greece
-    { code: "en", icon: "flag:gb-4x3" }, // English - United Kingdom
     { code: "es", icon: "flag:es-4x3" }, // Spanish - Spain
     { code: "et", icon: "flag:ee-4x3" }, // Estonian - Estonia
     { code: "fa", icon: "flag:ir-4x3" }, // Persian - Iran
     { code: "fi", icon: "flag:fi-4x3" }, // Finnish - Finland
-    { code: "fr", icon: "flag:fr-4x3" }, // French - France
     { code: "gu", icon: "flag:in-4x3" }, // Gujarati - India
     { code: "he", icon: "flag:il-4x3" }, // Hebrew - Israel
     { code: "hi", icon: "flag:in-4x3" }, // Hindi - India
     { code: "hr", icon: "flag:hr-4x3" }, // Croatian - Croatia
     { code: "hu", icon: "flag:hu-4x3" }, // Hungarian - Hungary
     { code: "id", icon: "flag:id-4x3" }, // Indonesian - Indonesia
-    { code: "it", icon: "flag:it-4x3" }, // Italian - Italy
     { code: "ja", icon: "flag:jp-4x3" }, // Japanese - Japan
     { code: "kn", icon: "flag:in-4x3" }, // Kannada - India
     { code: "ko", icon: "flag:kr-4x3" }, // Korean - South Korea

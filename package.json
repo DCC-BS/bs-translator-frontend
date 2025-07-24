@@ -25,6 +25,7 @@
     },
     "devDependencies": {
         "@biomejs/biome": "latest",
+        "@iconify-json/flag": "^1.2.6",
         "@iconify-json/lucide": "latest",
         "@types/bun": "latest",
         "jiti": "^2.4.2",

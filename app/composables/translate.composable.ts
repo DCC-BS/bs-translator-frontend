@@ -10,6 +10,7 @@ export const useTranslate = () => {
     const tone = useStorage<Tone>("tone", "default");
     const domain = useStorage<Domain>("domain", "None");
     const glossary = useStorage<string>("glossary", "");
+
     const sourceLanguage = useStorage<string>("sourceLanguage", "auto");
     const targetLanguage = useStorage<string>("targetLanguage", "en");
 

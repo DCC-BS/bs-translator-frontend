@@ -6,16 +6,18 @@
 const { t } = useI18n();
 
 // Loading state management
-const isLoading = ref(true);
+const isLoading = ref(false);
 
 /**
  * Initialize loading delay to give the site time to load
  * Shows loading animation briefly for better UX
  */
 onMounted(() => {
-    setTimeout(() => {
-        isLoading.value = false;
-    }, 200);
+
+    isLoading.value = false;
+    // setTimeout(() => {
+    //     isLoading.value = false;
+    // }, 200);
 });
 </script>
 
