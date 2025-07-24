@@ -69,14 +69,17 @@ watch(() => props.fileName, (newFileName, oldFileName) => {
                 <div class="i-lucide-file-down animate-bounce"></div>
             </div>
             <span class="text-lg font-medium text-primary-600 dark:text-primary-400">{{ t('ui.dropFileToConvert')
-                }}</span>
+            }}</span>
             <span class="text-sm text-gray-500 dark:text-gray-400">{{ t('ui.supportedFormats') }}</span>
         </div>
 
         <!-- Loading overlay -->
         <div v-if="isConverting"
             class="absolute inset-0 bg-gray-50/90 dark:bg-gray-900/90 rounded-lg flex flex-col items-center justify-center z-10">
-            <ULoading size="lg" color="primary" class="mb-2" />
+            <!-- Loading spinner -->
+            <div class="text-4xl text-primary-500 mb-4">
+                <div class="i-lucide-loader-2 animate-spin"></div>
+            </div>
             <span class="text-gray-600 dark:text-gray-300">{{ t('ui.convertingFile') }}</span>
         </div>
 
