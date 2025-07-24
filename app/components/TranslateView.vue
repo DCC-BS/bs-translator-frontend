@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { watchDebounced } from '@vueuse/core';
+import { watchDebounced } from "@vueuse/core";
 
 // Get i18n translation function
 const { t } = useI18n();
@@ -15,7 +15,7 @@ const {
     translatedText,
     isTranslating,
     translate,
-    abort
+    abort,
 } = useTranslate();
 
 /**
@@ -28,7 +28,7 @@ const {
     error: conversionError,
     fileName,
     handleFileSelect,
-    clearError
+    clearError,
 } = useFileConvert((text) => {
     sourceText.value = text;
 });
@@ -51,7 +51,10 @@ function swap<T>(a: Ref<T>, b: Ref<T>): void {
  * Swaps languages and text content between source and target
  */
 function swapLanguages(): void {
-    if (sourceLanguage.value === targetLanguage.value || sourceLanguage.value === 'auto') {
+    if (
+        sourceLanguage.value === targetLanguage.value ||
+        sourceLanguage.value === "auto"
+    ) {
         return; // No need to swap if both languages are the same
     }
 
@@ -70,11 +73,15 @@ async function handleTranslate(): Promise<void> {
     await translate();
 }
 
-watchDebounced(sourceText, () => {
-    if (sourceText.value && targetLanguage.value) {
-        handleTranslate();
-    }
-}, { debounce: 1000 })
+watchDebounced(
+    sourceText,
+    () => {
+        if (sourceText.value && targetLanguage.value) {
+            handleTranslate();
+        }
+    },
+    { debounce: 1000 },
+);
 
 /**
  * Triggers the file input click event
@@ -93,7 +100,7 @@ function onFileSelect(event: Event): void {
     handleFileSelect(event);
     // Reset the input so the same file can be selected again
     if (fileInputRef.value) {
-        fileInputRef.value.value = '';
+        fileInputRef.value.value = "";
     }
 }
 </script>
@@ -108,19 +115,24 @@ function onFileSelect(event: Event): void {
                 </div>
             </template>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <UFormField :label="t('ui.tone')" :help="t('ui.toneHelp')">
-                    <ToneSelectionView v-model="tone" class="w-full" />
-                </UFormField>
+            <ClientOnly>
+                <template #fallback>
+                    <USkeleton class="w-full h-[84px]" />
+                </template>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <UFormField :label="t('ui.tone')" :help="t('ui.toneHelp')">
+                        <ToneSelectionView v-model="tone" class="w-full" />
+                    </UFormField>
 
-                <UFormField :label="t('ui.domain')" :help="t('ui.domainHelp')">
-                    <DomainSelectionView v-model="domain" class="w-full" />
-                </UFormField>
+                    <UFormField :label="t('ui.domain')" :help="t('ui.domainHelp')">
+                        <DomainSelectionView v-model="domain" class="w-full" />
+                    </UFormField>
 
-                <UFormField :label="t('ui.glossary')" :help="t('ui.glossaryHelp')">
-                    <UInput v-model="glossary" :placeholder="t('ui.glossaryPlaceholder')" class="w-full" />
-                </UFormField>
-            </div>
+                    <UFormField :label="t('ui.glossary')" :help="t('ui.glossaryHelp')">
+                        <UInput v-model="glossary" :placeholder="t('ui.glossaryPlaceholder')" class="w-full" />
+                    </UFormField>
+                </div>
+            </ClientOnly>
         </UCard>
 
         <!-- Language selection area -->

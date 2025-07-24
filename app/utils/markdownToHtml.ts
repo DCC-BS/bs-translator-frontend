@@ -22,7 +22,7 @@ function astToHtml(node: MDCNode | MDCNode[]): string {
 
     if (node.type === "element") {
         const tag = String(node.tag || "div");
-        let children = node.children ? astToHtml(node.children) : "";
+        const children = node.children ? astToHtml(node.children) : "";
         const props = (node.props as Record<string, unknown>) || {};
 
         // Build attributes string

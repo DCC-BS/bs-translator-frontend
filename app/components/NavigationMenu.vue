@@ -8,36 +8,36 @@ const { locale, locales } = useI18n();
 const switchLocalePath = useSwitchLocalePath();
 
 const availableLocales = computed(() => {
-  return locales.value.filter((i) => i.code !== locale.value);
+    return locales.value.filter((i) => i.code !== locale.value);
 });
 
 // Navigation menu items
 const items = computed<NavigationMenuItem[][]>(() => [
-  [
-    {
-      slot: "disclaimer"
-    }
-  ],
-  [],
-  [
-    {
-      label: t("navigation.languages"),
-      icon: "i-heroicons-language",
-      children: availableLocales.value.map((locale) => ({
-        label: locale.name,
-        to: switchLocalePath(locale.code),
-      })),
-    },
-  ],
+    [
+        {
+            slot: "disclaimer",
+        },
+    ],
+    [],
+    [
+        {
+            label: t("navigation.languages"),
+            icon: "i-heroicons-language",
+            children: availableLocales.value.map((locale) => ({
+                label: locale.name,
+                to: switchLocalePath(locale.code),
+            })),
+        },
+    ],
 ]);
 </script>
 
 <template>
-  <div>
-    <UNavigationMenu content-orientation="vertical" :items="items" class="w-full justify-between z-50">
-      <template #disclaimer>
-        <DisclaimerLlm />
-      </template>
-    </UNavigationMenu>
-  </div>
+    <div>
+        <UNavigationMenu content-orientation="vertical" :items="items" class="w-full justify-between z-50">
+            <template #disclaimer>
+                <DisclaimerLlm />
+            </template>
+        </UNavigationMenu>
+    </div>
 </template>

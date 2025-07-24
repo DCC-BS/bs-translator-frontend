@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-
 const props = defineProps<{
     isOverDropZone?: boolean;
     isConverting?: boolean;
@@ -8,7 +7,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-    'clear-error': [];
+    "clear-error": [];
 }>();
 
 const toast = useToast();
@@ -19,45 +18,55 @@ const sourceText = defineModel<string>();
  * Clears the text input field
  */
 function clearText(): void {
-    sourceText.value = '';
+    sourceText.value = "";
 }
 
 /**
  * Watch for error changes to show error toast
  */
-watch(() => props.error, (newError) => {
-    if (newError) {
-        toast.add({
-            title: t('ui.error'),
-            description: `${newError}. ${t('ui.errorDescription')}`,
-            color: 'error',
-            icon: 'i-lucide-alert-circle',
-            duration: 5000,
-            actions: [
-                {
-                    label: t('ui.dismiss'),
-                    onClick: () => emit('clear-error')
-                }
-            ]
-        });
-    }
-});
+watch(
+    () => props.error,
+    (newError) => {
+        if (newError) {
+            toast.add({
+                title: t("ui.error"),
+                description: `${newError}. ${t("ui.errorDescription")}`,
+                color: "error",
+                icon: "i-lucide-alert-circle",
+                duration: 5000,
+                actions: [
+                    {
+                        label: t("ui.dismiss"),
+                        onClick: () => emit("clear-error"),
+                    },
+                ],
+            });
+        }
+    },
+);
 
 /**
  * Watch for fileName changes to show success toast
  */
-watch(() => props.fileName, (newFileName, oldFileName) => {
-    if (newFileName && !props.error && !props.isConverting && newFileName !== oldFileName) {
-        toast.add({
-            title: t('ui.fileConvertedSuccess'),
-            description: newFileName,
-            color: 'success',
-            icon: 'i-lucide-check-circle',
-            duration: 3000
-        });
-    }
-});
-
+watch(
+    () => props.fileName,
+    (newFileName, oldFileName) => {
+        if (
+            newFileName &&
+            !props.error &&
+            !props.isConverting &&
+            newFileName !== oldFileName
+        ) {
+            toast.add({
+                title: t("ui.fileConvertedSuccess"),
+                description: newFileName,
+                color: "success",
+                icon: "i-lucide-check-circle",
+                duration: 3000,
+            });
+        }
+    },
+);
 </script>
 
 <template>

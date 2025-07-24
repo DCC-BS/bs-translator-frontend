@@ -1,8 +1,8 @@
+import { useStorage } from "@vueuse/core";
 import type { Domain } from "~/models/domain";
 import type { Tone } from "~/models/tone";
 import type { TranslationConfig } from "~/models/translationConfig";
 import { TranslationService } from "~/services/tanslationService";
-import { useStorage } from "@vueuse/core";
 
 export const useTranslate = () => {
     const translationService = useService(TranslationService);

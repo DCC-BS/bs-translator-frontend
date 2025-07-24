@@ -13,7 +13,6 @@ const isLoading = ref(false);
  * Shows loading animation briefly for better UX
  */
 onMounted(() => {
-
     isLoading.value = false;
     // setTimeout(() => {
     //     isLoading.value = false;

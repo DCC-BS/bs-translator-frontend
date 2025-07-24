@@ -1,4 +1,3 @@
-import type { Language } from "./languages";
 import type { Domain } from "./domain";
 import type { Tone } from "./tone";
 
@@ -30,8 +29,8 @@ export interface TranslationConfig {
  * Default translation configuration
  */
 export const defaultTranslationConfig: TranslationConfig = {
-    targetLanguage: { code: "de", icon: "flag:de-4x3" },
-    sourceLanguage: undefined,
+    target_language: "en",
+    source_language: undefined,
     domain: undefined,
     tone: undefined,
     glossary: undefined,

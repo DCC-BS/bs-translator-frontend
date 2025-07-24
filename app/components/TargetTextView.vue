@@ -13,7 +13,9 @@ const copySuccess = ref(false);
 /**
  * Icon for markdown toggle button
  */
-const markdownIcon = computed(() => showMarkdown.value ? 'i-lucide-file-text' : 'i-lucide-file-code');
+const markdownIcon = computed(() =>
+    showMarkdown.value ? "i-lucide-file-text" : "i-lucide-file-code",
+);
 
 /**
  * Toggles between markdown and plain text view
@@ -36,15 +38,21 @@ async function copyToClipboard(): Promise<void> {
     // Only run in client context
     if (import.meta.client) {
         try {
-            if (navigator.clipboard && typeof navigator.clipboard.write === 'function' && showMarkdown.value) {
+            if (
+                navigator.clipboard &&
+                typeof navigator.clipboard.write === "function" &&
+                showMarkdown.value
+            ) {
                 // Convert markdown to HTML for rich text copying
-                const html = await markdownToHtml(translatedText.value)
+                const html = await markdownToHtml(translatedText.value);
 
                 console.log(html);
 
                 const clipboardItem = new ClipboardItem({
-                    'text/html': new Blob([html], { type: 'text/html' }),
-                    'text/plain': new Blob([translatedText.value], { type: 'text/plain' })
+                    "text/html": new Blob([html], { type: "text/html" }),
+                    "text/plain": new Blob([translatedText.value], {
+                        type: "text/plain",
+                    }),
                 });
 
                 await navigator.clipboard.write([clipboardItem]);
@@ -56,16 +64,19 @@ async function copyToClipboard(): Promise<void> {
 
                 // Show success toast
                 toast.add({
-                    title: t('ui.copySuccess'),
-                    color: 'success',
-                    icon: 'i-lucide-check-circle',
-                    duration: 2000
+                    title: t("ui.copySuccess"),
+                    color: "success",
+                    icon: "i-lucide-check-circle",
+                    duration: 2000,
                 });
 
                 return;
             }
 
-            if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+            if (
+                navigator.clipboard &&
+                typeof navigator.clipboard.writeText === "function"
+            ) {
                 // Fallback to plain text copying
                 await navigator.clipboard.writeText(translatedText.value);
 
@@ -76,23 +87,23 @@ async function copyToClipboard(): Promise<void> {
 
                 // Show success toast
                 toast.add({
-                    title: t('ui.copySuccess'),
-                    color: 'success',
-                    icon: 'i-lucide-check-circle',
-                    duration: 2000
+                    title: t("ui.copySuccess"),
+                    color: "success",
+                    icon: "i-lucide-check-circle",
+                    duration: 2000,
                 });
 
                 return;
             }
             return;
         } catch (err) {
-            console.error('Copy failed:', err);
+            console.error("Copy failed:", err);
             // Show error toast
             toast.add({
-                title: t('ui.copyFailed'),
-                color: 'error',
-                icon: 'i-lucide-alert-circle',
-                duration: 3000
+                title: t("ui.copyFailed"),
+                color: "error",
+                icon: "i-lucide-alert-circle",
+                duration: 3000,
             });
             return;
         }
@@ -113,7 +124,7 @@ async function downloadWord(): Promise<void> {
             // Convert markdown to DOCX and download
             const blob = await markdownToDocx(markdown);
             const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
+            const link = document.createElement("a");
             link.href = url;
             link.download = filename;
             document.body.appendChild(link);
@@ -122,20 +133,20 @@ async function downloadWord(): Promise<void> {
             URL.revokeObjectURL(url);
             // Show success toast
             toast.add({
-                title: t('ui.downloadSuccess'),
+                title: t("ui.downloadSuccess"),
                 description: filename,
-                color: 'success',
-                icon: 'i-lucide-check-circle',
-                duration: 3000
+                color: "success",
+                icon: "i-lucide-check-circle",
+                duration: 3000,
             });
         } catch (err) {
-            console.error('Download failed:', err);
+            console.error("Download failed:", err);
             // Show error toast
             toast.add({
-                title: t('ui.downloadFailed'),
-                color: 'error',
-                icon: 'i-lucide-alert-circle',
-                duration: 3000
+                title: t("ui.downloadFailed"),
+                color: "error",
+                icon: "i-lucide-alert-circle",
+                duration: 3000,
             });
         }
     }

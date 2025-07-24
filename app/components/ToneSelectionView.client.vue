@@ -1,17 +1,18 @@
 <script lang="ts" setup>
-import { type Tone, tones } from '~/models/tone';
+import { type Tone, tones } from "~/models/tone";
 
 const { t } = useI18n();
 
-const items = computed(() => tones.map((tone) => ({
-  value: tone,
-  name: t(`tones.${tone}`),
-})));
+const items = computed(() =>
+    tones.map((tone) => ({
+        value: tone,
+        name: t(`tones.${tone}`),
+    })),
+);
 
 const selectedTone = defineModel<Tone>({
-  default: tones[0], // Default to the first tone
+    default: tones[0], // Default to the first tone
 });
-
 </script>
 
 <template>

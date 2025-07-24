@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { type Language, languages } from '~/models/languages';
+import { type Language, languages } from "~/models/languages";
 
 const props = defineProps<{
     includeAutoDetect?: boolean;
@@ -15,9 +15,9 @@ const items = computed(() => {
 
     if (props.includeAutoDetect) {
         values.unshift({
-            code: 'auto',
-            name: t('languages.auto'),
-            icon: 'i-heroicons-magnifying-glass-circle',
+            code: "auto",
+            name: t("languages.auto"),
+            icon: "i-heroicons-magnifying-glass-circle",
         });
     }
 
@@ -25,7 +25,13 @@ const items = computed(() => {
 });
 
 const selectedCode = defineModel<string>();
-const selectedLanguage = ref<Language & { name: string }>(items.value[0] ?? { code: 'auto', name: t('languages.auto'), icon: 'i-heroicons-magnifying-glass-circle' });
+const selectedLanguage = ref<Language & { name: string }>(
+    items.value[0] ?? {
+        code: "auto",
+        name: t("languages.auto"),
+        icon: "i-heroicons-magnifying-glass-circle",
+    },
+);
 
 watch(selectedLanguage, (newValue) => {
     if (newValue) {
@@ -33,16 +39,24 @@ watch(selectedLanguage, (newValue) => {
     }
 });
 
-watch(selectedCode, () => {
-    if (selectedCode.value && selectedCode.value !== selectedLanguage.value.code) {
-        const found = items.value.find(lang => lang.code === selectedCode.value);
+watch(
+    selectedCode,
+    () => {
+        if (
+            selectedCode.value &&
+            selectedCode.value !== selectedLanguage.value.code
+        ) {
+            const found = items.value.find(
+                (lang) => lang.code === selectedCode.value,
+            );
 
-        if (found) {
-            selectedLanguage.value = found;
+            if (found) {
+                selectedLanguage.value = found;
+            }
         }
-    }
-}, { immediate: true });
-
+    },
+    { immediate: true },
+);
 </script>
 
 <template>
