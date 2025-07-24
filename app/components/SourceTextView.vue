@@ -68,8 +68,9 @@ watch(() => props.fileName, (newFileName, oldFileName) => {
             <div class="text-5xl text-primary-500 mb-2">
                 <div class="i-lucide-file-down animate-bounce"></div>
             </div>
-            <span class="text-lg font-medium text-primary-600 dark:text-primary-400">{{ t('ui.dropFileToConvert')
-            }}</span>
+            <span class="text-lg font-medium text-primary-600 dark:text-primary-400">
+                {{ t('ui.dropFileToConvert') }}
+            </span>
             <span class="text-sm text-gray-500 dark:text-gray-400">{{ t('ui.supportedFormats') }}</span>
         </div>
 
@@ -78,7 +79,7 @@ watch(() => props.fileName, (newFileName, oldFileName) => {
             class="absolute inset-0 bg-gray-50/90 dark:bg-gray-900/90 rounded-lg flex flex-col items-center justify-center z-10">
             <!-- Loading spinner -->
             <div class="text-4xl text-primary-500 mb-4">
-                <div class="i-lucide-loader-2 animate-spin"></div>
+                <UIcon name="i-lucide-loader-circle" class="animate-spin-slow" />
             </div>
             <span class="text-gray-600 dark:text-gray-300">{{ t('ui.convertingFile') }}</span>
         </div>
@@ -92,4 +93,19 @@ watch(() => props.fileName, (newFileName, oldFileName) => {
     </div>
 </template>
 
-<style></style>
+<style scoped>
+/* Slower spinning animation for loading spinner */
+.animate-spin-slow {
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+</style>

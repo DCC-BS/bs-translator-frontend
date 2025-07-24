@@ -126,9 +126,9 @@ function onFileSelect(event: Event): void {
         <!-- Language selection area -->
         <div class="flex items-center gap-4 mb-4 bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
             <div class="flex-1">
-                <UFormGroup :label="t('ui.sourceLanguage')" class="mb-0">
+                <UFormField :label="t('ui.sourceLanguage')" class="mb-0">
                     <LanguageSelectionView v-model="sourceLanguage" include-auto-detect />
-                </UFormGroup>
+                </UFormField>
             </div>
 
             <div class="flex flex-col items-center">
@@ -139,9 +139,9 @@ function onFileSelect(event: Event): void {
             </div>
 
             <div class="flex-1">
-                <UFormGroup :label="t('ui.targetLanguage')" class="mb-0">
+                <UFormField :label="t('ui.targetLanguage')" class="mb-0">
                     <LanguageSelectionView v-model="targetLanguage" />
-                </UFormGroup>
+                </UFormField>
             </div>
         </div>
 

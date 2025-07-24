@@ -120,7 +120,10 @@
         "viewAsMarkdown": "Als Markdown anzeigen",
         "copied": "Kopiert!",
         "copyAsRichText": "Als formatierten Text kopieren",
-        "copyToClipboard": "In Zwischenablage kopieren"
+        "copyToClipboard": "In Zwischenablage kopieren",
+        "downloadTranslatedText": "Als Word herunterladen",
+        "downloadSuccess": "Download erfolgreich",
+        "downloadFailed": "Download fehlgeschlagen"
     },
     "navigation": {
         "languages": "Sprachen"

@@ -26,6 +26,8 @@ export const useTranslate = () => {
         translatedText.value = ""; // Clear previous translation
         isTranslating.value = true;
 
+        abortController.value?.abort(); // Abort any previous translation if in progress
+
         // Create a new AbortController for this translation operation
         abortController.value = new AbortController();
         const signal = abortController.value.signal;

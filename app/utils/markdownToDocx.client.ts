@@ -12,14 +12,5 @@ export async function markdownToDocx(markdown: string): Promise<Blob> {
     // Dynamic import to prevent SSR issues
     const { convertMarkdownToDocx } = await import("@mohtasham/md-to-docx");
 
-    if (typeof Buffer === "undefined") {
-        const { Buffer: BufferPolyfill } = await import("buffer");
-        globalThis.Buffer = BufferPolyfill;
-    }
-
-    window.Buffer = Buffer; // Ensure Buffer is available globally
-
-    console.log("Converting markdown to DOCX:", markdown);
-
     return await convertMarkdownToDocx(markdown);
 }

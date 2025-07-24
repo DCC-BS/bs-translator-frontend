@@ -30,9 +30,6 @@ export const useFileConvert = (onComplete: (text: string) => void) => {
                 body: formData,
             });
 
-            console.log("Conversion result:", result);
-            console.log(typeof result);
-
             // remove " at start and end of the string
             if (
                 result.markdown.startsWith('"') &&
