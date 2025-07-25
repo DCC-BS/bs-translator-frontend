@@ -16,6 +16,11 @@ const items = computed<NavigationMenuItem[][]>(() => [
     [
         {
             slot: "disclaimer",
+            as: "link",
+            ui: {
+                link: "m-0 p-0",
+                item: "p-0",
+            }
         },
     ],
     [],
@@ -36,7 +41,7 @@ const items = computed<NavigationMenuItem[][]>(() => [
     <div>
         <UNavigationMenu content-orientation="vertical" :items="items" class="w-full justify-between z-50">
             <template #disclaimer>
-                <DisclaimerLlm />
+                <DisclaimerButton />
             </template>
         </UNavigationMenu>
     </div>
