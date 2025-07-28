@@ -17,13 +17,14 @@ const items = computed<NavigationMenuItem[][]>(() => [
         {
             slot: "disclaimer",
             as: "link",
-            ui: {
-                link: "m-0 p-0",
-                item: "p-0",
-            }
         },
     ],
-    [],
+    [
+        {
+            label: t("navigation.app"),
+            class: "text-4xl font-bold bg-gradient-to-r text-cyan-600 hover:text-cyan-600",
+        },
+    ],
     [
         {
             label: t("navigation.languages"),
@@ -39,9 +40,10 @@ const items = computed<NavigationMenuItem[][]>(() => [
 
 <template>
     <div>
-        <UNavigationMenu content-orientation="vertical" :items="items" class="w-full justify-between z-50">
+        <UNavigationMenu content-orientation="vertical" variant="link" :items="items"
+            class="w-full justify-between align-top z-50">
             <template #disclaimer>
-                <DisclaimerButton />
+                <DisclaimerButton variant="ghost" />
             </template>
         </UNavigationMenu>
     </div>

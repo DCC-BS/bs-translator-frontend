@@ -126,9 +126,7 @@
         "downloadFailed": "Download fehlgeschlagen"
     },
     "navigation": {
-        "languages": "Sprachen"
-    },
-    "pages": {
-        "title": "BS-Übersetzer"
+        "languages": "Sprachen",
+        "app": "BS-Übersetzer"
     }
 }

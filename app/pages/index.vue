@@ -4,46 +4,13 @@
  * Uses Tailwind CSS for styling and transitions
  */
 const { t } = useI18n();
-
-// Loading state management
-const isLoading = ref(false);
-
-/**
- * Initialize loading delay to give the site time to load
- * Shows loading animation briefly for better UX
- */
-onMounted(() => {
-    isLoading.value = false;
-    // setTimeout(() => {
-    //     isLoading.value = false;
-    // }, 200);
-});
 </script>
 
 <template>
-    <!-- Loading Animation -->
-    <Transition name="loading" mode="out-in">
-        <div v-if="isLoading" class="loading-container">
-            <div class="loading-spinner">
-                <div class="spinner-ring"></div>
-                <div class="spinner-ring"></div>
-                <div class="spinner-ring"></div>
-            </div>
-        </div>
-
-        <!-- Main Content -->
-        <div v-else class="mb-4">
-            <div class="title-container py-6 mb-6 text-center">
-                <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-teal-400 bg-clip-text text-transparent">
-                    {{ t('pages.title') }}
-                </h1>
-            </div>
-
-            <TranslateView />
-
-            <DataBsBanner />
-        </div>
-    </Transition>
+    <div class="mb-4">
+        <TranslateView />
+        <DataBsBanner />
+    </div>
 </template>
 
 <style scoped>

@@ -126,9 +126,7 @@
         "downloadFailed": "Download failed"
     },
     "navigation": {
-        "languages": "Languages"
-    },
-    "pages": {
-        "title": "BS Translator"
+        "languages": "Languages",
+        "app": "BS Translator"
     }
 }
