@@ -39,7 +39,7 @@ export default defineNuxtConfig({
     "feedback-control.bs.js": {
         repo: "Feedback",
         owner: "DCC-BS",
-        project: "text-mate",
+        project: "bs-translator",
         githubToken: process.env.GITHUB_TOKEN,
     },
     devtools: { enabled: true },

@@ -1,10 +1,7 @@
 <script lang="ts" setup>
 import type { NavigationMenuItem } from "#ui/components/NavigationMenu.vue";
 
-// Add translation hook
-const { t } = useI18n();
-
-const { locale, locales } = useI18n();
+const { t, locale, locales } = useI18n();
 const switchLocalePath = useSwitchLocalePath();
 
 const availableLocales = computed(() => {

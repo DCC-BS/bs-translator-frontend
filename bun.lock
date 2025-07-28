@@ -4,7 +4,7 @@
     "": {
       "name": "bs-translator-frontend",
       "dependencies": {
-        "@dcc-bs/common-ui.bs.js": "git+https://github.com/DCC-BS/common-ui.bs.js.git#v0.4.10",
+        "@dcc-bs/common-ui.bs.js": "git+https://github.com/DCC-BS/common-ui.bs.js.git#v0.4.12",
         "@dcc-bs/dependency-injection.bs.js": "git+https://github.com/DCC-BS/dependency-injection.bs.js.git#v0.0.13",
         "@dcc-bs/feedback-control.bs.js": "git+https://github.com/DCC-BS/feedback-control.bs.js.git#v0.1.4",
         "@dcc-bs/logger.bs.js": "git+https://github.com/DCC-BS/logger.bs.js.git#v1.4.1",
@@ -118,7 +118,7 @@
 
     "@dabh/diagnostics": ["@dabh/diagnostics@2.0.3", "", { "dependencies": { "colorspace": "1.1.x", "enabled": "2.0.x", "kuler": "^2.0.0" } }, "sha512-hrlQOIi7hAfzsMqlGSFyVucrx38O+j6wiGOf//H2ecvIEqYN4ADBSS2iLMh5UFyDunCNniUIPk/q3riFv45xRA=="],
 
-    "@dcc-bs/common-ui.bs.js": ["@dcc-bs/common-ui.bs.js@github:DCC-BS/common-ui.bs.js#928ef1b", { "dependencies": { "@nuxt/kit": "^4.0.1", "tailwind-merge": "^3.3.1" } }, "DCC-BS-common-ui.bs.js-928ef1b"],
+    "@dcc-bs/common-ui.bs.js": ["@dcc-bs/common-ui.bs.js@github:DCC-BS/common-ui.bs.js#07b622a", { "dependencies": { "@nuxt/kit": "^4.0.1", "tailwind-merge": "^3.3.1" } }, "DCC-BS-common-ui.bs.js-07b622a"],
 
     "@dcc-bs/dependency-injection.bs.js": ["@dcc-bs/dependency-injection.bs.js@github:DCC-BS/dependency-injection.bs.js#80145cc", { "dependencies": { "@nuxt/kit": "^3.15.4" } }, "DCC-BS-dependency-injection.bs.js-80145cc"],
 
