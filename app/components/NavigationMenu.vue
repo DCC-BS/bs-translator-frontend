@@ -13,7 +13,6 @@ const items = computed<NavigationMenuItem[][]>(() => [
     [
         {
             slot: "disclaimer",
-            as: "link",
         },
     ],
     [

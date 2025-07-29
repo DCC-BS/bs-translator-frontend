@@ -1,9 +1,12 @@
 <script lang="ts" setup>
+import type { LanguageCode } from "~/models/languages";
+
 const props = defineProps<{
     isOverDropZone?: boolean;
     isConverting?: boolean;
     error?: string;
     fileName?: string;
+    languageCode: LanguageCode;
 }>();
 
 const emit = defineEmits<{
@@ -13,6 +16,7 @@ const emit = defineEmits<{
 const toast = useToast();
 const { t } = useI18n();
 const sourceText = defineModel<string>();
+const { direction } = useLanguageDirection(toRef(props, "languageCode"));
 
 /**
  * Clears the text input field
@@ -95,7 +99,7 @@ watch(
 
         <UTextarea v-model="sourceText" class="w-full h-full min-h-[200px]"
             :ui="{ base: 'relative transition-all duration-300 flex-1 h-full' }"
-            :placeholder="t('ui.enterTextPlaceholder')" autoresize autofocus />
+            :placeholder="t('ui.enterTextPlaceholder')" :dir="direction" autoresize autofocus />
 
         <UButton v-if="sourceText" icon="i-lucide-x" variant="link" color="neutral" size="xs"
             class="absolute top-1 right-1 opacity-50 hover:opacity-100" @click="clearText" />

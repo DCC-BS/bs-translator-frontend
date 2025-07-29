@@ -1,5 +1,5 @@
-import { useStorage } from "@vueuse/core";
 import type { Domain } from "~/models/domain";
+import type { LanguageCode } from "~/models/languages";
 import type { Tone } from "~/models/tone";
 import type { TranslationConfig } from "~/models/translationConfig";
 import { TranslationService } from "~/services/tanslationService";
@@ -7,12 +7,16 @@ import { TranslationService } from "~/services/tanslationService";
 export const useTranslate = () => {
     const translationService = useService(TranslationService);
 
-    const tone = useStorage<Tone>("tone", "default");
-    const domain = useStorage<Domain>("domain", "None");
-    const glossary = useStorage<string>("glossary", "");
+    const tone = useCookie<Tone>("tone", { default: () => "default" });
+    const domain = useCookie<Domain>("domain", { default: () => "None" });
+    const glossary = useCookie<string>("glossary", { default: () => "" });
 
-    const sourceLanguage = useStorage<string>("sourceLanguage", "auto");
-    const targetLanguage = useStorage<string>("targetLanguage", "en");
+    const sourceLanguage = useCookie<LanguageCode>("sourceLanguage", {
+        default: () => "auto",
+    });
+    const targetLanguage = useCookie<LanguageCode>("targetLanguage", {
+        default: () => "en",
+    });
 
     const sourceText = ref<string>("");
     const translatedText = ref<string>("");

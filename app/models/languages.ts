@@ -67,3 +67,5 @@ export const languages: Language[] = [
     { code: "zh-cn", icon: "flag:cn-4x3" }, // Chinese (Simplified) - China
     { code: "zh-tw", icon: "flag:tw-4x3" }, // Chinese (Traditional) - Taiwan
 ];
+
+export type LanguageCode = Language["code"];

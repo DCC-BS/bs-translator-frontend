@@ -115,52 +115,43 @@ function onFileSelect(event: Event): void {
                 </div>
             </template>
 
-            <ClientOnly>
-                <template #fallback>
-                    <USkeleton class="w-full h-[84px]" />
-                </template>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <UFormField :label="t('ui.tone')" :help="t('ui.toneHelp')">
-                        <ToneSelectionView v-model="tone" class="w-full" />
-                    </UFormField>
 
-                    <UFormField :label="t('ui.domain')" :help="t('ui.domainHelp')">
-                        <DomainSelectionView v-model="domain" class="w-full" />
-                    </UFormField>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <UFormField :label="t('ui.tone')" :help="t('ui.toneHelp')">
+                    <ToneSelectionView v-model="tone" class="w-full" />
+                </UFormField>
 
-                    <UFormField :label="t('ui.glossary')" :help="t('ui.glossaryHelp')">
-                        <UInput v-model="glossary" :placeholder="t('ui.glossaryPlaceholder')" class="w-full" />
-                    </UFormField>
-                </div>
-            </ClientOnly>
+                <UFormField :label="t('ui.domain')" :help="t('ui.domainHelp')">
+                    <DomainSelectionView v-model="domain" class="w-full" />
+                </UFormField>
+
+                <UFormField :label="t('ui.glossary')" :help="t('ui.glossaryHelp')">
+                    <UInput v-model="glossary" :placeholder="t('ui.glossaryPlaceholder')" class="w-full" />
+                </UFormField>
+            </div>
         </UCard>
 
         <!-- Language selection area -->
-        <ClientOnly>
-            <template #fallback>
-                <USkeleton class="w-full h-[88px] mb-4" />
-            </template>
-            <div class="flex items-center gap-4 mb-4 bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div class="flex-1">
-                    <UFormField :label="t('ui.sourceLanguage')" class="mb-0">
-                        <LanguageSelectionView v-model="sourceLanguage" include-auto-detect />
-                    </UFormField>
-                </div>
-
-                <div class="flex flex-col items-center">
-                    <UButton :active="sourceLanguage !== 'auto'" variant="soft" color="primary"
-                        icon="i-lucide-arrow-left-right" size="lg"
-                        class="rounded-full p-2 transition-transform hover:scale-110" @click="swapLanguages">
-                    </UButton>
-                </div>
-
-                <div class="flex-1">
-                    <UFormField :label="t('ui.targetLanguage')" class="mb-0">
-                        <LanguageSelectionView v-model="targetLanguage" />
-                    </UFormField>
-                </div>
+        <div class="flex items-center gap-4 mb-4 bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+            <div class="flex-1">
+                <UFormField :label="t('ui.sourceLanguage')" class="mb-0">
+                    <LanguageSelectionView v-model="sourceLanguage" include-auto-detect />
+                </UFormField>
             </div>
-        </ClientOnly>
+
+            <div class="flex flex-col items-center">
+                <UButton :active="sourceLanguage !== 'auto'" variant="soft" color="primary"
+                    icon="i-lucide-arrow-left-right" size="lg"
+                    class="rounded-full p-2 transition-transform hover:scale-110" @click="swapLanguages">
+                </UButton>
+            </div>
+
+            <div class="flex-1">
+                <UFormField :label="t('ui.targetLanguage')" class="mb-0">
+                    <LanguageSelectionView v-model="targetLanguage" />
+                </UFormField>
+            </div>
+        </div>
 
         <div class="flex justify-between gap-2">
             <div class="flex flex-1 justify-between mb-2">
@@ -188,9 +179,10 @@ function onFileSelect(event: Event): void {
         <!-- Text editor area -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[300px]">
             <SourceTextView v-model="sourceText" :is-over-drop-zone="isOverDropZone" :is-converting="isConverting"
-                :error="conversionError" :fileName="fileName" class="h-full" ref="dropZoneRef"
-                @clear-error="clearError" />
-            <TargetTextView v-model="translatedText" :is-translating="isTranslating" class="h-full" />
+                :error="conversionError" :fileName="fileName" :language-code="sourceLanguage" class="h-full"
+                ref="dropZoneRef" @clear-error="clearError" />
+            <TargetTextView v-model="translatedText" :is-translating="isTranslating" :languageCode="targetLanguage"
+                class="h-full" />
         </div>
     </div>
 </template>

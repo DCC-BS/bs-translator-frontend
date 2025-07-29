@@ -60,7 +60,7 @@ watch(
 </script>
 
 <template>
-    <USelectMenu class="min-w-[250px]" v-model="selectedLanguage" :items="items">
+    <USelectMenu class="min-w-[250px]" v-model="selectedLanguage" :filter-fields="['name', 'code']" :items="items">
         <div class="flex items-center">
             <UIcon :name="selectedLanguage.icon" class="mr-2" />
             <span>{{ selectedLanguage.name }}</span>

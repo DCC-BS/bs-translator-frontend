@@ -23,7 +23,3 @@ const selectedTone = defineModel<Tone>({
     </template>
   </USelectMenu>
 </template>
-
-
-
-<style></style>
