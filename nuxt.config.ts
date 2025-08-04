@@ -4,7 +4,7 @@ export default defineNuxtConfig({
     // Define app head configuration
     app: {
         head: {
-            titleTemplate: "BS Überseter",
+            titleTemplate: "BS Übersetzer",
             link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
             htmlAttrs: {
                 lang: "de",
@@ -17,9 +17,9 @@ export default defineNuxtConfig({
                 },
                 {
                     name: "apple-mobile-web-app-title",
-                    content: "BS Translator Frontend",
+                    content: "BS Übersetzer",
                 },
-                { name: "application-name", content: "BS Translator Frontend" },
+                { name: "application-name", content: "BS Übersetzer" },
                 { name: "msapplication-config", content: "/browserconfig.xml" },
             ],
         },
