@@ -1,5 +1,5 @@
 <template>
-    <Disclaimer app-name="BS Überseter" />
+    <Disclaimer app-name="BS Übersetzer" />
     <FeedbackControl />
     <UApp>
         <NavigationMenu />
