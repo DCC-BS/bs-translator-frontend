@@ -43,6 +43,10 @@ export default defineNuxtConfig({
     },
     devtools: { enabled: true },
     css: ["~/assets/css/main.css"],
+    typescript: {
+        typeCheck: true,
+        strict: true,
+    },
     // localization
     i18n: {
         locales: [
