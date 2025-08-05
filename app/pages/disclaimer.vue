@@ -7,5 +7,5 @@ definePageMeta({
 </script>
 
 <template>
-    <DisclaimerPage app-name="BS Überseter" />
+    <DisclaimerPage app-name="BS Übersetzer" />
 </template>
