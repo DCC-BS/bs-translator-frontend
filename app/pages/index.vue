@@ -1,11 +1,3 @@
-<script lang="ts" setup>
-/**
- * Index page component with fancy animated title
- * Uses Tailwind CSS for styling and transitions
- */
-const { t } = useI18n();
-</script>
-
 <template>
     <div class="mb-4">
         <TranslateView />
