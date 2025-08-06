@@ -153,36 +153,39 @@ function onFileSelect(event: Event): void {
             </div>
         </div>
 
-        <div class="flex justify-between gap-2">
-            <div class="flex flex-1 justify-between mb-2">
-                <div class="flex items-center gap-2">
-                    <UBadge color="neutral" variant="soft">{{ t('ui.sourceText') }}</UBadge>
-                    <UButton size="xs" color="primary" @click="triggerFileUpload" :loading="isConverting"
-                        :disabled="isConverting" icon="i-lucide-file-up" variant="soft">
-                        {{ isConverting ? t('ui.uploading') : t('ui.uploadFile') }}
-                    </UButton>
-                    <input type="file" ref="fileInputRef" class="hidden" @change="onFileSelect"
-                        accept=".txt,.doc,.docx,.pdf,.md,.html,.rtf" />
-                </div>
-
-                <UBadge v-if="charCount > 0" color="primary" variant="soft">{{ charCount }} {{ t('ui.characters') }}
-                </UBadge>
-            </div>
-            <div class="flex justify-between mb-2 flex-1">
-                <UBadge color="neutral" variant="soft">{{ t('ui.translation') }}</UBadge>
-                <UBadge v-if="translatedText && !isTranslating" color="success" variant="soft">{{ t('ui.completed') }}
-                </UBadge>
-                <UBadge v-else-if="translatedText" color="info" variant="soft">{{ t('ui.inProgress') }}</UBadge>
-            </div>
-        </div>
-
         <!-- Text editor area -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[300px]">
-            <SourceTextView v-model="sourceText" :is-over-drop-zone="isOverDropZone" :is-converting="isConverting"
-                :error="conversionError" :fileName="fileName" :language-code="sourceLanguage" class="h-full"
-                ref="dropZoneRef" @clear-error="clearError" />
-            <TargetTextView v-model="translatedText" :is-translating="isTranslating" :languageCode="targetLanguage"
-                class="h-full" />
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[400px]">
+            <div>
+                <div class="flex flex-1 justify-between mb-2">
+                    <div class="flex items-center gap-2">
+                        <UBadge color="neutral" variant="soft">{{ t('ui.sourceText') }}</UBadge>
+                        <UButton size="xs" color="primary" @click="triggerFileUpload" :loading="isConverting"
+                            :disabled="isConverting" icon="i-lucide-file-up" variant="soft">
+                            {{ isConverting ? t('ui.uploading') : t('ui.uploadFile') }}
+                        </UButton>
+                        <input type="file" ref="fileInputRef" class="hidden" @change="onFileSelect"
+                            accept=".txt,.doc,.docx,.pdf,.md,.html,.rtf" />
+                    </div>
+
+                    <UBadge v-if="charCount > 0" color="primary" variant="soft">{{ charCount }} {{ t('ui.characters') }}
+                    </UBadge>
+                </div>
+                <SourceTextView v-model="sourceText" :is-over-drop-zone="isOverDropZone" :is-converting="isConverting"
+                    :error="conversionError" :fileName="fileName" :language-code="sourceLanguage" class="h-full"
+                    ref="dropZoneRef" @clear-error="clearError" />
+
+            </div>
+            <div>
+                <div class="flex justify-between mb-2 flex-1">
+                    <UBadge color="neutral" variant="soft">{{ t('ui.translation') }}</UBadge>
+                    <UBadge v-if="translatedText && !isTranslating" color="success" variant="soft">{{ t('ui.completed')
+                        }}
+                    </UBadge>
+                    <UBadge v-else-if="translatedText" color="info" variant="soft">{{ t('ui.inProgress') }}</UBadge>
+                </div>
+                <TargetTextView v-model="translatedText" :is-translating="isTranslating" :languageCode="targetLanguage"
+                    class="h-full" />
+            </div>
         </div>
     </div>
 </template>
