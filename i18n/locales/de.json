@@ -125,6 +125,23 @@
         "downloadSuccess": "Download erfolgreich",
         "downloadFailed": "Download fehlgeschlagen"
     },
+    "camera": {
+        "takePhoto": "Foto aufnehmen",
+        "switching": "Wechselt...",
+        "switchCamera": "Zu {0}kamera wechseln",
+        "front": "Front",
+        "back": "Rück",
+        "switchingCamera": "Kamera wird gewechselt...",
+        "takeAPhoto": "Foto aufnehmen",
+        "capturedImageAlt": "Aufgenommenes Bild",
+        "retake": "Erneut aufnehmen",
+        "submit": "Bestätigen",
+        "permissionsError": "Kamerazugriff verweigert. Bitte erlauben Sie die Kameraberechtigungen und versuchen Sie es erneut.",
+        "notAvailable": "Keine Kamera auf diesem Gerät verfügbar.",
+        "notSupported": "Kamera wird in diesem Browser nicht unterstützt.",
+        "failed": "Kamera-Zugriff fehlgeschlagen. Bitte versuchen Sie es erneut.",
+        "uploadFromDevice": "Vom Gerät hochladen"
+    },
     "navigation": {
         "languages": "Sprachen",
         "app": "BS-Übersetzer"

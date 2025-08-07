@@ -183,7 +183,7 @@ function onFileSelect(event: Event): void {
                 <div class="flex justify-between mb-2 flex-1">
                     <UBadge color="neutral" variant="soft">{{ t('ui.translation') }}</UBadge>
                     <UBadge v-if="translatedText && !isTranslating" color="success" variant="soft">{{ t('ui.completed')
-                    }}
+                        }}
                     </UBadge>
                     <UBadge v-else-if="translatedText" color="info" variant="soft">{{ t('ui.inProgress') }}</UBadge>
                 </div>

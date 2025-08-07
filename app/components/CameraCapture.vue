@@ -1,49 +1,90 @@
 <script lang="ts" setup>
-// Import i18n composable
+import { motion } from "motion-v";
+
 const { t } = useI18n();
 
-// Define emits
 const emit = defineEmits<(e: "photo-captured", data: Blob) => void>();
 
 // State variables
-const showCamera = ref(false);
+
+const isLoading = ref(true);
 const capturedImage = ref<string | undefined>(undefined);
 const capturedBlob = ref<Blob | null>(null);
 
-// Track which camera is active (true = front camera, false = back camera)
-const usingFrontCamera = ref(false);
-// Store the current camera stream to easily switch cameras
 const currentStream = ref<MediaStream | null>(null);
-// Add loading state to prevent multiple camera switches at once
-const isSwitchingCamera = ref(false);
+const cameraAvailable = ref(true);
+const cameraError = ref<string | undefined>(undefined);
 
 const cameraPreviewElement = ref<HTMLVideoElement>();
+const fileInput = ref<HTMLInputElement>();
 
-// Detect if the device is mobile
 onMounted(() => {
     capturePhoto();
 });
 
 /**
- * Open camera or file dialog based on device type
+ * Check if camera is available on the device
  */
-function capturePhoto(): void {
-    showCamera.value = true;
-    // Access camera on mobile devices with specific camera preference
+async function checkCameraAvailability(): Promise<boolean> {
+    try {
+        // Check if mediaDevices API is supported
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            cameraAvailable.value = false;
+            cameraError.value = t("camera.notSupported");
+            return false;
+        }
+
+        // Try to enumerate devices to check if any camera exists
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoInputs = devices.filter(device => device.kind === 'videoinput');
+
+        if (videoInputs.length === 0) {
+            cameraAvailable.value = false;
+            cameraError.value = t("camera.notAvailable");
+            return false;
+        }
+
+        // Try to access the camera briefly to check permissions
+        try {
+            const testStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: "user" }
+            });            // Stop the test stream immediately
+            const tracks = testStream.getTracks();
+            for (const track of tracks) {
+                track.stop();
+            }
+
+            cameraAvailable.value = true;
+            cameraError.value = undefined;
+            return true;
+        } catch (permissionError) {
+            // Camera exists but permission denied or other error
+            cameraAvailable.value = false;
+            cameraError.value = t("camera.permissionsError");
+            return false;
+        }
+    } catch (error) {
+        console.error("Error checking camera availability:", error);
+        cameraAvailable.value = false;
+        cameraError.value = t("camera.failed");
+        return false;
+    }
+}
+
+async function capturePhoto(): Promise<void> {
+    // First check if camera is available
+    const available = await checkCameraAvailability();
+
+    if (!available) {
+        return; // Error message is already set in cameraError
+    }
+
     startCamera();
 }
 
-/**
- * Start camera with current camera settings
- */
 function startCamera(): void {
-    // Set the camera facing mode based on the selected camera
-    const facingMode = usingFrontCamera.value ? "user" : "environment";
+    const facingMode = "environment"; // Always use back camera
 
-    // Set loading state to prevent multiple attempts
-    isSwitchingCamera.value = true;
-
-    // Properly stop any existing stream before starting a new one
     if (currentStream.value) {
         const tracks = currentStream.value.getTracks();
 
@@ -55,14 +96,10 @@ function startCamera(): void {
     }
 
     // Clear video source before requesting new stream
-    const videoElement = document.getElementById(
-        "camera-preview",
-    ) as HTMLVideoElement;
-    if (videoElement?.srcObject) {
-        videoElement.srcObject = null;
+    if (cameraPreviewElement.value?.srcObject) {
+        cameraPreviewElement.value.srcObject = null;
     }
 
-    // Access camera with specified constraints
     navigator.mediaDevices
         .getUserMedia({
             video: {
@@ -73,62 +110,30 @@ function startCamera(): void {
             currentStream.value = stream;
 
             // Make sure the video element still exists (user might have navigated away)
-            const videoElement = document.getElementById(
-                "camera-preview",
-            ) as HTMLVideoElement;
-            if (videoElement) {
-                videoElement.srcObject = stream;
-                videoElement
+            if (cameraPreviewElement.value) {
+                cameraPreviewElement.value.srcObject = stream;
+                cameraPreviewElement.value
                     .play()
                     .then(() => {
                         // Camera started successfully
-                        isSwitchingCamera.value = false;
                     })
                     .catch((err) => {
                         console.error("Error playing video stream:", err);
-                        isSwitchingCamera.value = false;
                     });
             } else {
                 // Clean up if video element is gone
                 stopCameraStream();
-                isSwitchingCamera.value = false;
             }
+
+            isLoading.value = false;
         })
         .catch((err) => {
             console.error("Error accessing camera:", err);
-            // If back camera fails, try falling back to any available camera
-            if (!usingFrontCamera.value) {
-                console.log("Falling back to front camera");
-                usingFrontCamera.value = true;
-                isSwitchingCamera.value = false;
-                startCamera();
-            } else {
-                // Use translated alert message
-                alert(t("camera.permissionsError"));
-                isSwitchingCamera.value = false;
-                showCamera.value = false;
-            }
+            // Show error message to user
+            alert(t("camera.permissionsError"));
         });
 }
 
-/**
- * Toggle between front and back cameras
- */
-function toggleCamera(): void {
-    // Prevent multiple simultaneous camera switches
-    if (isSwitchingCamera.value) return;
-
-    // Switch the camera preference
-    usingFrontCamera.value = !usingFrontCamera.value;
-
-    // Restart camera with new setting
-    startCamera();
-}
-
-/**
- * Handle file upload for desktop
- * @param event - File input change event
- */
 function handleFileUpload(event: Event): void {
     const target = event.target as HTMLInputElement;
     if (target.files?.[0]) {
@@ -149,7 +154,12 @@ function handleFileUpload(event: Event): void {
  * Take photo from video stream on mobile
  */
 function takePhoto(): void {
-    const video = document.getElementById("camera-preview") as HTMLVideoElement;
+    if (!cameraPreviewElement.value || !currentStream.value) {
+        console.error("Camera preview element or stream is not available.");
+        return;
+    }
+
+    const video = cameraPreviewElement.value;
     const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
@@ -169,11 +179,7 @@ function takePhoto(): void {
     stopCameraStream();
 }
 
-/**
- * Stop camera stream
- */
 function stopCameraStream(): void {
-    // Only attempt to stop if there's an active stream
     if (currentStream.value) {
         const tracks = currentStream.value.getTracks();
 
@@ -184,29 +190,19 @@ function stopCameraStream(): void {
         currentStream.value = null;
     }
 
-    // Also clear the video element source
-    const video = document.getElementById("camera-preview") as HTMLVideoElement;
-    if (video?.srcObject) {
-        video.srcObject = null;
+    if (cameraPreviewElement.value?.srcObject) {
+        cameraPreviewElement.value.srcObject = null;
     }
 
-    showCamera.value = false;
 }
 
-/**
- * Retake photo function
- */
-function retakePhoto(): void {
+async function retakePhoto(): Promise<void> {
     capturedImage.value = undefined;
-    capturePhoto();
+    await capturePhoto();
 }
 
-/**
- * Submit photo to parent component
- */
 function submitPhoto(): void {
     if (capturedBlob.value) {
-        // Emit event with captured image to parent component
         emit("photo-captured", capturedBlob.value);
     }
     capturedImage.value = undefined;
@@ -214,50 +210,41 @@ function submitPhoto(): void {
 </script>
 
 <template>
-    <div class="camera-capture-container">
-        <!-- Show camera view or upload button based on state -->
-        <div v-if="!capturedImage" class="capture-section">
-            <!-- Camera view on mobile devices -->
-            <div v-if="showCamera" class="camera-view">
-                <video autoplay playsinline ref="cameraPreviewElement" />
-                <button class="capture-button" @click="takePhoto">
-                    {{ t('camera.takePhoto') }}
-                </button>
-                <!-- Add camera toggle button with loading state -->
-                <button class="switch-camera-button" :disabled="isSwitchingCamera" @click="toggleCamera">
-                    {{
-                        isSwitchingCamera
-                            ? t('camera.switching')
-                            : t('camera.switchCamera', [t(usingFrontCamera ? 'camera.front' : 'camera.back')])
-                    }}
-                </button>
-                <!-- Add loading indicator when switching cameras -->
-                <div v-if="isSwitchingCamera" class="camera-loading">
-                    {{ t('camera.switchingCamera') }}
-                </div>
-            </div>
-
-            <!-- Capture/upload button when no camera is shown -->
-            <button v-else class="start-button" @click="capturePhoto">
-                {{ t('camera.takeAPhoto') }}
-            </button>
-
-            <!-- Hidden file input for desktop -->
-            <input ref="fileInput" type="file" accept="image/*" style="display: none" @change="handleFileUpload">
+    <div class="absolute top-0 left-0 right-0 bottom-0">
+        <div v-if="isLoading" class="w-full h-full flex justify-center items-center">
+            <motion.div class="w-16 h-16" :animate="{ rotate: 360 }"
+                :transition="{ duration: 1.5, repeat: Infinity, ease: 'linear' }">
+                <UIcon name="i-lucide-loader" class="w-full h-full" />
+            </motion.div>
+        </div>
+        <!-- Show error message if camera is not available -->
+        <div v-else-if="!cameraAvailable && cameraError" class="camera-error">
+            <p>{{ cameraError }}</p>
         </div>
 
-        <!-- Preview captured image -->
-        <div v-else class="preview-section">
-            <img :src="capturedImage" :alt="t('camera.capturedImageAlt')" class="preview-image">
+        <div v-else-if="!capturedImage">
+            <video autoplay playsinline ref="cameraPreviewElement" class="w-full h-full absolute object-contain" />
+            <div class="absolute bottom-5 left-0 right-0 flex justify-center items-center">
+                <button @click="takePhoto"
+                    class="absolute ring-1 border-gray-50 rounded-full w-[100px] h-[100px] bg-white bottom-0">
+                </button>
+            </div>
+        </div>
 
-            <div class="action-buttons">
-                <button class="retake-button" @click="retakePhoto">
+        <div v-else>
+            <img :src="capturedImage" :alt="t('camera.capturedImageAlt')" class="w-full h-full absolute object-contain">
+
+            <div class="absolute bottom-5 left-0 right-0 flex justify-center items-center">
+                <UButton @click="retakePhoto">
                     {{ t('camera.retake') }}
-                </button>
-                <button class="submit-button" @click="submitPhoto">
+                </UButton>
+                <UButton @click="submitPhoto">
                     {{ t('camera.submit') }}
-                </button>
+                </UButton>
             </div>
         </div>
+
+        <!-- File input for fallback -->
+        <input ref="fileInput" type="file" accept="image/*" style="display: none" @change="handleFileUpload">
     </div>
 </template>
