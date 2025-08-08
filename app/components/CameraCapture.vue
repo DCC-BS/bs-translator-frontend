@@ -368,7 +368,7 @@ function cancelPhoto() {
         <div v-else-if="cameraError" class="w-full h-full flex flex-col gap-2 justify-center items-center">
             <p class="text-error">{{ cameraError }}</p>
             <UButton @click="cancelPhoto" icon="i-lucide-circle-x" color="error" variant="soft">{{ t('camera.abort')
-            }}
+                }}
             </UButton>
         </div>
 

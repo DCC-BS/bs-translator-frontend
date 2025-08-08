@@ -102,7 +102,8 @@ function onCapturePhoto() {
 function onPhotoTaken(photo: Blob): void {
     document.body.classList.remove("overflow-hidden");
     inPhotoMode.value = false;
-    processFile(new File([photo], "photo.jpg", { type: "image/jpeg" }));
+
+    processFile(new File([photo], "photo.jpeg", { type: photo.type }));
 }
 
 function onPhotoCanceled(): void {
@@ -213,7 +214,7 @@ function onPhotoCanceled(): void {
                 <div class="flex justify-between mb-2 flex-1">
                     <UBadge color="neutral" variant="soft">{{ t('ui.translation') }}</UBadge>
                     <UBadge v-if="translatedText && !isTranslating" color="success" variant="soft">{{ t('ui.completed')
-                        }}
+                    }}
                     </UBadge>
                     <UBadge v-else-if="translatedText" color="info" variant="soft">{{ t('ui.inProgress') }}</UBadge>
                 </div>
