@@ -123,7 +123,10 @@
         "copyToClipboard": "In Zwischenablage kopieren",
         "downloadTranslatedText": "Als Word herunterladen",
         "downloadSuccess": "Download erfolgreich",
-        "downloadFailed": "Download fehlgeschlagen"
+        "downloadFailed": "Download fehlgeschlagen",
+        "showSettings": "Einstellungen anzeigen",
+        "hideSettings": "Einstellungen ausblenden",
+        "takePhoto": "Foto aufnehmen"
     },
     "camera": {
         "takePhoto": "Foto aufnehmen",
@@ -140,7 +143,12 @@
         "notAvailable": "Keine Kamera auf diesem Gerät verfügbar.",
         "notSupported": "Kamera wird in diesem Browser nicht unterstützt.",
         "failed": "Kamera-Zugriff fehlgeschlagen. Bitte versuchen Sie es erneut.",
-        "uploadFromDevice": "Vom Gerät hochladen"
+        "uploadFromDevice": "Vom Gerät hochladen",
+        "flashOn": "Blitz Ein",
+        "flashOff": "Blitz Aus",
+        "toggleFlash": "Blitz Umschalten",
+        "noCameraFound": "Keine Kamera auf diesem Gerät gefunden.",
+        "abort": "Abbrechen"
     },
     "navigation": {
         "languages": "Sprachen",
