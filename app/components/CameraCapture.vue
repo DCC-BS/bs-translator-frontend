@@ -227,6 +227,8 @@ function startCamera(): void {
         .getUserMedia({
             video: {
                 facingMode: facingMode,
+                width: { ideal: 1920 }, // Set ideal width
+                height: { ideal: 1080 }, // Set ideal height
             },
         })
         .then((stream) => {
@@ -268,9 +270,14 @@ async function takePhoto(): Promise<void> {
     }
 
     const video = cameraPreviewElement.value;
+
     const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
+
+    console.log("video w", video.videoWidth, "video h", video.videoHeight);
+    console.log("canvas w", canvas.width, "canvas h", canvas.height);
+
     canvas
         .getContext("2d")
         ?.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -354,9 +361,10 @@ function cancelPhoto() {
         </div>
 
         <div v-else>
-            <motion.img :src="capturedImage" :alt="t('camera.capturedImageAlt')"
+            <OcrImage v-if="capturedBlob" :image="capturedBlob" class="fixed w-full h-[calc(100%-200px)]" />
+            <!-- <motion.img :src="capturedImage" :alt="t('camera.capturedImageAlt')"
                 class="w-full h-full fixed object-contain" :initial="{ opacity: 0, scale: 0.5 }"
-                :animate="{ opacity: 1, scale: 1 }" />
+                :animate="{ opacity: 1, scale: 1 }" /> -->
 
             <div class="fixed bottom-5 left-0 right-0">
                 <div class="flex flex-row justify-between gap-3 p-2">
