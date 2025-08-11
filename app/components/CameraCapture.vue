@@ -40,6 +40,12 @@ onMounted(() => {
     capturePhoto();
 });
 
+onUnmounted(() => {
+    capturedImage.value = undefined;
+    capturedBlob.value = undefined;
+    stopCameraStream();
+});
+
 /**
  * Check if camera is available on the device
  */
@@ -69,7 +75,7 @@ async function checkCameraAvailability(): Promise<boolean> {
         // Try to access the camera briefly to check permissions
         try {
             const testStream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: "user" },
+                video: { facingMode: "environment" },
             }); // Stop the test stream immediately
             const tracks = testStream.getTracks();
             for (const track of tracks) {
@@ -99,7 +105,7 @@ async function capturePhoto(): Promise<void> {
 
     if (!available) {
         if (import.meta.dev) {
-            // dummyCameraFeed();
+            dummyCameraFeed();
         }
 
         return; // Error message is already set in cameraError
@@ -333,7 +339,7 @@ function cancelPhoto() {
         <div v-else-if="cameraError" class="w-full h-full flex flex-col gap-2 justify-center items-center">
             <p class="text-error">{{ cameraError }}</p>
             <UButton @click="cancelPhoto" icon="i-lucide-circle-x" color="error" variant="soft">{{ t('camera.abort')
-            }}
+                }}
             </UButton>
         </div>
 
