@@ -1,7 +1,11 @@
 <script lang="ts" setup>
-import { UCard } from "#components";
-import { breakpointsTailwind, useBreakpoints, watchDebounced } from "@vueuse/core";
+import {
+    breakpointsTailwind,
+    useBreakpoints,
+    watchDebounced,
+} from "@vueuse/core";
 import { motion } from "motion-v";
+import { UCard } from "#components";
 
 const MotionUCard = motion.create(UCard);
 

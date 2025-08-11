@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { UButton } from "#components";
 import { motion } from "motion-v";
+import { UButton } from "#components";
 
 const MotionUButton = motion.create(UButton);
 
@@ -33,7 +33,6 @@ const cameraError = ref<string>();
 // Flash control state
 const flashSupported = ref(false);
 const torchEnabled = ref(false);
-const imageCapture = ref<ImageCapture>();
 
 const cameraPreviewElement = ref<HTMLVideoElement>();
 
@@ -56,7 +55,9 @@ async function checkCameraAvailability(): Promise<boolean> {
 
         // Try to enumerate devices to check if any camera exists
         const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoInputs = devices.filter(device => device.kind === 'videoinput');
+        const videoInputs = devices.filter(
+            (device) => device.kind === "videoinput",
+        );
 
         if (videoInputs.length === 0) {
             cameraAvailable.value = false;
@@ -68,8 +69,8 @@ async function checkCameraAvailability(): Promise<boolean> {
         // Try to access the camera briefly to check permissions
         try {
             const testStream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: "user" }
-            });            // Stop the test stream immediately
+                video: { facingMode: "user" },
+            }); // Stop the test stream immediately
             const tracks = testStream.getTracks();
             for (const track of tracks) {
                 track.stop();
@@ -119,14 +120,9 @@ function checkFlashCapabilities(stream: MediaStream): void {
             return;
         }
 
-        // Check if ImageCapture API is supported
-        if (typeof ImageCapture !== 'undefined') {
-            imageCapture.value = new ImageCapture(videoTrack);
-        }
-
         // Check for torch capability
         const capabilities = videoTrack.getCapabilities() as CameraCapabilities;
-        flashSupported.value = !!(capabilities).torch;
+        flashSupported.value = !!capabilities.torch;
 
         if (!flashSupported.value && import.meta.dev) {
             console.log("Flash/torch not supported on this device");
@@ -151,7 +147,7 @@ async function toggleTorch(): Promise<void> {
         const newTorchState = !torchEnabled.value;
 
         await videoTrack.applyConstraints({
-            advanced: [{ torch: newTorchState } as TorchConstraints]
+            advanced: [{ torch: newTorchState } as TorchConstraints],
         });
 
         torchEnabled.value = newTorchState;
@@ -164,7 +160,7 @@ async function toggleTorch(): Promise<void> {
 
 async function dummyCameraFeed() {
     isLoading.value = false;
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     // Create a dummy video stream for development
     cameraAvailable.value = true;
@@ -186,15 +182,19 @@ async function dummyCameraFeed() {
     const stream = canvas.captureStream(30); // 30 FPS
     currentStream.value = stream;
 
-    watch(cameraPreviewElement, () => {
-        if (!cameraPreviewElement.value) {
-            return; // Element not yet available
-        }
+    watch(
+        cameraPreviewElement,
+        () => {
+            if (!cameraPreviewElement.value) {
+                return; // Element not yet available
+            }
 
-        // Set the video element's source to the dummy stream
-        cameraPreviewElement.value.srcObject = stream;
-        cameraPreviewElement.value.play();
-    }, { immediate: true });
+            // Set the video element's source to the dummy stream
+            cameraPreviewElement.value.srcObject = stream;
+            cameraPreviewElement.value.play();
+        },
+        { immediate: true },
+    );
 }
 
 function startCamera(): void {
@@ -244,7 +244,6 @@ function startCamera(): void {
                 // Clean up if video element is gone
                 stopCameraStream();
             }
-
         })
         .catch((err) => {
             console.error("Error accessing camera:", err);
@@ -262,39 +261,6 @@ async function takePhoto(): Promise<void> {
         return;
     }
 
-    // Try to use ImageCapture API with flash if supported
-    if (imageCapture.value && flashSupported.value) {
-        try {
-            const photoSettings: PhotoSettings = {
-                imageHeight: cameraPreviewElement.value.videoHeight,
-                imageWidth: cameraPreviewElement.value.videoWidth,
-            };
-
-            // Add flash setting if torch is currently enabled or we want to use flash for capture
-            if (torchEnabled.value) {
-                photoSettings.fillLightMode = 'flash';
-            }
-
-            const blob = await imageCapture.value.takePhoto(photoSettings);
-            capturedBlob.value = blob;
-
-            // Convert blob to data URL for preview
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                capturedImage.value = e.target?.result as string;
-            };
-            reader.readAsDataURL(blob);
-
-            // Stop camera stream
-            stopCameraStream();
-            return;
-        } catch (error) {
-            console.error("Error taking photo with ImageCapture API:", error);
-            // Fall back to canvas method
-        }
-    }
-
-    // Fallback to canvas method
     const video = cameraPreviewElement.value;
     const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth;
@@ -333,7 +299,6 @@ function stopCameraStream(): void {
     // Reset flash state
     flashSupported.value = false;
     torchEnabled.value = false;
-    imageCapture.value = undefined;
 }
 
 async function retakePhoto(): Promise<void> {
@@ -368,7 +333,7 @@ function cancelPhoto() {
         <div v-else-if="cameraError" class="w-full h-full flex flex-col gap-2 justify-center items-center">
             <p class="text-error">{{ cameraError }}</p>
             <UButton @click="cancelPhoto" icon="i-lucide-circle-x" color="error" variant="soft">{{ t('camera.abort')
-                }}
+            }}
             </UButton>
         </div>
 
