@@ -176,6 +176,9 @@ export const defineBackendHandler = <
             // Get runtime configuration for API base URL
             const config = useRuntimeConfig();
 
+            // Get headers from the event
+            const headers = getHeaders(event);
+
             // Extract request body using the configured body provider
             const body = await bodyProvider(event);
 
@@ -185,6 +188,7 @@ export const defineBackendHandler = <
                 method,
                 body,
                 {
+                    "X-Client-Id": headers["x-ephemeral-uuid"] ?? "",
                     "Content-Type": "application/json",
                 },
             );

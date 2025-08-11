@@ -22,12 +22,17 @@ export class TranslationService {
             config,
         };
 
-        const response = (await $fetch("/api/translate", {
-            responseType: "stream",
-            method: "POST",
-            body: body,
-            signal,
-        })) as ReadableStream<Uint8Array>;
+        const { $api } = useNuxtApp();
+
+        const response = await $api<ReadableStream<Uint8Array>>(
+            "/api/translate",
+            {
+                responseType: "stream",
+                method: "POST",
+                body: body,
+                signal,
+            },
+        );
 
         const reader = response.getReader();
         const decoder = new TextDecoder();
