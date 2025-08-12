@@ -255,8 +255,7 @@ function startCamera(): void {
         })
         .catch((err) => {
             console.error("Error accessing camera:", err);
-            // Show error message to user
-            alert(t("camera.permissionsError"));
+            cameraError.value = t("camera.permissionsError");
         });
 }
 
