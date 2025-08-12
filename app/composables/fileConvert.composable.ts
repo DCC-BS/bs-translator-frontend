@@ -18,6 +18,8 @@ export const useFileConvert = (onComplete: (text: string) => void) => {
      */
     async function processFile(file: File): Promise<void> {
         try {
+            const { $api } = useNuxtApp();
+
             fileName.value = file.name;
             error.value = undefined;
             isConverting.value = true;
@@ -25,7 +27,7 @@ export const useFileConvert = (onComplete: (text: string) => void) => {
             const formData = new FormData();
             formData.append("file", file);
 
-            const result = await $fetch<ConverstionResult>("/api/convert", {
+            const result = await $api<ConverstionResult>("/api/convert", {
                 method: "POST",
                 body: formData,
             });

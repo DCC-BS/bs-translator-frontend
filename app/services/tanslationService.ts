@@ -22,7 +22,9 @@ export class TranslationService {
             config,
         };
 
-        const response = await $fetch<ReadableStream<Uint8Array>>(
+        const { $api } = useNuxtApp();
+
+        const response = await $api<ReadableStream<Uint8Array>>(
             "/api/translate",
             {
                 responseType: "stream",
