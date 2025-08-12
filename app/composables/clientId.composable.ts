@@ -6,7 +6,7 @@ const CLIENT_ID_KEY = "client_id";
  * Composable for managing persistent client UUID
  */
 export function useClientId() {
-    const clientId = ref<string | null>(null);
+    const clientId = useState<string>(CLIENT_ID_KEY);
 
     /**
      * Initialize or retrieve the client ID from localStorage
@@ -71,11 +71,6 @@ export function useClientId() {
         clientId.value = newId;
         return newId;
     };
-
-    // Initialize on creation if on client side
-    if (typeof window !== "undefined") {
-        initializeClientId();
-    }
 
     return {
         clientId: readonly(clientId),
