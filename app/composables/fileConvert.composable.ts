@@ -119,6 +119,7 @@ export const useFileConvert = (onComplete: (text: string) => void) => {
         isConverting,
         error,
         fileName,
+        processFile,
         handleFileSelect,
         clearError,
     };
