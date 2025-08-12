@@ -1,6 +1,54 @@
+# Dependencies
 ./node_modules
-./.vscode
-./.git
-./.env
-./.editorconfig
+bun.lockb
+
+# Build output
+./.output
 ./.nuxt
+./dist
+
+# Development files
+./.env
+./.env.local
+./.env.*.local
+./.editorconfig
+
+# IDE files
+./.vscode
+./.idea
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+./.git
+./.gitignore
+
+# Documentation
+README.md
+LICENSE
+codecov.yml
+renovate.json
+
+# Images (except needed ones)
+_imgs
+
+# Logs
+logs
+*.log
+
+# Test files
+__tests__
+*.test.*
+*.spec.*
+
+# Development tools
+.eslintrc*
+.prettierrc*
+biome.json
+
+# Docker files
+Dockerfile*
+docker-compose*
+.dockerignore

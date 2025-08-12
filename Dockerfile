@@ -7,14 +7,22 @@ RUN npm install -g bun
 # Set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY ./package*.json ./
+# Set Node.js memory limit for build process
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
+# Copy package.json and bun.lockb
+COPY ./package*.json ./bun.lock* ./
 
 # Install dependencies using bun
-RUN bun install
+RUN bun install --frozen-lockfile
 
-# Copy the rest of the application code
-COPY . .
+# Copy source code
+COPY ./app ./app
+COPY ./server ./server
+COPY ./i18n ./i18n
+COPY ./public ./public
+COPY ./static ./static
+COPY ./nuxt.config.ts ./tsconfig.json ./
 
 # Build the application
 RUN bun x nuxi prepare

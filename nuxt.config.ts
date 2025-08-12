@@ -1,6 +1,21 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     compatibilityDate: "2024-11-01",
+    // Build optimization for memory usage
+    build: {
+        analyze: false,
+    },
+    // Vite configuration for memory optimization
+    vite: {
+        build: {
+            // Reduce memory usage during build
+            rollupOptions: {
+                maxParallelFileOps: 2,
+            },
+            // Optimize chunk size
+            chunkSizeWarningLimit: 1000,
+        },
+    },
     // Define app head configuration
     app: {
         head: {
