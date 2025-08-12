@@ -200,10 +200,10 @@ function onPhotoCanceled(): void {
                         <input type="file" ref="fileInputRef" class="hidden" @change="onFileSelect"
                             accept=".txt,.doc,.docx,.pdf,.md,.html,.rtf" />
 
-                        <!-- <UButton size="xs" color="secondary" variant="soft" icon="i-lucide-camera"
+                        <UButton size="xs" color="secondary" variant="soft" icon="i-lucide-camera"
                             @click="onCapturePhoto">
                             {{ t('ui.takePhoto') }}
-                        </UButton> -->
+                        </UButton>
                     </div>
 
                     <UBadge v-if="charCount > 0" color="primary" variant="soft">{{ charCount }} {{ t('ui.characters') }}

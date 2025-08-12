@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { createWorker, PSM } from "tesseract.js";
-import { isLabeledStatement } from "typescript";
 
 interface InputProps {
     image: Blob;
@@ -100,31 +99,41 @@ onMounted(async () => {
         /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
             navigator.userAgent,
         );
+
+    await init();
 });
 
 watch(
     () => props.image,
     async () => {
-        isLoading.value = true;
-
-        if (!stageContainer.value) {
-            throw new Error("Stage container is not available");
-        }
-
-        // Set stage dimensions based on container
-        stageWidth.value = stageContainer.value.clientWidth;
-        stageHeight.value = stageContainer.value.clientHeight;
-
-        // Load image to get dimensions
-        await loadImage();
-
-        // Process OCR
-        await preprocess();
-
-        isLoading.value = false;
+        await init();
     },
     { immediate: true },
 );
+
+async function init(): Promise<void> {
+    if (!props.image) {
+        return;
+    }
+
+    isLoading.value = true;
+
+    if (!stageContainer.value) {
+        return;
+    }
+
+    // Set stage dimensions based on container
+    stageWidth.value = stageContainer.value.clientWidth;
+    stageHeight.value = stageContainer.value.clientHeight;
+
+    // Load image to get dimensions
+    await loadImage();
+
+    // Process OCR
+    await preprocess();
+
+    isLoading.value = false;
+}
 
 /**
  * Load the image and calculate scaling ratio
