@@ -1,5 +1,13 @@
 <script lang="ts" setup>
-import { watchDebounced } from "@vueuse/core";
+import {
+    breakpointsTailwind,
+    useBreakpoints,
+    watchDebounced,
+} from "@vueuse/core";
+import { motion } from "motion-v";
+import { UCard } from "#components";
+
+const MotionUCard = motion.create(UCard);
 
 // Get i18n translation function
 const { t } = useI18n();
@@ -27,6 +35,7 @@ const {
     isConverting,
     error: conversionError,
     fileName,
+    processFile,
     handleFileSelect,
     clearError,
 } = useFileConvert((text) => {
@@ -35,21 +44,16 @@ const {
 
 const charCount = computed(() => sourceText.value?.length || 0);
 const fileInputRef = ref<HTMLInputElement | null>(null);
+const breakpoints = useBreakpoints(breakpointsTailwind);
+const settingsExpanded = ref(breakpoints.greater("md").value);
+const inPhotoMode = ref(false);
 
-/**
- * Swaps values between two refs
- * @param a First ref value
- * @param b Second ref value
- */
 function swap<T>(a: Ref<T>, b: Ref<T>): void {
     const temp = a.value;
     a.value = b.value;
     b.value = temp;
 }
 
-/**
- * Swaps languages and text content between source and target
- */
 function swapLanguages(): void {
     if (
         sourceLanguage.value === targetLanguage.value ||
@@ -62,9 +66,6 @@ function swapLanguages(): void {
     swap(sourceText, translatedText);
 }
 
-/**
- * Handles the translation process with loading state
- */
 async function handleTranslate(): Promise<void> {
     if (!sourceText.value || !targetLanguage.value) return;
 
@@ -83,19 +84,12 @@ watchDebounced(
     { debounce: 1000 },
 );
 
-/**
- * Triggers the file input click event
- */
 function triggerFileUpload(): void {
     if (fileInputRef.value) {
         fileInputRef.value.click();
     }
 }
 
-/**
- * Handles file selection and emits the event
- * @param event File input change event
- */
 function onFileSelect(event: Event): void {
     handleFileSelect(event);
     // Reset the input so the same file can be selected again
@@ -103,36 +97,76 @@ function onFileSelect(event: Event): void {
         fileInputRef.value.value = "";
     }
 }
+
+function onCapturePhoto() {
+    document.body.classList.add("overflow-hidden");
+    inPhotoMode.value = true;
+}
+
+function onPhotoTaken(photo: Blob): void {
+    document.body.classList.remove("overflow-hidden");
+    inPhotoMode.value = false;
+
+    processFile(new File([photo], "photo.jpeg", { type: photo.type }));
+}
+
+function onPhotoCanceled(): void {
+    document.body.classList.remove("overflow-hidden");
+    inPhotoMode.value = false;
+}
 </script>
 
 <template>
-    <div class="p-4 mx-auto">
+    <div v-if="inPhotoMode" class="bg-gray-500">
+        <CameraCapture @photo-captured="onPhotoTaken" @photo-canceled="onPhotoCanceled"
+            class="z-[9999999] bg-gray-200" />
+    </div>
+
+    <div class="p-4 mx-auto" :class="{ 'overflow-hidden': inPhotoMode }">
         <!-- Translation settings panel -->
-        <UCard class="mb-6 bg-gray-50 dark:bg-gray-900 shadow-sm">
-            <template #header>
-                <div class="flex justify-between items-center">
-                    <h3 class="text-lg font-medium">{{ t('ui.translationSettings') }}</h3>
-                </div>
-            </template>
-
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <UFormField :label="t('ui.tone')" :help="t('ui.toneHelp')">
-                    <ToneSelectionView v-model="tone" class="w-full" />
-                </UFormField>
-
-                <UFormField :label="t('ui.domain')" :help="t('ui.domainHelp')">
-                    <DomainSelectionView v-model="domain" class="w-full" />
-                </UFormField>
-
-                <UFormField :label="t('ui.glossary')" :help="t('ui.glossaryHelp')">
-                    <UInput v-model="glossary" :placeholder="t('ui.glossaryPlaceholder')" class="w-full" />
-                </UFormField>
+        <MotionUCard layout class="mb-6 shadow-sm transition-all duration-300 ease-in-out overflow-hidden" :class="[
+            settingsExpanded
+                ? 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700'
+                : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-800'
+        ]">
+            <div class=" flex justify-between items-center">
+                <h3 class="text-lg font-medium">{{ t('ui.translationSettings') }}</h3>
+                <UButton :icon="settingsExpanded ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'" variant="ghost"
+                    size="sm" class="transition-transform duration-200"
+                    @click="() => { settingsExpanded = !settingsExpanded }">
+                    {{ settingsExpanded ? t('ui.hideSettings') : t('ui.showSettings') }}
+                </UButton>
             </div>
-        </UCard>
+
+            <motion.div :animate="{
+                height: settingsExpanded ? 'auto' : 0,
+                opacity: settingsExpanded ? 1 : 0,
+                marginTop: settingsExpanded ? 16 : 0
+            }" :transition="{
+                duration: 0.4,
+                ease: 'easeInOut',
+                height: { duration: 0.4 },
+                opacity: { duration: 0.3, delay: settingsExpanded ? 0.1 : 0 },
+                marginTop: { duration: 0.4 }
+            }" style="overflow: hidden;">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <UFormField :label="t('ui.tone')" :help="t('ui.toneHelp')">
+                        <ToneSelectionView v-model="tone" class="w-full" />
+                    </UFormField>
+
+                    <UFormField :label="t('ui.domain')" :help="t('ui.domainHelp')">
+                        <DomainSelectionView v-model="domain" class="w-full" />
+                    </UFormField>
+
+                    <UFormField :label="t('ui.glossary')" :help="t('ui.glossaryHelp')">
+                        <UInput v-model="glossary" :placeholder="t('ui.glossaryPlaceholder')" class="w-full" />
+                    </UFormField>
+                </div>
+            </motion.div>
+        </MotionUCard>
 
         <!-- Language selection area -->
-        <div class="flex items-center gap-4 mb-4 bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+        <div class="flex items-center flex-wrap gap-4 mb-4 bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
             <div class="flex-1">
                 <UFormField :label="t('ui.sourceLanguage')" class="mb-0">
                     <LanguageSelectionView v-model="sourceLanguage" include-auto-detect />
@@ -153,36 +187,44 @@ function onFileSelect(event: Event): void {
             </div>
         </div>
 
-        <div class="flex justify-between gap-2">
-            <div class="flex flex-1 justify-between mb-2">
-                <div class="flex items-center gap-2">
-                    <UBadge color="neutral" variant="soft">{{ t('ui.sourceText') }}</UBadge>
-                    <UButton size="xs" color="primary" @click="triggerFileUpload" :loading="isConverting"
-                        :disabled="isConverting" icon="i-lucide-file-up" variant="soft">
-                        {{ isConverting ? t('ui.uploading') : t('ui.uploadFile') }}
-                    </UButton>
-                    <input type="file" ref="fileInputRef" class="hidden" @change="onFileSelect"
-                        accept=".txt,.doc,.docx,.pdf,.md,.html,.rtf" />
-                </div>
-
-                <UBadge v-if="charCount > 0" color="primary" variant="soft">{{ charCount }} {{ t('ui.characters') }}
-                </UBadge>
-            </div>
-            <div class="flex justify-between mb-2 flex-1">
-                <UBadge color="neutral" variant="soft">{{ t('ui.translation') }}</UBadge>
-                <UBadge v-if="translatedText && !isTranslating" color="success" variant="soft">{{ t('ui.completed') }}
-                </UBadge>
-                <UBadge v-else-if="translatedText" color="info" variant="soft">{{ t('ui.inProgress') }}</UBadge>
-            </div>
-        </div>
-
         <!-- Text editor area -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[300px]">
-            <SourceTextView v-model="sourceText" :is-over-drop-zone="isOverDropZone" :is-converting="isConverting"
-                :error="conversionError" :fileName="fileName" :language-code="sourceLanguage" class="h-full"
-                ref="dropZoneRef" @clear-error="clearError" />
-            <TargetTextView v-model="translatedText" :is-translating="isTranslating" :languageCode="targetLanguage"
-                class="h-full" />
+        <div class="grid grid-cols-1 grid-rows-2 md:grid-cols-2 md:grid-rows-1 gap-6">
+            <div class="min-h-[350px]">
+                <div class="flex flex-1 justify-between mb-2">
+                    <div class="flex items-center gap-2">
+                        <UBadge color="neutral" variant="soft">{{ t('ui.sourceText') }}</UBadge>
+                        <UButton size="xs" color="primary" @click="triggerFileUpload" :loading="isConverting"
+                            :disabled="isConverting" icon="i-lucide-file-up" variant="soft">
+                            {{ isConverting ? t('ui.uploading') : t('ui.uploadFile') }}
+                        </UButton>
+                        <input type="file" ref="fileInputRef" class="hidden" @change="onFileSelect"
+                            accept=".txt,.doc,.docx,.pdf,.md,.html,.rtf" />
+
+                        <!-- <UButton size="xs" color="secondary" variant="soft" icon="i-lucide-camera"
+                            @click="onCapturePhoto">
+                            {{ t('ui.takePhoto') }}
+                        </UButton> -->
+                    </div>
+
+                    <UBadge v-if="charCount > 0" color="primary" variant="soft">{{ charCount }} {{ t('ui.characters') }}
+                    </UBadge>
+                </div>
+                <SourceTextView v-model="sourceText" :is-over-drop-zone="isOverDropZone" :is-converting="isConverting"
+                    :error="conversionError" :fileName="fileName" :language-code="sourceLanguage" class="h-full"
+                    ref="dropZoneRef" @clear-error="clearError" />
+
+            </div>
+            <div class="min-h-[350px]">
+                <div class="flex justify-between mb-2 flex-1">
+                    <UBadge color="neutral" variant="soft">{{ t('ui.translation') }}</UBadge>
+                    <UBadge v-if="translatedText && !isTranslating" color="success" variant="soft">{{ t('ui.completed')
+                        }}
+                    </UBadge>
+                    <UBadge v-else-if="translatedText" color="info" variant="soft">{{ t('ui.inProgress') }}</UBadge>
+                </div>
+                <TargetTextView v-model="translatedText" :is-translating="isTranslating" :languageCode="targetLanguage"
+                    class="h-full" />
+            </div>
         </div>
     </div>
 </template>

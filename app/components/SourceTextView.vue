@@ -74,7 +74,7 @@ watch(
 </script>
 
 <template>
-    <div class="relative flex-1 overflow-auto max-h-[500px]" ref="dropZoneRef">
+    <div class="relative flex-1 overflow-auto max-h-[300px]" ref="dropZoneRef">
         <!-- Drop zone overlay -->
         <div v-if="props.isOverDropZone" class="absolute inset-0 bg-gray-100/80 dark:bg-gray-800/80 border-2 border-dashed border-primary-500 rounded-lg 
                 flex flex-col items-center justify-center z-10 transition-all duration-200 backdrop-blur-sm">

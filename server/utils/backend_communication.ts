@@ -76,7 +76,7 @@ export async function defaultFetcher<T>(
     body: unknown,
     headers: Record<string, string>,
 ): Promise<T> {
-    return await $fetch(url, {
+    return await $fetch<T>(url, {
         method,
         body: JSON.stringify(body),
         headers,

@@ -123,7 +123,32 @@
         "copyToClipboard": "Copy to Clipboard",
         "downloadTranslatedText": "Download as Word",
         "downloadSuccess": "Download successful",
-        "downloadFailed": "Download failed"
+        "downloadFailed": "Download failed",
+        "showSettings": "Show Settings",
+        "hideSettings": "Hide Settings",
+        "takePhoto": "Take Photo"
+    },
+    "camera": {
+        "takePhoto": "Take Photo",
+        "switching": "Switching...",
+        "switchCamera": "Switch to {0} camera",
+        "front": "front",
+        "back": "back",
+        "switchingCamera": "Switching camera...",
+        "takeAPhoto": "Take a Photo",
+        "capturedImageAlt": "Captured image",
+        "retake": "Retake",
+        "submit": "Submit",
+        "permissionsError": "Camera access denied. Please allow camera permissions and try again.",
+        "notAvailable": "No camera available on this device.",
+        "notSupported": "Camera is not supported in this browser.",
+        "failed": "Failed to access camera. Please try again.",
+        "uploadFromDevice": "Upload from Device",
+        "flashOn": "Flash On",
+        "flashOff": "Flash Off",
+        "toggleFlash": "Toggle Flash",
+        "noCameraFound": "No camera found on this device.",
+        "abort": "Cancel"
     },
     "navigation": {
         "languages": "Languages",

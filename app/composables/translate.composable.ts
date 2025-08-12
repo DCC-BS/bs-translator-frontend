@@ -28,6 +28,10 @@ export const useTranslate = () => {
      * Can be aborted with the abort() function
      */
     async function translate(): Promise<void> {
+        if (sourceText.value.trim() === "") {
+            return;
+        }
+
         translatedText.value = ""; // Clear previous translation
         isTranslating.value = true;
 

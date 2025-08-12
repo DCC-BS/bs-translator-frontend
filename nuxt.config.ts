@@ -62,7 +62,7 @@ export default defineNuxtConfig({
             },
         ],
         defaultLocale: "de",
-        strategy: "prefix_except_default",
+        strategy: "no_prefix",
     },
     runtimeConfig: {
         githubToken: process.env.GITHUB_TOKEN,
