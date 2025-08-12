@@ -45,8 +45,12 @@ const {
 const charCount = computed(() => sourceText.value?.length || 0);
 const fileInputRef = ref<HTMLInputElement | null>(null);
 const breakpoints = useBreakpoints(breakpointsTailwind);
-const settingsExpanded = ref(breakpoints.greater("md").value);
+const settingsExpanded = ref(true);
 const inPhotoMode = ref(false);
+
+onMounted(() => {
+    settingsExpanded.value = breakpoints.greater("md").value;
+});
 
 function swap<T>(a: Ref<T>, b: Ref<T>): void {
     const temp = a.value;
@@ -218,7 +222,7 @@ function onPhotoCanceled(): void {
                 <div class="flex justify-between mb-2 flex-1">
                     <UBadge color="neutral" variant="soft">{{ t('ui.translation') }}</UBadge>
                     <UBadge v-if="translatedText && !isTranslating" color="success" variant="soft">{{ t('ui.completed')
-                        }}
+                    }}
                     </UBadge>
                     <UBadge v-else-if="translatedText" color="info" variant="soft">{{ t('ui.inProgress') }}</UBadge>
                 </div>
