@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { createWorker, PSM } from 'tesseract.js';
-import { isLabeledStatement } from 'typescript';
+import { createWorker, PSM } from "tesseract.js";
+import { isLabeledStatement } from "typescript";
 
 interface InputProps {
     image: Blob;
@@ -42,15 +42,19 @@ const imageElement = ref<HTMLImageElement>();
 
 // OCR data for rendering overlays
 const ocrBlocks = ref<OcrBlock[]>([]);
-const boundingBoxes = ref<Array<{
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    text: string;
-}>>([]);
+const boundingBoxes = ref<
+    Array<{
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        text: string;
+    }>
+>([]);
 const rotationRadian = ref(0);
-const reverseRotationDegree = computed(() => 360 - (rotationRadian.value * (180 / Math.PI)));
+const reverseRotationDegree = computed(
+    () => 360 - rotationRadian.value * (180 / Math.PI),
+);
 
 // Hover state for text overlays
 const hoveredBoxIndex = ref<number | null>(null);
@@ -73,7 +77,8 @@ const selectedText = computed(() => {
         if (!boxA || !boxB) return 0;
 
         // Sort by Y position first (top to bottom), then by X position (left to right)
-        if (Math.abs(boxA.y - boxB.y) < 10) { // Same line (within 10px)
+        if (Math.abs(boxA.y - boxB.y) < 10) {
+            // Same line (within 10px)
             return boxA.x - boxB.x;
         }
         return boxA.y - boxB.y;
@@ -86,33 +91,40 @@ const selectedText = computed(() => {
         }
     }
 
-    return selectedTexts.join(' ');
+    return selectedTexts.join(" ");
 });
 
 // Check if device is mobile
 onMounted(async () => {
-    isMobile.value = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    isMobile.value =
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+            navigator.userAgent,
+        );
 });
 
-watch(() => props.image, async () => {
-    isLoading.value = true;
+watch(
+    () => props.image,
+    async () => {
+        isLoading.value = true;
 
-    if (!stageContainer.value) {
-        throw new Error('Stage container is not available');
-    }
+        if (!stageContainer.value) {
+            throw new Error("Stage container is not available");
+        }
 
-    // Set stage dimensions based on container
-    stageWidth.value = stageContainer.value.clientWidth;
-    stageHeight.value = stageContainer.value.clientHeight;
+        // Set stage dimensions based on container
+        stageWidth.value = stageContainer.value.clientWidth;
+        stageHeight.value = stageContainer.value.clientHeight;
 
-    // Load image to get dimensions
-    await loadImage();
+        // Load image to get dimensions
+        await loadImage();
 
-    // Process OCR
-    await preprocess();
+        // Process OCR
+        await preprocess();
 
-    isLoading.value = false;
-}, { immediate: true });
+        isLoading.value = false;
+    },
+    { immediate: true },
+);
 
 /**
  * Load the image and calculate scaling ratio
@@ -129,7 +141,7 @@ async function loadImage(): Promise<void> {
             // Calculate ratio to fit image in stage
             imgRatio.value = Math.min(
                 stageWidth.value / img.width,
-                stageHeight.value / img.height
+                stageHeight.value / img.height,
             );
 
             resolve();
@@ -141,10 +153,10 @@ async function loadImage(): Promise<void> {
  * Process OCR and prepare bounding box data
  */
 async function preprocess(): Promise<void> {
-    const worker = await createWorker('deu');
+    const worker = await createWorker("deu");
 
     await worker.setParameters({
-        tessedit_pageseg_mode: PSM.SPARSE_TEXT_OSD
+        tessedit_pageseg_mode: PSM.SPARSE_TEXT_OSD,
     });
 
     // const { data: detectData } = await worker.detect(props.image);
@@ -154,10 +166,10 @@ async function preprocess(): Promise<void> {
     const { data } = await worker.recognize(
         props.image,
         { rotateAuto: true },
-        { blocks: true }
+        { blocks: true },
     );
 
-    console.log('OCR Data:', data);
+    console.log("OCR Data:", data);
 
     // Store OCR blocks for rendering
     ocrBlocks.value = data.blocks ?? [];
@@ -182,7 +194,10 @@ function prepareBoundingBoxes(): void {
                 const { x0, y0, x1, y1 } = line.bbox;
 
                 // Get the text content for this line
-                const lineText = line.words.map(word => word.text).join(' ').trim();
+                const lineText = line.words
+                    .map((word) => word.text)
+                    .join(" ")
+                    .trim();
 
                 if (lineText) {
                     boxes.push({
@@ -190,7 +205,7 @@ function prepareBoundingBoxes(): void {
                         y: y0 * imgRatio.value,
                         width: (x1 - x0) * imgRatio.value,
                         height: (y1 - y0) * imgRatio.value,
-                        text: lineText
+                        text: lineText,
                     });
                 }
             }
@@ -212,7 +227,7 @@ function handleBoundingBoxClick(index: number): void {
         selectedBoxIndices.value.add(index);
     }
 
-    console.log('Selected text:', selectedText.value);
+    console.log("Selected text:", selectedText.value);
 }
 
 /**
@@ -236,8 +251,11 @@ function selectAllBoxes(): void {
  * Handle mouse enter on bounding box
  */
 function handleBoxMouseEnter(target: unknown, index: number): void {
-    const rect = target as { stroke: (color: string) => void; getLayer: () => { draw: () => void } };
-    rect.stroke('#00FF00');
+    const rect = target as {
+        stroke: (color: string) => void;
+        getLayer: () => { draw: () => void };
+    };
+    rect.stroke("#00FF00");
     hoveredBoxIndex.value = index;
     rect.getLayer().draw();
 }
@@ -246,8 +264,11 @@ function handleBoxMouseEnter(target: unknown, index: number): void {
  * Handle mouse leave on bounding box
  */
 function handleBoxMouseLeave(target: unknown): void {
-    const rect = target as { stroke: (color: string) => void; getLayer: () => { draw: () => void } };
-    rect.stroke('#FF0000');
+    const rect = target as {
+        stroke: (color: string) => void;
+        getLayer: () => { draw: () => void };
+    };
+    rect.stroke("#FF0000");
     hoveredBoxIndex.value = null;
     rect.getLayer().draw();
 }
@@ -264,7 +285,7 @@ function handleBoxTouchStart(target: unknown, index: number): void {
 }
 
 /**
- * Handle touch end on mobile 
+ * Handle touch end on mobile
  */
 function handleBoxTouchEnd(): void {
     if (isMobile.value) {
@@ -274,7 +295,6 @@ function handleBoxTouchEnd(): void {
         }, 2000); // Show text for 2 seconds after touch
     }
 }
-
 </script>
 
 <template>
