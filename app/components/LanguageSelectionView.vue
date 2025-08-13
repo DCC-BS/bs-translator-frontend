@@ -17,7 +17,7 @@ const items = computed(() => {
         values.unshift({
             code: "auto",
             name: t("languages.auto"),
-            icon: "i-heroicons-magnifying-glass-circle",
+            icon: "i-lucide-scan-search",
         });
     }
 
@@ -29,7 +29,7 @@ const selectedLanguage = ref<Language & { name: string }>(
     items.value[0] ?? {
         code: "auto",
         name: t("languages.auto"),
-        icon: "i-heroicons-magnifying-glass-circle",
+        icon: "i-lucide-scan-search",
     },
 );
 

@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { DisclaimerButton } from "@dcc-bs/common-ui.bs.js";
-import type { NavigationMenuItem } from "#ui/components/NavigationMenu.vue";
 import type { DropdownMenuItem } from "@nuxt/ui";
 
 const { t, locale, locales, setLocale } = useI18n();
@@ -25,7 +24,7 @@ const items = computed<DropdownMenuItem[]>(() =>
             {{ t("navigation.app") }}
         </div>
         <UDropdownMenu :items="items">
-            <UButton variant="ghost" :label="t('navigation.languages')" icon="i-heroicons-language">
+            <UButton variant="ghost" :label="t('navigation.languages')" icon="i-lucide-languages">
             </UButton>
         </UDropdownMenu>
     </div>

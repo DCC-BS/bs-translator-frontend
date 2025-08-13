@@ -14,10 +14,10 @@
         "editor.defaultFormatter": "Vue.volar"
     },
     "workbench.colorCustomizations": {
-        "editorCursor.foreground": "#3e97f7",
+        "editorCursor.foreground": "#e9dbb7",
         "activityBarBadge.background": "#e9dbb7",
         "activityBarBadge.foreground": "#262626",
-        "statusBar.background": "#5079b0",
+        "statusBar.background": "#262626",
         "statusBar.foreground": "#e9dbb7"
     } // optional but recommended
 }
