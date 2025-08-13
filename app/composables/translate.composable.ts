@@ -71,6 +71,44 @@ export const useTranslate = () => {
         }
     }
 
+    async function translateText(
+        text: string,
+        translated: Ref<string>,
+    ): Promise<void> {
+        // Create a new AbortController for this translation operation
+
+        if (!abortController.value) {
+            abortController.value = new AbortController();
+        }
+
+        const signal = abortController.value.signal;
+
+        const config: TranslationConfig = {
+            source_language: sourceLanguage.value,
+            target_language: targetLanguage.value,
+            domain: domain.value,
+            tone: tone.value,
+            glossary: glossary.value,
+        };
+
+        try {
+            const batches = translationService.translate(text, config, signal);
+
+            for await (const chunk of batches) {
+                if (signal.aborted) {
+                    break;
+                }
+                translated.value += chunk;
+            }
+        } catch (error) {
+            if (!signal.aborted) {
+                console.error("Translation error:", error);
+            }
+        } finally {
+            isTranslating.value = false;
+        }
+    }
+
     /**
      * Aborts the current translation process if one is in progress
      */
@@ -95,6 +133,7 @@ export const useTranslate = () => {
         translatedText,
         isTranslating,
         translate,
+        translateText,
         abort,
     };
 };

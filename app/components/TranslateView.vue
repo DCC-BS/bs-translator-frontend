@@ -52,22 +52,8 @@ onMounted(() => {
     settingsExpanded.value = breakpoints.greater("md").value;
 });
 
-function swap<T>(a: Ref<T>, b: Ref<T>): void {
-    const temp = a.value;
-    a.value = b.value;
-    b.value = temp;
-}
-
 function swapLanguages(): void {
-    if (
-        sourceLanguage.value === targetLanguage.value ||
-        sourceLanguage.value === "auto"
-    ) {
-        return; // No need to swap if both languages are the same
-    }
-
-    swap(sourceLanguage, targetLanguage);
-    swap(sourceText, translatedText);
+    swapRef(sourceText, translatedText);
 }
 
 async function handleTranslate(): Promise<void> {
@@ -170,26 +156,8 @@ function onPhotoCanceled(): void {
         </MotionUCard>
 
         <!-- Language selection area -->
-        <div class="flex items-center flex-wrap gap-4 mb-4 bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-            <div class="flex-1">
-                <UFormField :label="t('ui.sourceLanguage')" class="mb-0">
-                    <LanguageSelectionView v-model="sourceLanguage" include-auto-detect />
-                </UFormField>
-            </div>
-
-            <div class="flex flex-col items-center">
-                <UButton :active="sourceLanguage !== 'auto'" variant="soft" color="primary"
-                    icon="i-lucide-arrow-left-right" size="lg"
-                    class="rounded-full p-2 transition-transform hover:scale-110" @click="swapLanguages">
-                </UButton>
-            </div>
-
-            <div class="flex-1">
-                <UFormField :label="t('ui.targetLanguage')" class="mb-0">
-                    <LanguageSelectionView v-model="targetLanguage" />
-                </UFormField>
-            </div>
-        </div>
+        <LanguageSelectionBar v-model:source-language="sourceLanguage" v-bind:target-language="targetLanguage"
+            @swap-languages="swapLanguages" />
 
         <!-- Text editor area -->
         <div class="grid grid-cols-1 grid-rows-2 md:grid-cols-2 md:grid-rows-1 gap-6">

@@ -360,12 +360,12 @@ function cancelPhoto() {
         </div>
 
         <div v-else>
-            <OcrImage v-if="capturedBlob" :image="capturedBlob" class="fixed w-full h-[calc(100%-200px)]" />
+            <OcrImage v-if="capturedBlob" :image="capturedBlob" class="fixed w-full h-full" />
             <!-- <motion.img :src="capturedImage" :alt="t('camera.capturedImageAlt')"
                 class="w-full h-full fixed object-contain" :initial="{ opacity: 0, scale: 0.5 }"
                 :animate="{ opacity: 1, scale: 1 }" /> -->
 
-            <div class="fixed bottom-5 left-0 right-0">
+            <!-- <div class="fixed bottom-5 left-0 right-0">
                 <div class="flex flex-row justify-between gap-3 p-2">
                     <UButton icon="i-lucide-redo" color="secondary" @click="retakePhoto">
                         {{ t('camera.retake') }}
@@ -374,7 +374,7 @@ function cancelPhoto() {
                         {{ t('camera.submit') }}
                     </UButton>
                 </div>
-            </div>
+            </div> -->
         </div>
         <div class="fixed top-0 left-0 right-0 p-3 flex justify-between">
             <UButton @click="cancelPhoto" icon="i-lucide-arrow-left" variant="link" color="neutral" size="xl"

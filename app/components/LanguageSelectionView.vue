@@ -60,13 +60,13 @@ watch(
 </script>
 
 <template>
-    <USelectMenu class="min-w-[250px]" v-model="selectedLanguage" :filter-fields="['name', 'code']" :items="items">
+    <USelectMenu class="md:min-w-[250px]" v-model="selectedLanguage" :filter-fields="['name', 'code']" :items="items">
         <div class="flex items-center">
-            <UIcon :name="selectedLanguage.icon" class="mr-2" />
-            <span>{{ selectedLanguage.name }}</span>
+            <UIcon :name="selectedLanguage.icon" class="mr-1 md:mr-2" size="sm" />
+            <span class="text-sm">{{ selectedLanguage.name }}</span>
         </div>
         <template #item="{ item }">
-            <UIcon :name="item.icon" class="mr-2" />
+            <UIcon :name="item.icon" class="mr-1 md:mr-2" />
             <span>{{ item.name }}</span>
         </template>
     </USelectMenu>
