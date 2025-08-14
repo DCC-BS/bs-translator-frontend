@@ -150,6 +150,10 @@
         "noCameraFound": "No camera found on this device.",
         "abort": "Cancel"
     },
+    "translation": {
+        "error": "Translation failed",
+        "errorDescription": "The translation servers may be down currently. Please try again later."
+    },
     "navigation": {
         "languages": "Languages",
         "app": "BS Translator"

@@ -6,6 +6,8 @@ import { TranslationService } from "~/services/tanslationService";
 
 export const useTranslate = () => {
     const translationService = useService(TranslationService);
+    const toast = useToast();
+    const { t } = useI18n();
 
     const tone = useCookie<Tone>("tone", { default: () => "default" });
     const domain = useCookie<Domain>("domain", { default: () => "None" });
@@ -65,6 +67,12 @@ export const useTranslate = () => {
         } catch (error) {
             if (!signal.aborted) {
                 console.error("Translation error:", error);
+                toast.add({
+                    title: t("translation.error"),
+                    description: t("translation.errorDescription"),
+                    color: "error",
+                    icon: "i-lucide-circle-alert",
+                });
             }
         } finally {
             isTranslating.value = false;
@@ -104,6 +112,12 @@ export const useTranslate = () => {
             if (!signal.aborted) {
                 console.error("Translation error:", error);
             }
+            toast.add({
+                title: t("translation.error"),
+                description: t("translation.errorDescription"),
+                color: "error",
+                icon: "i-lucide-circle-alert",
+            });
         } finally {
             isTranslating.value = false;
         }
