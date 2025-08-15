@@ -21,7 +21,6 @@ export default defineBackendHandler<never, { file: File }, string, string>({
         });
 
         if (!response.ok) {
-            console.log(await response.json());
             throw new Error("Failed to upload file");
         }
 

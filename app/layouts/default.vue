@@ -6,9 +6,7 @@ import { Disclaimer } from "@dcc-bs/common-ui.bs.js";
     <Disclaimer app-name="BS Übersetzer" />
     <FeedbackControl />
     <UApp>
-        <ClientOnly>
-            <NavigationMenu />
-        </ClientOnly>
+        <NavigationMenu />
         <slot />
     </UApp>
 </template>

@@ -30,7 +30,7 @@
     },
     "devDependencies": {
         "@biomejs/biome": "^2.1.2",
-        "@iconify-json/flag": "^1.2.6",
+        "@iconify-json/flag": "^1.2.9",
         "@iconify-json/lucide": "^1.2.58",
         "@types/bun": "^1.2.19",
         "jiti": "^2.5.1",

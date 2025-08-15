@@ -6,6 +6,8 @@ import { TranslationService } from "~/services/tanslationService";
 
 export const useTranslate = () => {
     const translationService = useService(TranslationService);
+    const toast = useToast();
+    const { t } = useI18n();
 
     const tone = useCookie<Tone>("tone", { default: () => "default" });
     const domain = useCookie<Domain>("domain", { default: () => "None" });
@@ -65,7 +67,57 @@ export const useTranslate = () => {
         } catch (error) {
             if (!signal.aborted) {
                 console.error("Translation error:", error);
+                toast.add({
+                    title: t("translation.error"),
+                    description: t("translation.errorDescription"),
+                    color: "error",
+                    icon: "i-lucide-circle-alert",
+                });
             }
+        } finally {
+            isTranslating.value = false;
+        }
+    }
+
+    async function translateText(
+        text: string,
+        translated: Ref<string>,
+    ): Promise<void> {
+        // Create a new AbortController for this translation operation
+
+        if (!abortController.value) {
+            abortController.value = new AbortController();
+        }
+
+        const signal = abortController.value.signal;
+
+        const config: TranslationConfig = {
+            source_language: sourceLanguage.value,
+            target_language: targetLanguage.value,
+            domain: domain.value,
+            tone: tone.value,
+            glossary: glossary.value,
+        };
+
+        try {
+            const batches = translationService.translate(text, config, signal);
+
+            for await (const chunk of batches) {
+                if (signal.aborted) {
+                    break;
+                }
+                translated.value += chunk;
+            }
+        } catch (error) {
+            if (!signal.aborted) {
+                console.error("Translation error:", error);
+            }
+            toast.add({
+                title: t("translation.error"),
+                description: t("translation.errorDescription"),
+                color: "error",
+                icon: "i-lucide-circle-alert",
+            });
         } finally {
             isTranslating.value = false;
         }
@@ -95,6 +147,7 @@ export const useTranslate = () => {
         translatedText,
         isTranslating,
         translate,
+        translateText,
         abort,
     };
 };

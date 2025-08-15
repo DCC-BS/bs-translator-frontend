@@ -150,6 +150,10 @@
         "noCameraFound": "Keine Kamera auf diesem Gerät gefunden.",
         "abort": "Abbrechen"
     },
+    "translation": {
+        "error": "Übersetzung fehlgeschlagen",
+        "errorDescription": "Die Übersetzungsserver sind möglicherweise derzeit nicht verfügbar. Bitte versuchen Sie es später erneut."
+    },
     "navigation": {
         "languages": "Sprachen",
         "app": "BS-Übersetzer"

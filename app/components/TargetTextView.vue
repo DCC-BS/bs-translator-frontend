@@ -50,8 +50,6 @@ async function copyToClipboard(): Promise<void> {
                 // Convert markdown to HTML for rich text copying
                 const html = await markdownToHtml(translatedText.value);
 
-                console.log(html);
-
                 const clipboardItem = new ClipboardItem({
                     "text/html": new Blob([html], { type: "text/html" }),
                     "text/plain": new Blob([translatedText.value], {
