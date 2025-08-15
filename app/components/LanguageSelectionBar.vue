@@ -23,7 +23,7 @@ function swapLanguages(): void {
 
 <template>
     <!-- Language selection area -->
-    <div class="flex items-start sm:items-center sm:gap-4 mb-4 bg-white rounded-lg p-4 shadow-sm">
+    <div class="flex items-start sm:items-center sm:gap-4 bg-white rounded-lg p-4 shadow-sm">
         <div class="flex-1 flex justify-end">
             <UFormField :label="t('ui.sourceLanguage')" class="mb-0">
                 <LanguageSelectionView v-model="sourceLanguage" include-auto-detect />

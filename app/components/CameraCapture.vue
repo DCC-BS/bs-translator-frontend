@@ -131,7 +131,7 @@ function checkFlashCapabilities(stream: MediaStream): void {
         flashSupported.value = !!capabilities.torch;
 
         if (!flashSupported.value && import.meta.dev) {
-            console.log("Flash/torch not supported on this device");
+            console.info("Flash/torch not supported on this device");
         }
     } catch (error) {
         console.error("Error checking flash capabilities:", error);
@@ -274,9 +274,6 @@ async function takePhoto(): Promise<void> {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
-    console.log("video w", video.videoWidth, "video h", video.videoHeight);
-    console.log("canvas w", canvas.width, "canvas h", canvas.height);
-
     canvas
         .getContext("2d")
         ?.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -334,12 +331,9 @@ function cancelPhoto() {
 </script>
 
 <template>
-    <div class="fixed top-0 left-0 right-0 bottom-0">
+    <div class="fixed inset-0">
         <div v-if="isLoading" class="w-full h-full flex justify-center items-center">
-            <motion.div class="w-16 h-16" :animate="{ rotate: 360 }"
-                :transition="{ duration: 1.5, repeat: Infinity, ease: 'linear' }">
-                <UIcon name="i-lucide-loader" class="w-full h-full" />
-            </motion.div>
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
         </div>
         <!-- Show error message if camera is not available -->
         <div v-else-if="cameraError" class="w-full h-full flex flex-col gap-2 justify-center items-center">
@@ -352,42 +346,28 @@ function cancelPhoto() {
         <div v-else-if="!capturedImage">
             <video autoplay playsinline ref="cameraPreviewElement" class="w-full h-full fixed object-cover" />
 
-            <div class="fixed bottom-5 left-0 right-0 flex justify-center items-center">
+            <div class="fixed bottom-8 left-0 right-0 flex justify-center items-center">
                 <button @click="takePhoto"
-                    class="fixed ring-1 ring-white rounded-full w-[100px] h-[100px] bg-red-600 bottom-0">
+                    class="ring-1 ring-white rounded-full w-[100px] h-[100px] bg-red-600 bottom-0">
                 </button>
             </div>
         </div>
 
-        <div v-else>
-            <OcrImage v-if="capturedBlob" :image="capturedBlob" class="fixed w-full h-full" />
-            <!-- <motion.img :src="capturedImage" :alt="t('camera.capturedImageAlt')"
-                class="w-full h-full fixed object-contain" :initial="{ opacity: 0, scale: 0.5 }"
-                :animate="{ opacity: 1, scale: 1 }" /> -->
-
-            <!-- <div class="fixed bottom-5 left-0 right-0">
-                <div class="flex flex-row justify-between gap-3 p-2">
-                    <UButton icon="i-lucide-redo" color="secondary" @click="retakePhoto">
-                        {{ t('camera.retake') }}
-                    </UButton>
-                    <UButton icon="i-lucide-check" @click="submitPhoto">
-                        {{ t('camera.submit') }}
-                    </UButton>
-                </div>
-            </div> -->
+        <div v-else class="fixed inset-0">
+            <OcrImage v-if="capturedBlob" :image="capturedBlob" class="w-full h-full" />
         </div>
-        <div class="fixed top-0 left-0 right-0 p-3 flex justify-between">
+        <div class="fixed top-0 left-0 p-3">
             <UButton @click="cancelPhoto" icon="i-lucide-arrow-left" variant="link" color="neutral" size="xl"
                 class="bg-gray-800 text-white rounded-full"></UButton>
-            <!-- Flash toggle button -->
-            <div v-if="flashSupported">
-                <MotionUButton :icon="torchEnabled ? 'i-lucide-flashlight' : 'i-lucide-flashlight-off'"
-                    @click="toggleTorch" :initial="{ scale: 0.9 }" :animate="{ scale: 1 }"
-                    :transition="{ duration: 0.2 }" :title="torchEnabled ? t('camera.flashOn') : t('camera.flashOff')"
-                    :aria-label="t('camera.toggleFlash')" class="p-3 rounded-full shadow-lg"
-                    :class="torchEnabled ? 'bg-yellow-400 text-yellow-900' : 'bg-gray-800 text-white'">
-                </MotionUButton>
-            </div>
+        </div>
+        <!-- Flash toggle button -->
+        <div v-if="flashSupported && !capturedImage" class="fixed top-0 right-0 p-3">
+            <MotionUButton :icon="torchEnabled ? 'i-lucide-flashlight' : 'i-lucide-flashlight-off'" @click="toggleTorch"
+                :initial="{ scale: 0.9 }" :animate="{ scale: 1 }" :transition="{ duration: 0.2 }"
+                :title="torchEnabled ? t('camera.flashOn') : t('camera.flashOff')" :aria-label="t('camera.toggleFlash')"
+                class="p-3 rounded-full shadow-lg"
+                :class="torchEnabled ? 'bg-yellow-400 text-yellow-900' : 'bg-gray-800 text-white'">
+            </MotionUButton>
         </div>
     </div>
 </template>

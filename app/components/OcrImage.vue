@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { createWorker, PSM } from "tesseract.js";
+import { motion, number } from "motion-v"
 
 interface InputProps {
     image: Blob;
@@ -21,6 +22,10 @@ interface OcrBlock {
     paragraphs: Array<{
         lines: OcrLine[];
     }>;
+    bbox: BoundingBox;
+    confidence: number;
+    blocktype: string;
+    text: string;
 }
 
 interface TranslatedTextBox {
@@ -33,20 +38,13 @@ interface TranslatedTextBox {
     isTranslating: boolean;
     isSelected: boolean;
     paragraphId: string; // Unique identifier for paragraph grouping
-    lines: string[]; // Store all text lines in this paragraph
 }
 
 const props = defineProps<InputProps>();
 
 const {
-    tone,
-    domain,
-    glossary,
     sourceLanguage,
     targetLanguage,
-    sourceText,
-    translatedText,
-    isTranslating,
     translateText,
     abort,
 } = useTranslate();
@@ -55,6 +53,9 @@ const {
 const translatedBoxes = ref<TranslatedTextBox[]>([]);
 const isLoading = ref(true);
 const isMobile = ref(false);
+
+const isTranslatingOcr = ref(false);
+const translationProgress = ref(0);
 
 // Konva stage references
 const stageContainer = ref<HTMLDivElement>();
@@ -66,6 +67,8 @@ const imageWidth = ref(0);
 const imageHeight = ref(0);
 const imgRatio = ref(1);
 const imageElement = ref<HTMLImageElement>();
+
+const abortController = ref(new AbortController());
 
 // Stage dimensions
 const stageWidth = ref(1200); // Default width
@@ -80,6 +83,8 @@ const isDragging = ref(false);
 const lastCenter = ref({ x: 0, y: 0 });
 const lastDist = ref(0);
 const dragStartPos = ref({ x: 0, y: 0 });
+const wasPinching = ref(false);
+const pinchEndTime = ref(0);
 
 // Zoom constraints
 const minZoom = ref(0.1);
@@ -128,6 +133,13 @@ watch(
     },
     { immediate: true },
 );
+
+watch([sourceLanguage, targetLanguage], async () => {
+    abortController.value.abort();
+    abortController.value = new AbortController();
+    abort();
+    await translateAllBoxes();
+});
 
 // Event listener management
 function setupEventListeners(): void {
@@ -205,20 +217,22 @@ async function init(): Promise<void> {
     }
 
     // Calculate maximum available space using full viewport dimensions
-    const maxWidth = window.innerWidth - 32; // Full width minus margins (16px on each side)
+    const maxWidth = window.innerWidth;
     const maxHeight = Math.min(window.innerHeight * 0.7, 1000); // Use 70% of viewport height, max 1000px
 
     // Set stage dimensions to maximize available space
-    stageWidth.value = maxWidth;
-    stageHeight.value = maxHeight;
+    stageWidth.value = stageContainer.value.clientWidth || maxWidth;
+    stageHeight.value = stageContainer.value.clientHeight || maxHeight;
 
     // Load image to get dimensions
     await loadImage();
+    zoomToFit();
 
     // Process OCR
     await preprocess();
-
     isLoading.value = false;
+
+    await translateAllBoxes();
 }
 
 // Utility functions
@@ -255,6 +269,7 @@ async function loadImage(): Promise<void> {
 // OCR and translation functions
 async function preprocess(): Promise<void> {
     const worker = await createWorker("deu");
+    await worker.load();
 
     await worker.setParameters({
         tessedit_pageseg_mode: PSM.SPARSE_TEXT_OSD,
@@ -284,67 +299,47 @@ async function prepareTranslatedBoxes(): Promise<void> {
     const boxes: TranslatedTextBox[] = [];
 
     for (const block of ocrBlocks.value) {
-        for (const paragraph of block.paragraphs) {
-            // Group all lines in this paragraph
-            const paragraphLines: string[] = [];
-            let minX = Number.POSITIVE_INFINITY;
-            let minY = Number.POSITIVE_INFINITY;
-            let maxX = Number.NEGATIVE_INFINITY;
-            let maxY = Number.NEGATIVE_INFINITY;
+        const { x0, y0, x1, y1 } = block.bbox;
+        const text = block.text || ""; // Use block text if available
 
-            // Calculate bounding box for the entire paragraph
-            for (const line of paragraph.lines) {
-                const { x0, y0, x1, y1 } = line.bbox;
-                const lineText = line.words
-                    .map((word) => word.text)
-                    .join(" ")
-                    .trim();
+        const id = `block - ${ocrBlocks.value.indexOf(block)}`;
 
-                if (lineText) {
-                    paragraphLines.push(lineText);
+        const textBox: TranslatedTextBox = {
+            x: x0 * imgRatio.value,
+            y: y0 * imgRatio.value,
+            width: (x1 - x0) * imgRatio.value,
+            height: (y1 - y0) * imgRatio.value,
+            originalText: text,
+            translatedText: "",
+            isTranslating: true,
+            isSelected: false,
+            paragraphId: id,
+        };
 
-                    // Update paragraph bounding box
-                    minX = Math.min(minX, x0);
-                    minY = Math.min(minY, y0);
-                    maxX = Math.max(maxX, x1);
-                    maxY = Math.max(maxY, y1);
-                }
-            }
-
-            // Only create a text box if the paragraph has content
-            if (paragraphLines.length > 0) {
-                const paragraphText = paragraphLines.join(" ");
-                const paragraphId = `paragraph-${block.paragraphs.indexOf(paragraph)}`;
-
-                const textBox: TranslatedTextBox = {
-                    x: minX * imgRatio.value,
-                    y: minY * imgRatio.value,
-                    width: (maxX - minX) * imgRatio.value,
-                    height: (maxY - minY) * imgRatio.value,
-                    originalText: paragraphText,
-                    translatedText: "",
-                    isTranslating: true,
-                    isSelected: false,
-                    paragraphId: paragraphId,
-                    lines: paragraphLines,
-                };
-
-                boxes.push(textBox);
-            }
-        }
+        boxes.push(textBox);
     }
 
     translatedBoxes.value = boxes;
-
+    isLoading.value = false;
     // Start translating each text box individually
-    await translateAllBoxes();
+
 }
 
 /**
  * Translate all text boxes individually
  */
 async function translateAllBoxes(): Promise<void> {
+    const signal = abortController.value.signal;
+    translationProgress.value = 0;
+
     for (let i = 0; i < translatedBoxes.value.length; i++) {
+        if (signal.aborted) {
+            translationProgress.value = 0;
+            break; // Exit if translation was aborted
+        }
+
+        isTranslatingOcr.value = true;
+
         const box = translatedBoxes.value[i];
         if (box?.originalText.trim()) {
             box.isTranslating = true;
@@ -359,13 +354,17 @@ async function translateAllBoxes(): Promise<void> {
                 // Update the box with the translated text
                 box.translatedText = translatedText.value;
             } catch (error) {
-                console.error(`Translation error for text "${box.originalText}":`, error);
+                console.error(`Translation error for text "${box.originalText}": `, error);
                 box.translatedText = box.originalText; // Fallback to original text
             } finally {
                 box.isTranslating = false;
             }
         }
+
+        translationProgress.value = (i + 1) / translatedBoxes.value.length;
     }
+
+    isTranslatingOcr.value = false;
 }
 
 // Text selection and clipboard functions
@@ -410,7 +409,7 @@ async function copyTextToClipboard(): Promise<void> {
 
 // Touch helper functions
 function getDistance(p1: Touch, p2: Touch): number {
-    return Math.sqrt(Math.pow((p2.clientX - p1.clientX), 2) + Math.pow((p2.clientY - p1.clientY), 2));
+    return Math.sqrt((p2.clientX - p1.clientX) ** 2 + (p2.clientY - p1.clientY) ** 2);
 }
 
 function getCenter(p1: Touch, p2: Touch): { x: number; y: number } {
@@ -465,10 +464,13 @@ function handleTouchStart(e: TouchEvent): void {
 
         if (!p1 || !p2) return;
 
+        // Reset dragging state when starting pinch
+        isDragging.value = false;
+        wasPinching.value = true;
         lastCenter.value = getCenter(p1, p2);
         lastDist.value = getDistance(p1, p2);
-    } else if (e.touches.length === 1) {
-        // Single finger drag
+    } else if (e.touches.length === 1 && !wasPinching.value) {
+        // Only start single finger drag if we're not in or just finishing a pinch
         const touch = e.touches[0];
         if (!touch) return;
 
@@ -487,28 +489,57 @@ function handleTouchMove(e: TouchEvent): void {
     e.preventDefault();
 
     if (e.touches.length === 2) {
+        // We're in a pinch gesture
+        wasPinching.value = true;
+
         const p1 = e.touches[0];
         const p2 = e.touches[1];
 
-        if (!p1 || !p2) return;
+        if (!p1 || !p2 || !stageRef.value) return;
 
         const newCenter = getCenter(p1, p2);
         const newDist = getDistance(p1, p2);
 
         if (lastDist.value > 0) {
             const scaleChange = newDist / lastDist.value;
+            const oldScale = scale.value;
             const newScale = Math.max(
                 minZoom.value,
-                Math.min(maxZoom.value, scale.value * scaleChange)
+                Math.min(maxZoom.value, oldScale * scaleChange)
             );
 
+            // Calculate zoom origin relative to the stage container
+            const stageContainer = stageRef.value.getNode().container();
+            const rect = stageContainer.getBoundingClientRect();
+
+            // Convert touch center to stage coordinates
+            const stagePointer = {
+                x: newCenter.x - rect.left,
+                y: newCenter.y - rect.top,
+            };
+
+            // Calculate the point in image coordinates that should remain fixed
+            const mousePointTo = {
+                x: (stagePointer.x - position.value.x) / oldScale,
+                y: (stagePointer.y - position.value.y) / oldScale,
+            };
+
+            // Update scale
             scale.value = newScale;
+
+            // Calculate new position to keep the zoom point fixed
+            const newPos = {
+                x: stagePointer.x - mousePointTo.x * newScale,
+                y: stagePointer.y - mousePointTo.y * newScale,
+            };
+
+            position.value = newPos;
         }
 
         lastCenter.value = newCenter;
         lastDist.value = newDist;
-    } else if (e.touches.length === 1 && isDragging.value) {
-        // Single finger pan
+    } else if (e.touches.length === 1 && isDragging.value && !wasPinching.value) {
+        // Only allow single finger pan if we weren't just pinching
         const touch = e.touches[0];
         if (!touch) return;
 
@@ -517,9 +548,7 @@ function handleTouchMove(e: TouchEvent): void {
             y: touch.clientY - dragStartPos.value.y,
         };
     }
-}
-
-/**
+}/**
  * Handle touch end
  */
 function handleTouchEnd(e: TouchEvent): void {
@@ -528,6 +557,12 @@ function handleTouchEnd(e: TouchEvent): void {
     }
 
     if (e.touches.length === 0) {
+        // All fingers lifted - reset all states
+        isDragging.value = false;
+        wasPinching.value = false;
+        pinchEndTime.value = Date.now();
+    } else if (e.touches.length === 1 && wasPinching.value) {
+        // Going from pinch to single finger - disable dragging
         isDragging.value = false;
     }
 }
@@ -595,35 +630,18 @@ function zoomToFit(): void {
 </script>
 
 <template>
-    <div class="w-full min-h-screen flex flex-col items-center bg-gray-50">
+    <div class="w-full h-screen">
         <!-- Konva stage container for image with OCR overlay -->
-        <div ref="stageContainer"
-            class="w-full flex-1 flex items-center justify-center relative bg-white shadow-lg rounded-lg mx-2 my-4"
-            style="min-height: 70vh; max-height: 85vh;">
+        <div ref="stageContainer" class="w-full h-full bg-white">
             <!-- Zoom controls -->
-            <div class="absolute top-4 right-4 z-10 flex flex-col gap-2">
-                <button @click="resetZoom"
-                    class="bg-white hover:bg-gray-100 border border-gray-300 rounded-lg p-2 shadow-md transition-colors"
-                    title="Reset zoom">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                </button>
-                <button @click="zoomToFit"
-                    class="bg-white hover:bg-gray-100 border border-gray-300 rounded-lg p-2 shadow-md transition-colors"
-                    title="Zoom to fit">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
-                    </svg>
-                </button>
-            </div>
-
-            <!-- Zoom level indicator -->
-            <div
-                class="absolute bottom-4 right-4 z-10 bg-white border border-gray-300 rounded-lg px-3 py-1 text-sm shadow-md">
-                {{ Math.round(scale * 100) }}%
+            <div class="fixed top-5 right-4 z-1">
+                <div class="flex flex-col gap-2 items-end">
+                    <UButton @click="zoomToFit" icon="i-lucide-expand" color="secondary" title="Zoom to fit">
+                    </UButton>
+                    <div class="z-10 bg-white border border-white rounded-lg px-3 py-1 text-sm shadow-md">
+                        {{ Math.round(scale * 100) }}%
+                    </div>
+                </div>
             </div>
 
             <v-stage v-if="!isLoading" ref="stageRef" :config="{
@@ -665,7 +683,7 @@ function zoomToFit(): void {
                             x: box.x + 2,
                             y: box.y + 2,
                             text: box.isTranslating ? 'Translating...' : (box.translatedText || box.originalText),
-                            fontSize: Math.max(12, Math.min(20, box.height * 0.8)), // Increased font size range
+                            fontSize: Math.max(1, Math.min(20, Math.min(box.height * 0.8, box.width * 0.3))), // Respect both height and width
                             fontFamily: 'Arial',
                             fill: box.isTranslating ? '#666666' : '#000000',
                             width: box.width - 4,
@@ -688,60 +706,40 @@ function zoomToFit(): void {
             </div>
         </div>
 
-        <!-- Translation status and controls -->
-        <div class="mt-6 mb-4 flex flex-wrap gap-3 justify-center px-4">
-            <div class="bg-blue-100 text-blue-800 px-6 py-3 rounded-lg text-lg">
-                <span v-if="translatedBoxes.some(box => box.isTranslating)">
-                    Translating text...
-                </span>
-                <span v-else>
-                    Translation complete
-                </span>
+        <div class="fixed bottom-0 left-0 right-0 flex flex-col items-center bg-gray-100/90 m-1 rounded-md">
+            <!-- Translation status and controls -->
+            <div v-if="isTranslatingOcr" class="w-full p-2">
+                <UProgress v-model="translationProgress" status :max="1"></UProgress>
             </div>
-        </div>
 
-        <!-- Text selection and copy controls -->
-        <div class="mt-4 mb-6 flex flex-wrap gap-3 justify-center px-4">
-            <button @click="selectAllTextBoxes"
-                class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors text-lg font-medium">
-                Select All Paragraphs
-            </button>
-            <button @click="clearAllTextSelections"
-                class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors text-lg font-medium"
-                :disabled="selectedTextBoxes.length === 0"
-                :class="{ 'opacity-50 cursor-not-allowed': selectedTextBoxes.length === 0 }">
-                Clear Selection
-            </button>
-            <button @click="copyTextToClipboard"
-                class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg transition-colors text-lg font-medium"
-                :disabled="allTranslatedText.trim() === ''"
-                :class="{ 'opacity-50 cursor-not-allowed': allTranslatedText.trim() === '' }">
-                📋 Copy Paragraphs
-            </button>
-        </div>
+            <!-- Instructions for zoom and text selection -->
+            <div class="m-1 md:m-3 text-base text-gray-600 text-center max-w-2xl mx-auto px-4">
+                <p v-if="isMobile">
+                    Use pinch to zoom and single finger to pan. Tap paragraphs to select them for copying.
+                </p>
+                <p v-else>
+                    Use mouse wheel to zoom and drag to pan. Click paragraphs to select them for copying.
+                </p>
+            </div>
 
-        <!-- Selected text info -->
-        <div v-if="selectedTextBoxes.length > 0" class="mt-4 mb-4 text-center text-base text-gray-600">
-            <p>{{ selectedTextBoxes.length }} {{ selectedTextBoxes.length === 1 ? 'paragraph' : 'paragraphs' }} selected
-            </p>
-        </div>
+            <!-- Text selection and copy controls -->
+            <div class="flex gap-1 m-1 md:m-2 md:gap-3 justify-center px-1 md:px-4">
+                <UButton @click="selectAllTextBoxes" :size="isMobile ? 'xs' : 'md'">
+                    Select All Paragraphs
+                </UButton>
+                <UButton @click="clearAllTextSelections" :disabled="selectedTextBoxes.length === 0"
+                    :size="isMobile ? 'xs' : 'md'">
+                    Clear Selection
+                </UButton>
+                <UButton @click="copyTextToClipboard" :disabled="allTranslatedText.trim() === ''"
+                    :size="isMobile ? 'xs' : 'md'">
+                    📋 Copy Paragraphs
+                </UButton>
+            </div>
 
-        <!-- Detected text count -->
-        <div v-if="translatedBoxes.length > 0" class="mt-4 mb-6 text-center text-base text-gray-600">
-            <p>Detected {{ translatedBoxes.length }} {{ translatedBoxes.length === 1 ? 'paragraph' : 'paragraphs' }}</p>
+            <LanguageSelectionBar class="mb-1" v-model:source-language="sourceLanguage"
+                v-model:target-language="targetLanguage" />
         </div>
-
-        <!-- Instructions for zoom and text selection -->
-        <div class="mt-4 mb-6 text-base text-gray-600 text-center max-w-2xl mx-auto px-4">
-            <p v-if="isMobile">
-                Use pinch to zoom and single finger to pan. Tap paragraphs to select them for copying.
-            </p>
-            <p v-else>
-                Use mouse wheel to zoom and drag to pan. Click paragraphs to select them for copying.
-            </p>
-        </div>
-
-        <LanguageSelectionBar v-model:source-language="sourceLanguage" v-bind:target-language="targetLanguage" />
     </div>
 </template>
 

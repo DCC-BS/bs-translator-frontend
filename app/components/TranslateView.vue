@@ -12,6 +12,9 @@ const MotionUCard = motion.create(UCard);
 // Get i18n translation function
 const { t } = useI18n();
 
+const { query, path } = useRoute();
+const router = useRouter();
+
 // Get translation states and functions from the translate composable
 const {
     tone,
@@ -50,6 +53,18 @@ const inPhotoMode = ref(false);
 
 onMounted(() => {
     settingsExpanded.value = breakpoints.greater("md").value;
+
+    if (query.source) {
+        sourceLanguage.value = query.source as string;
+    }
+
+    if (query.destination) {
+        targetLanguage.value = query.destination as string;
+    }
+
+    if (query.text) {
+        sourceText.value = query.text as string;
+    }
 });
 
 function swapLanguages(): void {
@@ -69,6 +84,15 @@ watchDebounced(
     () => {
         if (sourceText.value && targetLanguage.value) {
             handleTranslate();
+
+            router.replace({
+                path: path,
+                query: {
+                    text: sourceText.value,
+                    source: sourceLanguage.value,
+                    destination: targetLanguage.value,
+                }
+            });
         }
     },
     { debounce: 1000 },
@@ -89,30 +113,12 @@ function onFileSelect(event: Event): void {
 }
 
 function onCapturePhoto() {
-    document.body.classList.add("overflow-hidden");
-    inPhotoMode.value = true;
-}
-
-function onPhotoTaken(photo: Blob): void {
-    document.body.classList.remove("overflow-hidden");
-    inPhotoMode.value = false;
-
-    processFile(new File([photo], "photo.jpeg", { type: photo.type }));
-}
-
-function onPhotoCanceled(): void {
-    document.body.classList.remove("overflow-hidden");
-    inPhotoMode.value = false;
+    router.push({ path: '/photo' });
 }
 </script>
 
 <template>
-    <div v-if="inPhotoMode" class="bg-gray-500">
-        <CameraCapture @photo-captured="onPhotoTaken" @photo-canceled="onPhotoCanceled"
-            class="z-[9999999] bg-gray-200" />
-    </div>
-
-    <div class="p-4 mx-auto" :class="{ 'overflow-hidden': inPhotoMode }">
+    <div class="p-4 mx-auto">
         <!-- Translation settings panel -->
         <MotionUCard layout class="mb-6 shadow-sm transition-all duration-300 ease-in-out overflow-hidden" :class="[
             settingsExpanded
@@ -156,8 +162,8 @@ function onPhotoCanceled(): void {
         </MotionUCard>
 
         <!-- Language selection area -->
-        <LanguageSelectionBar v-model:source-language="sourceLanguage" v-bind:target-language="targetLanguage"
-            @swap-languages="swapLanguages" />
+        <LanguageSelectionBar class="mb-2" v-model:source-language="sourceLanguage"
+            v-bind:target-language="targetLanguage" @swap-languages="swapLanguages" />
 
         <!-- Text editor area -->
         <div class="grid grid-cols-1 grid-rows-2 md:grid-cols-2 md:grid-rows-1 gap-6">
@@ -190,7 +196,7 @@ function onPhotoCanceled(): void {
                 <div class="flex justify-between mb-2 flex-1">
                     <UBadge color="neutral" variant="soft">{{ t('ui.translation') }}</UBadge>
                     <UBadge v-if="translatedText && !isTranslating" color="success" variant="soft">{{ t('ui.completed')
-                    }}
+                        }}
                     </UBadge>
                     <UBadge v-else-if="translatedText" color="info" variant="soft">{{ t('ui.inProgress') }}</UBadge>
                 </div>
