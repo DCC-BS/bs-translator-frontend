@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-
 const sourceLanguage = defineModel<string>("sourceLanguage");
 const targetLanguage = defineModel<string>("targetLanguage");
 
@@ -18,7 +17,6 @@ function swapLanguages(): void {
     swapRef(sourceLanguage, targetLanguage);
     emit("swap-languages");
 }
-
 </script>
 
 <template>

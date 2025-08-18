@@ -37,26 +37,16 @@ export const useTranslate = () => {
         translatedText.value = ""; // Clear previous translation
         isTranslating.value = true;
 
-        abortController.value?.abort(); // Abort any previous translation if in progress
+        abortController.value?.abort();
 
-        // Create a new AbortController for this translation operation
-        abortController.value = new AbortController();
+        if (!abortController.value) {
+            abortController.value = new AbortController();
+        }
+
         const signal = abortController.value.signal;
 
-        const config: TranslationConfig = {
-            source_language: sourceLanguage.value,
-            target_language: targetLanguage.value,
-            domain: domain.value,
-            tone: tone.value,
-            glossary: glossary.value,
-        };
-
         try {
-            const batches = translationService.translate(
-                sourceText.value,
-                config,
-                signal,
-            );
+            const batches = await _translateBatched(sourceText.value, signal);
 
             for await (const chunk of batches) {
                 if (signal.aborted) {
@@ -79,12 +69,7 @@ export const useTranslate = () => {
         }
     }
 
-    async function translateText(
-        text: string,
-        translated: Ref<string>,
-    ): Promise<void> {
-        // Create a new AbortController for this translation operation
-
+    async function translateText(text: string): Promise<string> {
         if (!abortController.value) {
             abortController.value = new AbortController();
         }
@@ -98,6 +83,7 @@ export const useTranslate = () => {
             tone: tone.value,
             glossary: glossary.value,
         };
+        let translated = "";
 
         try {
             const batches = translationService.translate(text, config, signal);
@@ -106,7 +92,7 @@ export const useTranslate = () => {
                 if (signal.aborted) {
                     break;
                 }
-                translated.value += chunk;
+                translated += chunk;
             }
         } catch (error) {
             if (!signal.aborted) {
@@ -121,6 +107,23 @@ export const useTranslate = () => {
         } finally {
             isTranslating.value = false;
         }
+
+        return translated;
+    }
+
+    async function _translateBatched(
+        text: string,
+        signal: AbortSignal,
+    ): Promise<AsyncIterable<string>> {
+        const config: TranslationConfig = {
+            source_language: sourceLanguage.value,
+            target_language: targetLanguage.value,
+            domain: domain.value,
+            tone: tone.value,
+            glossary: glossary.value,
+        };
+
+        return translationService.translate(text, config, signal);
     }
 
     /**

@@ -91,7 +91,7 @@ watchDebounced(
                     text: sourceText.value,
                     source: sourceLanguage.value,
                     destination: targetLanguage.value,
-                }
+                },
             });
         }
     },
@@ -113,7 +113,7 @@ function onFileSelect(event: Event): void {
 }
 
 function onCapturePhoto() {
-    router.push({ path: '/photo' });
+    router.push({ path: "/photo" });
 }
 </script>
 

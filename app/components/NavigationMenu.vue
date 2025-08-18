@@ -10,10 +10,10 @@ const availableLocales = computed(() => {
 
 // Navigation menu items
 const items = computed<DropdownMenuItem[]>(() =>
-    availableLocales.value.map(locale => ({
+    availableLocales.value.map((locale) => ({
         label: locale.name,
         onSelect: async () => setLocale(locale.code),
-    }))
+    })),
 );
 </script>
 

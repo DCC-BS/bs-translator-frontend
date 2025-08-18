@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-
 definePageMeta({
     layout: false,
 });
@@ -7,7 +6,7 @@ definePageMeta({
 const router = useRouter();
 
 function onPhotoCanceled() {
-    router.push({ path: '/' });
+    router.push({ path: "/" });
 }
 </script>
 

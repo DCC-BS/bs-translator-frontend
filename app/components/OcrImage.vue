@@ -1,6 +1,6 @@
 <script lang="ts" setup>
+import { motion, number } from "motion-v";
 import { createWorker, PSM } from "tesseract.js";
-import { motion, number } from "motion-v"
 
 interface InputProps {
     image: Blob;
@@ -42,12 +42,7 @@ interface TranslatedTextBox {
 
 const props = defineProps<InputProps>();
 
-const {
-    sourceLanguage,
-    targetLanguage,
-    translateText,
-    abort,
-} = useTranslate();
+const { sourceLanguage, targetLanguage, translateText, abort } = useTranslate();
 
 // State management
 const translatedBoxes = ref<TranslatedTextBox[]>([]);
@@ -84,7 +79,6 @@ const lastCenter = ref({ x: 0, y: 0 });
 const lastDist = ref(0);
 const dragStartPos = ref({ x: 0, y: 0 });
 const wasPinching = ref(false);
-const pinchEndTime = ref(0);
 
 // Zoom constraints
 const minZoom = ref(0.1);
@@ -99,31 +93,32 @@ const reverseRotationDegree = computed(
 
 // Text selection state
 const selectedTextBoxes = computed(() =>
-    translatedBoxes.value.filter(box => box.isSelected)
+    translatedBoxes.value.filter((box) => box.isSelected),
 );
 
 const allTranslatedText = computed(() => {
     return translatedBoxes.value
-        .filter(box => !box.isTranslating && box.translatedText)
-        .map(box => box.translatedText)
-        .join('\n\n'); // Join paragraphs with double newlines
+        .filter((box) => !box.isTranslating && box.translatedText)
+        .map((box) => box.translatedText)
+        .join("\n\n"); // Join paragraphs with double newlines
 });
 
 // Lifecycle hooks
 onMounted(async () => {
     // Detect mobile devices
-    isMobile.value = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent,
-    );
+    isMobile.value =
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+            navigator.userAgent,
+        );
 
     await init();
     setupEventListeners();
-    window.addEventListener('resize', handleWindowResize);
+    window.addEventListener("resize", handleWindowResize);
 });
 
 onUnmounted(() => {
     cleanupEventListeners();
-    window.removeEventListener('resize', handleWindowResize);
+    window.removeEventListener("resize", handleWindowResize);
 });
 
 watch(
@@ -146,29 +141,35 @@ function setupEventListeners(): void {
     if (!stageContainer.value) return;
 
     // Desktop events
-    stageContainer.value.addEventListener('wheel', handleWheel, { passive: false });
-    stageContainer.value.addEventListener('mousedown', handleMouseDown);
-    stageContainer.value.addEventListener('mousemove', handleMouseMove);
-    stageContainer.value.addEventListener('mouseup', handleMouseUp);
-    stageContainer.value.addEventListener('mouseleave', handleMouseUp);
+    stageContainer.value.addEventListener("wheel", handleWheel, {
+        passive: false,
+    });
+    stageContainer.value.addEventListener("mousedown", handleMouseDown);
+    stageContainer.value.addEventListener("mousemove", handleMouseMove);
+    stageContainer.value.addEventListener("mouseup", handleMouseUp);
+    stageContainer.value.addEventListener("mouseleave", handleMouseUp);
 
     // Mobile events
-    stageContainer.value.addEventListener('touchstart', handleTouchStart, { passive: false });
-    stageContainer.value.addEventListener('touchmove', handleTouchMove, { passive: false });
-    stageContainer.value.addEventListener('touchend', handleTouchEnd);
+    stageContainer.value.addEventListener("touchstart", handleTouchStart, {
+        passive: false,
+    });
+    stageContainer.value.addEventListener("touchmove", handleTouchMove, {
+        passive: false,
+    });
+    stageContainer.value.addEventListener("touchend", handleTouchEnd);
 }
 
 function cleanupEventListeners(): void {
     if (!stageContainer.value) return;
 
-    stageContainer.value.removeEventListener('wheel', handleWheel);
-    stageContainer.value.removeEventListener('mousedown', handleMouseDown);
-    stageContainer.value.removeEventListener('mousemove', handleMouseMove);
-    stageContainer.value.removeEventListener('mouseup', handleMouseUp);
-    stageContainer.value.removeEventListener('mouseleave', handleMouseUp);
-    stageContainer.value.removeEventListener('touchstart', handleTouchStart);
-    stageContainer.value.removeEventListener('touchmove', handleTouchMove);
-    stageContainer.value.removeEventListener('touchend', handleTouchEnd);
+    stageContainer.value.removeEventListener("wheel", handleWheel);
+    stageContainer.value.removeEventListener("mousedown", handleMouseDown);
+    stageContainer.value.removeEventListener("mousemove", handleMouseMove);
+    stageContainer.value.removeEventListener("mouseup", handleMouseUp);
+    stageContainer.value.removeEventListener("mouseleave", handleMouseUp);
+    stageContainer.value.removeEventListener("touchstart", handleTouchStart);
+    stageContainer.value.removeEventListener("touchmove", handleTouchMove);
+    stageContainer.value.removeEventListener("touchend", handleTouchEnd);
 }
 
 /**
@@ -298,11 +299,15 @@ async function preprocess(): Promise<void> {
 async function prepareTranslatedBoxes(): Promise<void> {
     const boxes: TranslatedTextBox[] = [];
 
-    for (const block of ocrBlocks.value) {
+    for (let i = 0; i < ocrBlocks.value.length; i++) {
+        const block = ocrBlocks.value[i];
+
+        if (!block) continue;
+
         const { x0, y0, x1, y1 } = block.bbox;
         const text = block.text || ""; // Use block text if available
 
-        const id = `block - ${ocrBlocks.value.indexOf(block)}`;
+        const id = `block - ${i}`;
 
         const textBox: TranslatedTextBox = {
             x: x0 * imgRatio.value,
@@ -322,7 +327,6 @@ async function prepareTranslatedBoxes(): Promise<void> {
     translatedBoxes.value = boxes;
     isLoading.value = false;
     // Start translating each text box individually
-
 }
 
 /**
@@ -354,7 +358,10 @@ async function translateAllBoxes(): Promise<void> {
                 // Update the box with the translated text
                 box.translatedText = translatedText.value;
             } catch (error) {
-                console.error(`Translation error for text "${box.originalText}": `, error);
+                console.error(
+                    `Translation error for text "${box.originalText}": `,
+                    error,
+                );
                 box.translatedText = box.originalText; // Fallback to original text
             } finally {
                 box.isTranslating = false;
@@ -376,13 +383,13 @@ function handleTextBoxClick(index: number): void {
 }
 
 function clearAllTextSelections(): void {
-    translatedBoxes.value.forEach(box => {
+    translatedBoxes.value.forEach((box) => {
         box.isSelected = false;
     });
 }
 
 function selectAllTextBoxes(): void {
-    translatedBoxes.value.forEach(box => {
+    translatedBoxes.value.forEach((box) => {
         if (!box.isTranslating && box.translatedText) {
             box.isSelected = true;
         }
@@ -393,23 +400,28 @@ function selectAllTextBoxes(): void {
  * Copy selected or all translated text to clipboard
  */
 async function copyTextToClipboard(): Promise<void> {
-    const textToCopy = selectedTextBoxes.value.length > 0
-        ? selectedTextBoxes.value.map(box => box.translatedText).join('\n\n') // Separate paragraphs with double newlines
-        : allTranslatedText.value.replace(/ /g, '\n\n'); // Format all text as paragraphs
+    const textToCopy =
+        selectedTextBoxes.value.length > 0
+            ? selectedTextBoxes.value
+                .map((box) => box.translatedText)
+                .join("\n\n") // Separate paragraphs with double newlines
+            : allTranslatedText.value; // Format all text as paragraphs
 
     if (textToCopy.trim()) {
         try {
             await navigator.clipboard.writeText(textToCopy);
             // You could add a toast notification here
         } catch (error) {
-            console.error('Failed to copy text:', error);
+            console.error("Failed to copy text:", error);
         }
     }
 }
 
 // Touch helper functions
 function getDistance(p1: Touch, p2: Touch): number {
-    return Math.sqrt((p2.clientX - p1.clientX) ** 2 + (p2.clientY - p1.clientY) ** 2);
+    return Math.sqrt(
+        (p2.clientX - p1.clientX) ** 2 + (p2.clientY - p1.clientY) ** 2,
+    );
 }
 
 function getCenter(p1: Touch, p2: Touch): { x: number; y: number } {
@@ -441,7 +453,7 @@ function handleWheel(e: WheelEvent): void {
     const direction = e.deltaY > 0 ? -1 : 1;
     const newScale = Math.max(
         minZoom.value,
-        Math.min(maxZoom.value, oldScale * (1 + direction * 0.1))
+        Math.min(maxZoom.value, oldScale * (1 + direction * 0.1)),
     );
 
     scale.value = newScale;
@@ -505,7 +517,7 @@ function handleTouchMove(e: TouchEvent): void {
             const oldScale = scale.value;
             const newScale = Math.max(
                 minZoom.value,
-                Math.min(maxZoom.value, oldScale * scaleChange)
+                Math.min(maxZoom.value, oldScale * scaleChange),
             );
 
             // Calculate zoom origin relative to the stage container
@@ -538,7 +550,11 @@ function handleTouchMove(e: TouchEvent): void {
 
         lastCenter.value = newCenter;
         lastDist.value = newDist;
-    } else if (e.touches.length === 1 && isDragging.value && !wasPinching.value) {
+    } else if (
+        e.touches.length === 1 &&
+        isDragging.value &&
+        !wasPinching.value
+    ) {
         // Only allow single finger pan if we weren't just pinching
         const touch = e.touches[0];
         if (!touch) return;
@@ -548,7 +564,7 @@ function handleTouchMove(e: TouchEvent): void {
             y: touch.clientY - dragStartPos.value.y,
         };
     }
-}/**
+} /**
  * Handle touch end
  */
 function handleTouchEnd(e: TouchEvent): void {
@@ -560,7 +576,6 @@ function handleTouchEnd(e: TouchEvent): void {
         // All fingers lifted - reset all states
         isDragging.value = false;
         wasPinching.value = false;
-        pinchEndTime.value = Date.now();
     } else if (e.touches.length === 1 && wasPinching.value) {
         // Going from pinch to single finger - disable dragging
         isDragging.value = false;
@@ -571,7 +586,8 @@ function handleTouchEnd(e: TouchEvent): void {
  * Handle mouse drag for desktop pan
  */
 function handleMouseDown(e: MouseEvent): void {
-    if (e.button === 0) { // Left mouse button
+    if (e.button === 0) {
+        // Left mouse button
         isDragging.value = true;
         dragStartPos.value = {
             x: e.clientX - position.value.x,
@@ -624,7 +640,9 @@ function zoomToFit(): void {
     scale.value = newScale;
     position.value = {
         x: (containerWidth - imageWidth.value * imgRatio.value * newScale) / 2,
-        y: (containerHeight - imageHeight.value * imgRatio.value * newScale) / 2,
+        y:
+            (containerHeight - imageHeight.value * imgRatio.value * newScale) /
+            2,
     };
 }
 </script>
