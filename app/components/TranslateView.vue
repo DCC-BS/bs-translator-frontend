@@ -41,7 +41,7 @@ const {
     processFile,
     handleFileSelect,
     clearError,
-} = useFileConvert((text) => {
+} = useFileConvert(sourceLanguage, (text) => {
     sourceText.value = text;
 });
 
@@ -49,7 +49,6 @@ const charCount = computed(() => sourceText.value?.length || 0);
 const fileInputRef = ref<HTMLInputElement | null>(null);
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const settingsExpanded = ref(true);
-const inPhotoMode = ref(false);
 
 onMounted(() => {
     settingsExpanded.value = breakpoints.greater("md").value;

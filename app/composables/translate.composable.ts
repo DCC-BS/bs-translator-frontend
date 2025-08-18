@@ -38,15 +38,12 @@ export const useTranslate = () => {
         isTranslating.value = true;
 
         abortController.value?.abort();
-
-        if (!abortController.value) {
-            abortController.value = new AbortController();
-        }
+        abortController.value = new AbortController();
 
         const signal = abortController.value.signal;
 
         try {
-            const batches = await _translateBatched(sourceText.value, signal);
+            const batches = _translateBatched(sourceText.value, signal);
 
             for await (const chunk of batches) {
                 if (signal.aborted) {
@@ -75,18 +72,10 @@ export const useTranslate = () => {
         }
 
         const signal = abortController.value.signal;
-
-        const config: TranslationConfig = {
-            source_language: sourceLanguage.value,
-            target_language: targetLanguage.value,
-            domain: domain.value,
-            tone: tone.value,
-            glossary: glossary.value,
-        };
         let translated = "";
 
         try {
-            const batches = translationService.translate(text, config, signal);
+            const batches = _translateBatched(text, signal);
 
             for await (const chunk of batches) {
                 if (signal.aborted) {
@@ -111,10 +100,10 @@ export const useTranslate = () => {
         return translated;
     }
 
-    async function _translateBatched(
+    async function* _translateBatched(
         text: string,
         signal: AbortSignal,
-    ): Promise<AsyncIterable<string>> {
+    ): AsyncIterable<string> {
         const config: TranslationConfig = {
             source_language: sourceLanguage.value,
             target_language: targetLanguage.value,
@@ -123,7 +112,7 @@ export const useTranslate = () => {
             glossary: glossary.value,
         };
 
-        return translationService.translate(text, config, signal);
+        yield* translationService.translate(text, config, signal);
     }
 
     /**

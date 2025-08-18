@@ -349,14 +349,8 @@ async function translateAllBoxes(): Promise<void> {
             box.isTranslating = true;
 
             try {
-                // Create a reactive ref for this box's translation
-                const translatedText = ref<string>("");
-
                 // Translate this specific text
-                await translateText(box.originalText, translatedText);
-
-                // Update the box with the translated text
-                box.translatedText = translatedText.value;
+                box.translatedText = await translateText(box.originalText);
             } catch (error) {
                 console.error(
                     `Translation error for text "${box.originalText}": `,
