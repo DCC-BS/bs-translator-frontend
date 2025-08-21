@@ -1,8 +1,10 @@
+import { watchDebounced } from "@vueuse/core";
 import type { Domain } from "~/models/domain";
 import type { LanguageCode } from "~/models/languages";
 import type { Tone } from "~/models/tone";
 import type { TranslationConfig } from "~/models/translationConfig";
 import { TranslationService } from "~/services/tanslationService";
+import { FetchError } from "ofetch";
 
 export const useTranslate = () => {
     const translationService = useService(TranslationService);
@@ -34,6 +36,8 @@ export const useTranslate = () => {
             return;
         }
 
+        const logger = useLogger();
+
         translatedText.value = ""; // Clear previous translation
         isTranslating.value = true;
 
@@ -44,23 +48,41 @@ export const useTranslate = () => {
 
         try {
             const batches = _translateBatched(sourceText.value, signal);
-
-            for await (const chunk of batches) {
-                if (signal.aborted) {
-                    break;
+            try {
+                for await (const chunk of batches) {
+                    if (signal.aborted) {
+                        break;
+                    }
+                    translatedText.value += chunk;
                 }
-                translatedText.value += chunk;
+            } catch (error) {
+                logger.error("Translation error:", error);
+
+                if (!signal.aborted) {
+                    toast.add({
+                        title: t("translation.error"),
+                        description: t("translation.errorTimeout"),
+                        color: "error",
+                        icon: "i-lucide-circle-alert",
+                    });
+                }
             }
         } catch (error) {
-            if (!signal.aborted) {
-                console.error("Translation error:", error);
-                toast.add({
-                    title: t("translation.error"),
-                    description: t("translation.errorDescription"),
-                    color: "error",
-                    icon: "i-lucide-circle-alert",
-                });
+            logger.error("Translation error:", error);
+
+            if (error instanceof TypeError) {
+                logger.error("cauuse", error.cause);
+                logger.error("message", error.message);
+                logger.error("stack", error.stack);
+                logger.error("name", error.name);
             }
+
+            toast.add({
+                title: t("translation.error"),
+                description: t("translation.errorDescription"),
+                color: "error",
+                icon: "i-lucide-circle-alert",
+            });
         } finally {
             isTranslating.value = false;
         }
@@ -125,9 +147,16 @@ export const useTranslate = () => {
         }
     }
 
-    watch([targetLanguage, sourceLanguage, tone, domain, glossary], () => {
-        translate();
-    });
+    watchDebounced(
+        [targetLanguage, sourceLanguage, tone, domain, glossary],
+        () => {
+            translate();
+        },
+        {
+            debounce: 1000,
+            maxWait: 5000,
+        },
+    );
 
     return {
         tone,

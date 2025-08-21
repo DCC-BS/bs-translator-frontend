@@ -1,5 +1,6 @@
 import { useDropZone } from "@vueuse/core";
 import type { ConverstionResult } from "~/models/convertionResult";
+import { FetchError } from "ofetch";
 
 /**
  * Composable for handling file conversion and drop zone functionality
@@ -10,6 +11,10 @@ export function useFileConvert(
     sourceLanguage: Ref<string>,
     onComplete: (text: string) => void,
 ) {
+    const logger = useLogger();
+    const toast = useToast();
+    const { t } = useI18n();
+
     const dropZoneRef = ref<HTMLDivElement>();
     const isConverting = ref<boolean>(false);
     const error = ref<string | undefined>(undefined);
@@ -34,6 +39,13 @@ export function useFileConvert(
             const result = await $api<ConverstionResult>("/api/convert", {
                 method: "POST",
                 body: formData,
+                onResponseError: async ({ error, response }) => {
+                    console.log("===================");
+                    console.dir(response);
+                    console.log(await response.json());
+                    console.dir(error);
+                    console.log("===================");
+                },
             });
 
             // remove " at start and end of the string
@@ -75,9 +87,23 @@ export function useFileConvert(
 
             onComplete(result.markdown);
         } catch (err) {
+            console.dir(err);
+
             error.value =
                 err instanceof Error ? err.message : "Failed to convert file";
-            console.error("File conversion error:", err);
+
+            if (err instanceof FetchError) {
+                error.value = err.message ?? err.statusMessage;
+            }
+
+            logger.error("File conversion error:", err);
+            toast.add({
+                title: t("conversion.errorTitle"),
+                description: t("conversion.errorDescription", {
+                    reason: error.value,
+                }),
+                icon: "i-lucide-circle-alert",
+            });
         } finally {
             isConverting.value = false;
         }

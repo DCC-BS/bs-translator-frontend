@@ -13,7 +13,9 @@ export default defineBackendHandler<
 
         return { file, sourceLanguage };
     },
-    fetcher: async (url, method, body, headers) => {
+    fetcher: async (url, method, body, headers, event) => {
+        const logger = getEventLogger(event);
+
         const formData = new FormData();
         formData.append("file", body.file);
         formData.append("source_language", body.sourceLanguage);
@@ -28,8 +30,22 @@ export default defineBackendHandler<
         });
 
         if (!response.ok) {
-            console.error("File conversion failed:", await response.text());
-            throw new Error("Failed to upload file");
+            try {
+                const json = (await response.json()) as { detail: string };
+
+                throw createError({
+                    statusCode: response.status,
+                    statusMessage: json.detail,
+                    cause: json.detail,
+                    message: json.detail,
+                    data: json,
+                });
+            } catch (error) {
+                throw createError({
+                    statusCode: response.status,
+                    statusMessage: response.statusText,
+                });
+            }
         }
 
         return await response.json();

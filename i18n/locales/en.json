@@ -152,7 +152,12 @@
     },
     "translation": {
         "error": "Translation failed",
-        "errorDescription": "The translation servers may be down currently. Please try again later."
+        "errorDescription": "The translation servers may be down currently. Please try again later.",
+        "errorTimeout": "Translation request timed out. Try a shorter text."
+    },
+    "conversion": {
+        "errorTitle": "File Conversion Failed",
+        "errorDescription": "Unable to convert the file. {reason}"
     },
     "navigation": {
         "languages": "Languages",

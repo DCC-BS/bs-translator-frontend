@@ -152,7 +152,12 @@
     },
     "translation": {
         "error": "Übersetzung fehlgeschlagen",
-        "errorDescription": "Die Übersetzungsserver sind möglicherweise derzeit nicht verfügbar. Bitte versuchen Sie es später erneut."
+        "errorDescription": "Die Übersetzungsserver sind möglicherweise derzeit nicht verfügbar. Bitte versuchen Sie es später erneut.",
+        "errorTimeout": "Übersetzungsanfrage dauerte zu lange. Versuchen Sie einen kürzeren Text."
+    },
+    "conversion": {
+        "errorTitle": "Dateikonvertierung fehlgeschlagen",
+        "errorDescription": "Die Datei konnte nicht konvertiert werden. {reason}"
     },
     "navigation": {
         "languages": "Sprachen",

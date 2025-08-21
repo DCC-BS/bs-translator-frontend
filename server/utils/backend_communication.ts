@@ -22,11 +22,12 @@ export type BackendHandler<T, D> = (response: T) => Promise<D>;
  * Function type for making HTTP requests to the backend
  * @template T - The response type from the backend
  */
-export type Fetcher<TBody, TResponse> = (
+export type Fetcher<TBody, TResponse, TRequest extends EventHandlerRequest> = (
     url: string,
     method: "GET" | "POST" | "PUT" | "DELETE",
     body: TBody,
     headers: Record<string, string>,
+    event: H3Event<TRequest>,
 ) => Promise<TResponse>;
 
 /**
@@ -158,59 +159,41 @@ export const defineBackendHandler = <
     method?: "POST" | "GET" | "PUT" | "DELETE";
     bodyProvider?: BodyProvider<TRequest, TBody>;
     handler?: BackendHandler<TBackendResponse, TResponse>;
-    fetcher?: Fetcher<TBody, TBackendResponse>;
+    fetcher?: Fetcher<TBody, TBackendResponse, TRequest>;
 }): EventHandler<TRequest, Promise<TResponse>> =>
     defineEventHandler<TRequest>(async (event) => {
-        try {
-            // Merge provided options with defaults
-            const { url, method, bodyProvider, handler, fetcher } = {
-                ...defaultOptions,
-                ...{
-                    bodyProvider: getDefaultBodyProvider<TRequest, TBody>(
-                        options.method,
-                    ),
-                },
-                ...options,
-            };
+        // Merge provided options with defaults
+        const { url, method, bodyProvider, handler, fetcher } = {
+            ...defaultOptions,
+            ...{
+                bodyProvider: getDefaultBodyProvider<TRequest, TBody>(
+                    options.method,
+                ),
+            },
+            ...options,
+        };
 
-            // Get runtime configuration for API base URL
-            const config = useRuntimeConfig();
+        // Get runtime configuration for API base URL
+        const config = useRuntimeConfig();
 
-            // Get headers from the event
-            const headers = getHeaders(event);
+        // Get headers from the event
+        const headers = getHeaders(event);
 
-            // Extract request body using the configured body provider
-            const body = await bodyProvider(event);
+        // Extract request body using the configured body provider
+        const body = await bodyProvider(event);
 
-            // Make authenticated request to backend API using the configured fetcher
-            const backendResponse = await fetcher(
-                `${config.apiUrl}${url}`,
-                method,
-                body,
-                {
-                    "X-Client-Id": headers["x-ephemeral-uuid"] ?? "",
-                    "Content-Type": "application/json",
-                },
-            );
+        // Make authenticated request to backend API using the configured fetcher
+        const backendResponse = await fetcher(
+            `${config.apiUrl}${url}`,
+            method,
+            body,
+            {
+                "X-Client-Id": headers["x-ephemeral-uuid"] ?? "",
+                "Content-Type": "application/json",
+            },
+            event,
+        );
 
-            // Transform the backend response using the configured handler
-            return await handler(backendResponse as TBackendResponse);
-        } catch (err) {
-            // preserve error structure for client
-            if (err && typeof err === "object" && "statusCode" in err) {
-                // Re-throw H3 errors as-is
-                throw err;
-            }
-
-            // Wrap other errors in a consistent format
-            throw createError({
-                statusCode: 500,
-                statusMessage: "Backend Communication Error",
-                message:
-                    err instanceof Error
-                        ? err.message
-                        : "An unexpected error occurred",
-                data: { originalError: err },
-            });
-        }
+        // Transform the backend response using the configured handler
+        return await handler(backendResponse as TBackendResponse);
     });

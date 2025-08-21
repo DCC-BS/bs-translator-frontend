@@ -62,7 +62,11 @@ onMounted(() => {
     }
 
     if (query.text) {
-        sourceText.value = query.text as string;
+        const guid = localStorage.getItem("sourceTextGuid");
+        const txt = localStorage.getItem("sourceText");
+        if (txt && guid?.trim() === (query.text as string).trim()) {
+            sourceText.value = txt;
+        }
     }
 });
 
@@ -84,10 +88,14 @@ watchDebounced(
         if (sourceText.value && targetLanguage.value) {
             handleTranslate();
 
+            const guid = crypto.randomUUID();
+            localStorage.setItem("sourceText", sourceText.value);
+            localStorage.setItem("sourceTextGuid", guid);
+
             router.replace({
                 path: path,
                 query: {
-                    text: sourceText.value,
+                    text: guid,
                     source: sourceLanguage.value,
                     destination: targetLanguage.value,
                 },
