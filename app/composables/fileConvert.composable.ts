@@ -36,25 +36,19 @@ export function useFileConvert(
             formData.append("file", file);
             formData.append("source_language", sourceLanguage.value);
 
-            const result = await $api<ConverstionResult>("/api/convert", {
+            const result = await apifetch<ConverstionResult>("/api/convert", {
                 method: "POST",
                 body: formData,
-                onResponseError: async ({ error, response }) => {
-                    console.log("===================");
-                    console.dir(response);
-                    console.log(await response.json());
-                    console.dir(error);
-                    console.log("===================");
-                },
             });
 
-            // remove " at start and end of the string
-            if (
-                result.markdown.startsWith('"') &&
-                result.markdown.endsWith('"')
-            ) {
-                result.markdown = result.markdown.slice(1, -1);
-            }
+            if (result)
+                if (
+                    result.markdown.startsWith('"') &&
+                    result.markdown.endsWith('"')
+                ) {
+                    // remove " at start and end of the string
+                    result.markdown = result.markdown.slice(1, -1);
+                }
 
             result.markdown = result.markdown.replace(/\\n/g, "\n"); // Replace escaped newlines with actual newlines
             result.markdown = result.markdown.replace(/\\t/g, "\t"); // Replace escaped tabs with actual tabs

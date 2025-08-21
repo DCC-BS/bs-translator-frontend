@@ -1,11 +1,14 @@
 export type FetchOptions = RequestInit;
 
-export type ApiFailure = {
-    message: string;
+export type ErrorId = "unknown_error" | string;
+
+export type ApiError = {
+    erroId: ErrorId;
+    debugMessage?: string;
     status: number;
 };
 
-export type ApiResponse<T> = T | ApiFailure;
+export type ApiResponse<T> = T | ApiError;
 
 export async function apifetch<T>(
     url: string,
@@ -30,10 +33,11 @@ export async function apifetch<T>(
         const data = await response.json();
         return {
             ...data,
+            status: response.status,
         };
     } catch (_) {
         return {
-            message: response.statusText,
+            erroId: "unknown_error",
             status: response.status,
         };
     }
