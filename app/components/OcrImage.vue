@@ -44,6 +44,8 @@ const props = defineProps<InputProps>();
 
 const { sourceLanguage, targetLanguage, translateText, abort } = useTranslate();
 
+const logger = useLogger();
+
 // State management
 const translatedBoxes = ref<TranslatedTextBox[]>([]);
 const isLoading = ref(true);
@@ -352,7 +354,7 @@ async function translateAllBoxes(): Promise<void> {
                 // Translate this specific text
                 box.translatedText = await translateText(box.originalText);
             } catch (error) {
-                console.error(
+                logger.error(
                     `Translation error for text "${box.originalText}": `,
                     error,
                 );
@@ -397,8 +399,8 @@ async function copyTextToClipboard(): Promise<void> {
     const textToCopy =
         selectedTextBoxes.value.length > 0
             ? selectedTextBoxes.value
-                .map((box) => box.translatedText)
-                .join("\n\n") // Separate paragraphs with double newlines
+                  .map((box) => box.translatedText)
+                  .join("\n\n") // Separate paragraphs with double newlines
             : allTranslatedText.value; // Format all text as paragraphs
 
     if (textToCopy.trim()) {
@@ -406,7 +408,7 @@ async function copyTextToClipboard(): Promise<void> {
             await navigator.clipboard.writeText(textToCopy);
             // You could add a toast notification here
         } catch (error) {
-            console.error("Failed to copy text:", error);
+            logger.error("Failed to copy text:", error);
         }
     }
 }

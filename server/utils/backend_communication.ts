@@ -1,5 +1,5 @@
 import type { EventHandler, EventHandlerRequest, H3Event } from "h3";
-import { createError, defineEventHandler, readBody } from "h3";
+import { defineEventHandler, readBody } from "h3";
 import { useRuntimeConfig } from "#imports";
 
 /**

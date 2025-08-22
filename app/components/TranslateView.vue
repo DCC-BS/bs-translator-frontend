@@ -38,7 +38,6 @@ const {
     isConverting,
     error: conversionError,
     fileName,
-    processFile,
     handleFileSelect,
     clearError,
 } = useFileConvert(sourceLanguage, (text) => {

@@ -4,12 +4,13 @@ import type { LanguageCode } from "~/models/languages";
 import type { Tone } from "~/models/tone";
 import type { TranslationConfig } from "~/models/translationConfig";
 import { TranslationService } from "~/services/tanslationService";
-import { FetchError } from "ofetch";
+import { isApiError } from "~/utils/apiFetch.ts";
 
 export const useTranslate = () => {
     const translationService = useService(TranslationService);
-    const toast = useToast();
+    const { showError } = useUserFeedback();
     const { t } = useI18n();
+    const logger = useLogger();
 
     const tone = useCookie<Tone>("tone", { default: () => "default" });
     const domain = useCookie<Domain>("domain", { default: () => "None" });
@@ -59,12 +60,10 @@ export const useTranslate = () => {
                 logger.error("Translation error:", error);
 
                 if (!signal.aborted) {
-                    toast.add({
-                        title: t("translation.error"),
-                        description: t("translation.errorTimeout"),
-                        color: "error",
-                        icon: "i-lucide-circle-alert",
-                    });
+                    showError(
+                        t("translation.errorTitle"),
+                        t("translation.errorTimeout"),
+                    );
                 }
             }
         } catch (error) {
@@ -77,12 +76,10 @@ export const useTranslate = () => {
                 logger.error("name", error.name);
             }
 
-            toast.add({
-                title: t("translation.error"),
-                description: t("translation.errorDescription"),
-                color: "error",
-                icon: "i-lucide-circle-alert",
-            });
+            showError(
+                t("translation.errorTitle"),
+                t("translation.errorDescription"),
+            );
         } finally {
             isTranslating.value = false;
         }
@@ -107,14 +104,13 @@ export const useTranslate = () => {
             }
         } catch (error) {
             if (!signal.aborted) {
-                console.error("Translation error:", error);
+                logger.error("Translation error:", error);
             }
-            toast.add({
-                title: t("translation.error"),
-                description: t("translation.errorDescription"),
-                color: "error",
-                icon: "i-lucide-circle-alert",
-            });
+
+            showError(
+                t("translation.errorTitle"),
+                t("translation.errorDescription"),
+            );
         } finally {
             isTranslating.value = false;
         }
@@ -126,6 +122,9 @@ export const useTranslate = () => {
         text: string,
         signal: AbortSignal,
     ): AsyncIterable<string> {
+        const logger = useLogger();
+        const toast = useToast();
+
         const config: TranslationConfig = {
             source_language: sourceLanguage.value,
             target_language: targetLanguage.value,
@@ -134,7 +133,29 @@ export const useTranslate = () => {
             glossary: glossary.value,
         };
 
-        yield* translationService.translate(text, config, signal);
+        try {
+            yield* translationService.translate(text, config, signal);
+        } catch (error: unknown) {
+            logger.error("Translation error:", { extra: error });
+
+            if (isApiError(error)) {
+                toast.add({
+                    title: t("translation.errorTitle"),
+                    description: t(`translation.error.${error.errorId}`),
+                    color: "error",
+                    icon: "i-lucide-circle-alert",
+                });
+            } else {
+                toast.add({
+                    title: t("translation.errorTitle"),
+                    description: t("translation.errorDescription"),
+                    color: "error",
+                    icon: "i-lucide-circle-alert",
+                });
+            }
+
+            return;
+        }
     }
 
     /**

@@ -151,13 +151,21 @@
         "abort": "Cancel"
     },
     "translation": {
-        "error": "Translation failed",
+        "errorTitle": "Translation failed",
         "errorDescription": "The translation servers may be down currently. Please try again later.",
-        "errorTimeout": "Translation request timed out. Try a shorter text."
+        "errorTimeout": "Translation request timed out. Try a shorter text.",
+        "error": {
+            "unexpected_error": "Unexpected error occurred. Maybe the server is down, if the error persists. Please use the feedback button to send us a message."
+        }
     },
     "conversion": {
         "errorTitle": "File Conversion Failed",
-        "errorDescription": "Unable to convert the file. {reason}"
+        "errorDescription": "Unable to convert the file. {reason}",
+        "error": {
+            "no_document": "No document found. Try to upload the document again.",
+            "invalid_mime_type": "Invalid document type.",
+            "unexpected_error": "Unexpected error occurred. Maybe the server is down, if the error persists. Please use the feedback button to send us a message."
+        }
     },
     "navigation": {
         "languages": "Languages",

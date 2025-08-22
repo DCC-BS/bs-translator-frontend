@@ -2,16 +2,18 @@ export default defineBackendHandler({
     url: "/translation/text",
     method: "POST",
     fetcher: async (url, method, body, headers, event) => {
-        const logger = getEventLogger(event);
+        const response = await fetch(url, {
+            method,
+            body: JSON.stringify(body),
+            headers: headers,
+        });
 
-        try {
-            return await fetch(url, {
-                method,
-                body: JSON.stringify(body),
-                headers: headers,
-            });
-        } catch (error) {
-            logger.error("Failed to fetch translation:", error);
+        setResponseStatus(event, response.status);
+
+        if (!response.ok) {
+            return await response.json();
         }
+
+        return response;
     },
 });

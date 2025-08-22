@@ -1,6 +1,7 @@
 import { useDropZone } from "@vueuse/core";
-import type { ConverstionResult } from "~/models/convertionResult";
 import { FetchError } from "ofetch";
+import type { ConvertionResult } from "~/models/convertionResult";
+import { apiFetch, isApiError } from "~/utils/apiFetch.ts";
 
 /**
  * Composable for handling file conversion and drop zone functionality
@@ -12,7 +13,7 @@ export function useFileConvert(
     onComplete: (text: string) => void,
 ) {
     const logger = useLogger();
-    const toast = useToast();
+    const { showError } = useUserFeedback();
     const { t } = useI18n();
 
     const dropZoneRef = ref<HTMLDivElement>();
@@ -26,8 +27,6 @@ export function useFileConvert(
      */
     async function processFile(file: File): Promise<void> {
         try {
-            const { $api } = useNuxtApp();
-
             fileName.value = file.name;
             error.value = undefined;
             isConverting.value = true;
@@ -36,10 +35,20 @@ export function useFileConvert(
             formData.append("file", file);
             formData.append("source_language", sourceLanguage.value);
 
-            const result = await apifetch<ConverstionResult>("/api/convert", {
+            const result = await apiFetch<ConvertionResult>("/api/convert", {
                 method: "POST",
                 body: formData,
             });
+
+            if (isApiError(result)) {
+                logger.error("File conversion error:", { extra: result });
+
+                showError(
+                    t("conversion.errorTitle"),
+                    t(`conversion.error.${result.errorId}`),
+                );
+                return;
+            }
 
             if (result)
                 if (
@@ -81,8 +90,6 @@ export function useFileConvert(
 
             onComplete(result.markdown);
         } catch (err) {
-            console.dir(err);
-
             error.value =
                 err instanceof Error ? err.message : "Failed to convert file";
 
@@ -91,13 +98,10 @@ export function useFileConvert(
             }
 
             logger.error("File conversion error:", err);
-            toast.add({
-                title: t("conversion.errorTitle"),
-                description: t("conversion.errorDescription", {
-                    reason: error.value,
-                }),
-                icon: "i-lucide-circle-alert",
-            });
+            showError(
+                t("conversion.errorTitle"),
+                t("conversion.errorDescription"),
+            );
         } finally {
             isConverting.value = false;
         }

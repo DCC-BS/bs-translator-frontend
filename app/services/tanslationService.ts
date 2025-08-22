@@ -1,5 +1,6 @@
 import type { TranslationConfig } from "~/models/translationConfig";
 import type { TranslationInput } from "~/models/translationInput";
+import { apiStreamfetch, isApiError } from "~/utils/apiFetch.ts";
 
 export class TranslationService {
     static readonly $injectKey = "TranslationService";
@@ -22,17 +23,15 @@ export class TranslationService {
             config,
         };
 
-        const { $api } = useNuxtApp();
+        const response = await apiStreamfetch("/api/translate", {
+            method: "POST",
+            body: body,
+            signal,
+        });
 
-        const response = await $api<ReadableStream<Uint8Array>>(
-            "/api/translate",
-            {
-                responseType: "stream",
-                method: "POST",
-                body: body,
-                signal,
-            },
-        );
+        if (isApiError(response)) {
+            throw response;
+        }
 
         const reader = response.getReader();
         const decoder = new TextDecoder();

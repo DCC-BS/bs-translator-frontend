@@ -5,6 +5,7 @@ import { UButton } from "#components";
 const MotionUButton = motion.create(UButton);
 
 const { t } = useI18n();
+const logger = useLogger();
 
 const emit = defineEmits<{
     (e: "photo-captured", data: Blob): void;
@@ -92,7 +93,7 @@ async function checkCameraAvailability(): Promise<boolean> {
             return false;
         }
     } catch (error) {
-        console.error("Error checking camera availability:", error);
+        logger.error("Error checking camera availability:", error);
         cameraAvailable.value = false;
         cameraError.value = t("camera.failed");
         return false;
@@ -131,10 +132,10 @@ function checkFlashCapabilities(stream: MediaStream): void {
         flashSupported.value = !!capabilities.torch;
 
         if (!flashSupported.value && import.meta.dev) {
-            console.info("Flash/torch not supported on this device");
+            logger.info("Flash/torch not supported on this device");
         }
     } catch (error) {
-        console.error("Error checking flash capabilities:", error);
+        logger.error("Error checking flash capabilities:", error);
         flashSupported.value = false;
     }
 }
@@ -158,7 +159,7 @@ async function toggleTorch(): Promise<void> {
 
         torchEnabled.value = newTorchState;
     } catch (error) {
-        console.error("Error toggling torch:", error);
+        logger.error("Error toggling torch:", error);
         // Reset torch state if there was an error
         torchEnabled.value = false;
     }
@@ -176,7 +177,7 @@ async function dummyCameraFeed() {
     canvas.height = 480; // Set desired height
     const context = canvas.getContext("2d");
     if (!context) {
-        console.error("Failed to get canvas context");
+        logger.error("Failed to get canvas context");
         return;
     }
 
@@ -246,7 +247,7 @@ function startCamera(): void {
                         // Camera started successfully
                     })
                     .catch((err) => {
-                        console.error("Error playing video stream:", err);
+                        logger.error("Error playing video stream:", err);
                     });
             } else {
                 // Clean up if video element is gone
@@ -254,7 +255,7 @@ function startCamera(): void {
             }
         })
         .catch((err) => {
-            console.error("Error accessing camera:", err);
+            logger.error("Error accessing camera:", err);
             cameraError.value = t("camera.permissionsError");
         });
 }
@@ -264,7 +265,7 @@ function startCamera(): void {
  */
 async function takePhoto(): Promise<void> {
     if (!cameraPreviewElement.value || !currentStream.value) {
-        console.error("Camera preview element or stream is not available.");
+        logger.error("Camera preview element or stream is not available.");
         return;
     }
 

@@ -14,8 +14,6 @@ export default defineBackendHandler<
         return { file, sourceLanguage };
     },
     fetcher: async (url, method, body, headers, event) => {
-        const logger = getEventLogger(event);
-
         const formData = new FormData();
         formData.append("file", body.file);
         formData.append("source_language", body.sourceLanguage);
@@ -30,22 +28,7 @@ export default defineBackendHandler<
         });
 
         if (!response.ok) {
-            try {
-                const json = (await response.json()) as { detail: string };
-
-                throw createError({
-                    statusCode: response.status,
-                    statusMessage: json.detail,
-                    cause: json.detail,
-                    message: json.detail,
-                    data: json,
-                });
-            } catch (error) {
-                throw createError({
-                    statusCode: response.status,
-                    statusMessage: response.statusText,
-                });
-            }
+            setResponseStatus(event, response.status);
         }
 
         return await response.json();
