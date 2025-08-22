@@ -184,10 +184,10 @@ function onCapturePhoto() {
                         <input type="file" ref="fileInputRef" class="hidden" @change="onFileSelect"
                             accept=".txt,.doc,.docx,.pdf,.md,.html,.rtf" />
 
-                        <UButton size="xs" color="secondary" variant="soft" icon="i-lucide-camera"
+                        <!-- <UButton size="xs" color="secondary" variant="soft" icon="i-lucide-camera"
                             @click="onCapturePhoto">
                             {{ t('ui.takePhoto') }}
-                        </UButton>
+                        </UButton> -->
                     </div>
 
                     <UBadge v-if="charCount > 0" color="primary" variant="soft">{{ charCount }} {{ t('ui.characters') }}
@@ -202,7 +202,7 @@ function onCapturePhoto() {
                 <div class="flex justify-between mb-2 flex-1">
                     <UBadge color="neutral" variant="soft">{{ t('ui.translation') }}</UBadge>
                     <UBadge v-if="translatedText && !isTranslating" color="success" variant="soft">{{ t('ui.completed')
-                        }}
+                    }}
                     </UBadge>
                     <UBadge v-else-if="translatedText" color="info" variant="soft">{{ t('ui.inProgress') }}</UBadge>
                 </div>
