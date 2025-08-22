@@ -1,15 +1,22 @@
-export default defineBackendHandler<never, { file: File }, string, string>({
+export default defineBackendHandler<
+    never,
+    { file: File; sourceLanguage: string },
+    string,
+    string
+>({
     url: "/convert/doc",
     method: "POST",
     bodyProvider: async (event) => {
         const inputFormData = await readFormData(event);
         const file = inputFormData.get("file") as File;
+        const sourceLanguage = inputFormData.get("source_language") as string;
 
-        return { file };
+        return { file, sourceLanguage };
     },
-    fetcher: async (url, method, body, headers) => {
+    fetcher: async (url, method, body, headers, event) => {
         const formData = new FormData();
         formData.append("file", body.file);
+        formData.append("source_language", body.sourceLanguage);
 
         // remove Content-Type
         delete headers["Content-Type"];
@@ -21,8 +28,7 @@ export default defineBackendHandler<never, { file: File }, string, string>({
         });
 
         if (!response.ok) {
-            console.log(await response.json());
-            throw new Error("Failed to upload file");
+            setResponseStatus(event, response.status);
         }
 
         return await response.json();

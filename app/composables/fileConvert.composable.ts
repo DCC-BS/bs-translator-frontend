@@ -1,12 +1,21 @@
 import { useDropZone } from "@vueuse/core";
-import type { ConverstionResult } from "~/models/convertionResult";
+import { FetchError } from "ofetch";
+import type { ConvertionResult } from "~/models/convertionResult";
+import { apiFetch, isApiError } from "~/utils/apiFetch.ts";
 
 /**
  * Composable for handling file conversion and drop zone functionality
  * @param onComplete Callback function that receives the converted text
  * @returns Object containing drop zone refs and state
  */
-export const useFileConvert = (onComplete: (text: string) => void) => {
+export function useFileConvert(
+    sourceLanguage: Ref<string>,
+    onComplete: (text: string) => void,
+) {
+    const logger = useLogger();
+    const { showError } = useUserFeedback();
+    const { t } = useI18n();
+
     const dropZoneRef = ref<HTMLDivElement>();
     const isConverting = ref<boolean>(false);
     const error = ref<string | undefined>(undefined);
@@ -18,27 +27,37 @@ export const useFileConvert = (onComplete: (text: string) => void) => {
      */
     async function processFile(file: File): Promise<void> {
         try {
-            const { $api } = useNuxtApp();
-
             fileName.value = file.name;
             error.value = undefined;
             isConverting.value = true;
 
             const formData = new FormData();
             formData.append("file", file);
+            formData.append("source_language", sourceLanguage.value);
 
-            const result = await $api<ConverstionResult>("/api/convert", {
+            const result = await apiFetch<ConvertionResult>("/api/convert", {
                 method: "POST",
                 body: formData,
             });
 
-            // remove " at start and end of the string
-            if (
-                result.markdown.startsWith('"') &&
-                result.markdown.endsWith('"')
-            ) {
-                result.markdown = result.markdown.slice(1, -1);
+            if (isApiError(result)) {
+                logger.error("File conversion error:", { extra: result });
+
+                showError(
+                    t("conversion.errorTitle"),
+                    t(`conversion.error.${result.errorId}`),
+                );
+                return;
             }
+
+            if (result)
+                if (
+                    result.markdown.startsWith('"') &&
+                    result.markdown.endsWith('"')
+                ) {
+                    // remove " at start and end of the string
+                    result.markdown = result.markdown.slice(1, -1);
+                }
 
             result.markdown = result.markdown.replace(/\\n/g, "\n"); // Replace escaped newlines with actual newlines
             result.markdown = result.markdown.replace(/\\t/g, "\t"); // Replace escaped tabs with actual tabs
@@ -47,7 +66,6 @@ export const useFileConvert = (onComplete: (text: string) => void) => {
             // Convert images to data URLs
             for (const [index, base64] of Object.entries(result.images)) {
                 // const dataUrl = `data:image/png;base64,${base64}`;
-
                 const base64WithoutPrefix = base64.replace(
                     /^data:image\/png;base64,/,
                     "",
@@ -65,7 +83,7 @@ export const useFileConvert = (onComplete: (text: string) => void) => {
                 const link = URL.createObjectURL(blob);
 
                 result.markdown = result.markdown.replace(
-                    `(img${index}.png)`,
+                    `(image${index}.png)`,
                     `(${link})`,
                 );
             }
@@ -74,7 +92,16 @@ export const useFileConvert = (onComplete: (text: string) => void) => {
         } catch (err) {
             error.value =
                 err instanceof Error ? err.message : "Failed to convert file";
-            console.error("File conversion error:", err);
+
+            if (err instanceof FetchError) {
+                error.value = err.message ?? err.statusMessage;
+            }
+
+            logger.error("File conversion error:", err);
+            showError(
+                t("conversion.errorTitle"),
+                t("conversion.errorDescription"),
+            );
         } finally {
             isConverting.value = false;
         }
@@ -123,4 +150,4 @@ export const useFileConvert = (onComplete: (text: string) => void) => {
         handleFileSelect,
         clearError,
     };
-};
+}

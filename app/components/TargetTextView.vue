@@ -9,6 +9,7 @@ const props = defineProps<{
 const translatedText = defineModel<string>();
 const { t } = useI18n();
 const toast = useToast();
+const logger = useLogger();
 const { direction } = useLanguageDirection(toRef(props, "languageCode"));
 
 const showMarkdown = ref(true);
@@ -49,8 +50,6 @@ async function copyToClipboard(): Promise<void> {
             ) {
                 // Convert markdown to HTML for rich text copying
                 const html = await markdownToHtml(translatedText.value);
-
-                console.log(html);
 
                 const clipboardItem = new ClipboardItem({
                     "text/html": new Blob([html], { type: "text/html" }),
@@ -101,7 +100,7 @@ async function copyToClipboard(): Promise<void> {
             }
             return;
         } catch (err) {
-            console.error("Copy failed:", err);
+            logger.error("Copy failed:", err);
             // Show error toast
             toast.add({
                 title: t("ui.copyFailed"),
@@ -144,7 +143,7 @@ async function downloadWord(): Promise<void> {
                 duration: 3000,
             });
         } catch (err) {
-            console.error("Download failed:", err);
+            logger.error("Download failed:", err);
             // Show error toast
             toast.add({
                 title: t("ui.downloadFailed"),
