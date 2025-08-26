@@ -166,26 +166,8 @@ function onPhotoCanceled(): void {
         </MotionUCard>
 
         <!-- Language selection area -->
-        <div class="flex items-center flex-wrap gap-4 mb-4 bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-            <div class="flex-1">
-                <UFormField :label="t('ui.sourceLanguage')" class="mb-0">
-                    <LanguageSelectionView v-model="sourceLanguage" include-auto-detect />
-                </UFormField>
-            </div>
-
-            <div class="flex flex-col items-center">
-                <UButton :active="sourceLanguage !== 'auto'" variant="soft" color="primary"
-                    icon="i-lucide-arrow-left-right" size="lg"
-                    class="rounded-full p-2 transition-transform hover:scale-110" @click="swapLanguages">
-                </UButton>
-            </div>
-
-            <div class="flex-1">
-                <UFormField :label="t('ui.targetLanguage')" class="mb-0">
-                    <LanguageSelectionView v-model="targetLanguage" />
-                </UFormField>
-            </div>
-        </div>
+        <LanguageSelectionBar class="mb-2" v-model:source-language="sourceLanguage"
+            v-model:target-language="targetLanguage" @swap-languages="swapLanguages" />
 
         <!-- Text editor area -->
         <div class="grid grid-cols-1 grid-rows-2 md:grid-cols-2 md:grid-rows-1 gap-6">
@@ -218,7 +200,7 @@ function onPhotoCanceled(): void {
                 <div class="flex justify-between mb-2 flex-1">
                     <UBadge color="neutral" variant="soft">{{ t('ui.translation') }}</UBadge>
                     <UBadge v-if="translatedText && !isTranslating" color="success" variant="soft">{{ t('ui.completed')
-                        }}
+                    }}
                     </UBadge>
                     <UBadge v-else-if="translatedText" color="info" variant="soft">{{ t('ui.inProgress') }}</UBadge>
                 </div>
