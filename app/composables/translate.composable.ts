@@ -4,7 +4,7 @@ import type { LanguageCode } from "~/models/languages";
 import type { Tone } from "~/models/tone";
 import type { TranslationConfig } from "~/models/translationConfig";
 import { TranslationService } from "~/services/tanslationService";
-import { isApiError } from "~/utils/apiFetch.ts";
+import { isApiError } from "~/utils/apiFetch";
 
 export const useTranslate = () => {
     const translationService = useService(TranslationService);

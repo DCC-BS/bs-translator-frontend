@@ -1,32 +1,11 @@
 <script lang="ts" setup>
-import { motion, number } from "motion-v";
 import { createWorker, PSM } from "tesseract.js";
+import { TranslationService } from "~/services/tanslationService";
 
 interface InputProps {
     image: Blob;
 }
 
-interface BoundingBox {
-    x0: number;
-    y0: number;
-    x1: number;
-    y1: number;
-}
-
-interface OcrLine {
-    bbox: BoundingBox;
-    words: Array<{ text: string }>;
-}
-
-interface OcrBlock {
-    paragraphs: Array<{
-        lines: OcrLine[];
-    }>;
-    bbox: BoundingBox;
-    confidence: number;
-    blocktype: string;
-    text: string;
-}
 
 interface TranslatedTextBox {
     x: number;
@@ -35,7 +14,6 @@ interface TranslatedTextBox {
     height: number;
     originalText: string;
     translatedText: string;
-    isTranslating: boolean;
     isSelected: boolean;
     paragraphId: string; // Unique identifier for paragraph grouping
 }
@@ -45,6 +23,7 @@ const props = defineProps<InputProps>();
 const { sourceLanguage, targetLanguage, translateText, abort } = useTranslate();
 
 const logger = useLogger();
+const translationService = useService(TranslationService);
 
 // State management
 const translatedBoxes = ref<TranslatedTextBox[]>([]);
@@ -87,7 +66,6 @@ const minZoom = ref(0.1);
 const maxZoom = ref(5);
 
 // OCR data for rendering overlays
-const ocrBlocks = ref<OcrBlock[]>([]);
 const rotationRadian = ref(0);
 const reverseRotationDegree = computed(
     () => 360 - rotationRadian.value * (180 / Math.PI),
@@ -97,13 +75,6 @@ const reverseRotationDegree = computed(
 const selectedTextBoxes = computed(() =>
     translatedBoxes.value.filter((box) => box.isSelected),
 );
-
-const allTranslatedText = computed(() => {
-    return translatedBoxes.value
-        .filter((box) => !box.isTranslating && box.translatedText)
-        .map((box) => box.translatedText)
-        .join("\n\n"); // Join paragraphs with double newlines
-});
 
 // Lifecycle hooks
 onMounted(async () => {
@@ -119,8 +90,11 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-    cleanupEventListeners();
+    console.log("Unmounting OcrImage component");
+
+    abortController.value.abort();
     window.removeEventListener("resize", handleWindowResize);
+    cleanupEventListeners();
 });
 
 watch(
@@ -135,7 +109,7 @@ watch([sourceLanguage, targetLanguage], async () => {
     abortController.value.abort();
     abortController.value = new AbortController();
     abort();
-    await translateAllBoxes();
+    await preprocess();
 });
 
 // Event listener management
@@ -233,9 +207,6 @@ async function init(): Promise<void> {
 
     // Process OCR
     await preprocess();
-    isLoading.value = false;
-
-    await translateAllBoxes();
 }
 
 // Utility functions
@@ -243,6 +214,52 @@ function argMin(arr: number[]): number {
     return arr.reduce((minIndex, current, index) => {
         return current < (arr[minIndex] as number) ? index : minIndex;
     }, 0);
+}
+
+/**
+ * Calculate optimal font size based on text length and box dimensions
+ * @param text - The text to be displayed
+ * @param boxWidth - Available width for the text
+ * @param boxHeight - Available height for the text
+ * @param maxFontSize - Maximum allowed font size (default: 18)
+ * @param minFontSize - Minimum allowed font size (default: 8)
+ * @returns Calculated font size in pixels
+ */
+function calculateOptimalFontSize(
+    text: string,
+    boxWidth: number,
+    boxHeight: number,
+    maxFontSize = 18,
+    minFontSize = 8
+): number {
+    if (!text || boxWidth <= 0 || boxHeight <= 0) {
+        return minFontSize;
+    }
+
+    // Estimate average character width based on font size
+    // Arial font typically has a character width of ~0.5-0.6 times the font size
+    const avgCharWidthRatio = 0.55;
+
+    // Estimate line height (typically 1.2 times font size for good readability)
+    const lineHeightRatio = 1.2;
+
+    // Calculate font size based on width constraint
+    const availableWidth = boxWidth - 4; // Account for padding
+    const estimatedCharsPerLine = Math.floor(availableWidth / (maxFontSize * avgCharWidthRatio));
+    const estimatedLines = Math.ceil(text.length / Math.max(estimatedCharsPerLine, 1));
+
+    // Font size based on height constraint
+    const availableHeight = boxHeight - 4; // Account for padding
+    const fontSizeByHeight = availableHeight / (estimatedLines * lineHeightRatio);
+
+    // Font size based on width constraint
+    const fontSizeByWidth = availableWidth / (text.length * avgCharWidthRatio);
+
+    // Use the more restrictive constraint
+    const calculatedSize = Math.min(fontSizeByHeight, fontSizeByWidth);
+
+    // Apply min/max constraints
+    return Math.max(minFontSize, Math.min(maxFontSize, Math.floor(calculatedSize)));
 }
 
 /**
@@ -271,103 +288,35 @@ async function loadImage(): Promise<void> {
 
 // OCR and translation functions
 async function preprocess(): Promise<void> {
-    const worker = await createWorker("deu");
-    await worker.load();
 
-    await worker.setParameters({
-        tessedit_pageseg_mode: PSM.SPARSE_TEXT_OSD,
-    });
-
-    const { data } = await worker.recognize(
+    const entries = translationService.translateImage(
         props.image,
-        { rotateAuto: true },
-        { blocks: true },
+        {
+            source_language: sourceLanguage.value,
+            target_language: targetLanguage.value,
+        },
+        abortController.value.signal,
     );
 
-    // Store OCR blocks for rendering
-    ocrBlocks.value = data.blocks ?? [];
+    translatedBoxes.value = [];
 
-    rotationRadian.value = data.rotateRadians ?? 0;
+    for await (const entry of entries) {
+        isLoading.value = false;
 
-    // Prepare translated text boxes for Konva rendering
-    await prepareTranslatedBoxes();
+        const w = imageWidth.value * imgRatio.value;
+        const h = imageHeight.value;
 
-    await worker.terminate();
-}
-
-/**
- * Convert OCR data to translated text boxes and start translation (grouped by paragraphs)
- */
-async function prepareTranslatedBoxes(): Promise<void> {
-    const boxes: TranslatedTextBox[] = [];
-
-    for (let i = 0; i < ocrBlocks.value.length; i++) {
-        const block = ocrBlocks.value[i];
-
-        if (!block) continue;
-
-        const { x0, y0, x1, y1 } = block.bbox;
-        const text = block.text || ""; // Use block text if available
-
-        const id = `block - ${i}`;
-
-        const textBox: TranslatedTextBox = {
-            x: x0 * imgRatio.value,
-            y: y0 * imgRatio.value,
-            width: (x1 - x0) * imgRatio.value,
-            height: (y1 - y0) * imgRatio.value,
-            originalText: text,
-            translatedText: "",
-            isTranslating: true,
+        translatedBoxes.value.push({
+            x: entry.bbox.left * imgRatio.value,
+            y: (h - entry.bbox.top) * imgRatio.value,
+            width: (entry.bbox.right - entry.bbox.left) * imgRatio.value,
+            height: (entry.bbox.top - entry.bbox.bottom) * imgRatio.value,
+            originalText: entry.original || "",
+            translatedText: entry.translated || "",
             isSelected: false,
-            paragraphId: id,
-        };
-
-        boxes.push(textBox);
+            paragraphId: `block - ${translatedBoxes.value.length}`,
+        });
     }
-
-    translatedBoxes.value = boxes;
-    isLoading.value = false;
-    // Start translating each text box individually
-}
-
-/**
- * Translate all text boxes individually
- */
-async function translateAllBoxes(): Promise<void> {
-    const signal = abortController.value.signal;
-    translationProgress.value = 0;
-
-    for (let i = 0; i < translatedBoxes.value.length; i++) {
-        if (signal.aborted) {
-            translationProgress.value = 0;
-            break; // Exit if translation was aborted
-        }
-
-        isTranslatingOcr.value = true;
-
-        const box = translatedBoxes.value[i];
-        if (box?.originalText.trim()) {
-            box.isTranslating = true;
-
-            try {
-                // Translate this specific text
-                box.translatedText = await translateText(box.originalText);
-            } catch (error) {
-                logger.error(
-                    `Translation error for text "${box.originalText}": `,
-                    error,
-                );
-                box.translatedText = box.originalText; // Fallback to original text
-            } finally {
-                box.isTranslating = false;
-            }
-        }
-
-        translationProgress.value = (i + 1) / translatedBoxes.value.length;
-    }
-
-    isTranslatingOcr.value = false;
 }
 
 // Text selection and clipboard functions
@@ -386,7 +335,7 @@ function clearAllTextSelections(): void {
 
 function selectAllTextBoxes(): void {
     translatedBoxes.value.forEach((box) => {
-        if (!box.isTranslating && box.translatedText) {
+        if (box.translatedText) {
             box.isSelected = true;
         }
     });
@@ -399,9 +348,9 @@ async function copyTextToClipboard(): Promise<void> {
     const textToCopy =
         selectedTextBoxes.value.length > 0
             ? selectedTextBoxes.value
-                  .map((box) => box.translatedText)
-                  .join("\n\n") // Separate paragraphs with double newlines
-            : allTranslatedText.value; // Format all text as paragraphs
+                .map((box) => box.translatedText)
+                .join("\n\n") // Separate paragraphs with double newlines
+            : translatedBoxes.value.map(x => x.translatedText).join("\n\n"); // Format all text as paragraphs
 
     if (textToCopy.trim()) {
         try {
@@ -696,10 +645,14 @@ function zoomToFit(): void {
                         <v-text :config="{
                             x: box.x + 2,
                             y: box.y + 2,
-                            text: box.isTranslating ? 'Translating...' : (box.translatedText || box.originalText),
-                            fontSize: Math.max(1, Math.min(20, Math.min(box.height * 0.8, box.width * 0.3))), // Respect both height and width
+                            text: (box.translatedText ?? box.originalText),
+                            fontSize: calculateOptimalFontSize(
+                                box.translatedText ?? box.originalText,
+                                box.width,
+                                box.height
+                            ),
                             fontFamily: 'Arial',
-                            fill: box.isTranslating ? '#666666' : '#000000',
+                            fill: '#000000',
                             width: box.width - 4,
                             height: box.height - 4,
                             ellipsis: true,
@@ -745,8 +698,7 @@ function zoomToFit(): void {
                     :size="isMobile ? 'xs' : 'md'">
                     Clear Selection
                 </UButton>
-                <UButton @click="copyTextToClipboard" :disabled="allTranslatedText.trim() === ''"
-                    :size="isMobile ? 'xs' : 'md'">
+                <UButton @click="copyTextToClipboard" F :size="isMobile ? 'xs' : 'md'">
                     📋 Copy Paragraphs
                 </UButton>
             </div>

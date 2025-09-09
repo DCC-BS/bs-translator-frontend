@@ -1,7 +1,7 @@
 import { useDropZone } from "@vueuse/core";
 import { FetchError } from "ofetch";
 import type { ConvertionResult } from "~/models/convertionResult";
-import { apiFetch, isApiError } from "~/utils/apiFetch.ts";
+import { apiFetch, isApiError } from "~/utils/apiFetch";
 
 /**
  * Composable for handling file conversion and drop zone functionality
