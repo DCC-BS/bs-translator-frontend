@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { createWorker, PSM } from "tesseract.js";
-import { TranslationService } from "~/services/tanslationService";
+import { TranslationService } from "~/services/translationService";
 
 interface InputProps {
     image: Blob;
@@ -691,6 +691,7 @@ function zoomToFit(): void {
 
             <!-- Text selection and copy controls -->
             <div class="flex gap-1 m-1 md:m-2 md:gap-3 justify-center px-1 md:px-4">
+                <UButton @click="() => abortController.abort()">Abort</UButton>
                 <UButton @click="selectAllTextBoxes" :size="isMobile ? 'xs' : 'md'">
                     Select All Paragraphs
                 </UButton>

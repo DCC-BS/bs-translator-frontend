@@ -1,4 +1,4 @@
-import { TranslationService } from "~/services/tanslationService";
+import { TranslationService } from "~/services/translationService";
 
 export default defineNuxtPlugin((nuxtApp) => {
     const orchestrator = new ServiceOrchestrator();

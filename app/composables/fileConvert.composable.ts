@@ -20,6 +20,11 @@ export function useFileConvert(
     const isConverting = ref<boolean>(false);
     const error = ref<string | undefined>(undefined);
     const fileName = ref<string | undefined>(undefined);
+    const abortController = ref(new AbortController());
+
+    onUnmounted(() => {
+        abortController.value.abort();
+    });
 
     /**
      * Processes and converts a file to text
@@ -27,17 +32,21 @@ export function useFileConvert(
      */
     async function processFile(file: File): Promise<void> {
         try {
+            abortController.value.abort(); // Abort any ongoing conversion
+            abortController.value = new AbortController();
+
             fileName.value = file.name;
             error.value = undefined;
             isConverting.value = true;
 
             const formData = new FormData();
-            formData.append("file", file);
+            formData.append("file", file, file.name);
             formData.append("source_language", sourceLanguage.value);
 
             const result = await apiFetch<ConvertionResult>("/api/convert", {
                 method: "POST",
                 body: formData,
+                signal: abortController.value.signal,
             });
 
             if (isApiError(result)) {

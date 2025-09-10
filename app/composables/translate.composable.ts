@@ -3,7 +3,7 @@ import type { Domain } from "~/models/domain";
 import type { LanguageCode } from "~/models/languages";
 import type { Tone } from "~/models/tone";
 import type { TranslationConfig } from "~/models/translationConfig";
-import { TranslationService } from "~/services/tanslationService";
+import { TranslationService } from "~/services/translationService";
 import { isApiError } from "~/utils/apiFetch";
 
 export const useTranslate = () => {
@@ -27,6 +27,10 @@ export const useTranslate = () => {
     const translatedText = ref<string>("");
     const isTranslating = ref<boolean>(false);
     const abortController = ref<AbortController | undefined>(undefined);
+
+    onUnmounted(() => {
+        abortController.value?.abort();
+    });
 
     /**
      * Translates the source text using the configured settings

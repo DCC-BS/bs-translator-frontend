@@ -27,7 +27,7 @@ export class TranslationService {
             config,
         };
 
-        const response = await apiStreamfetch("/api/translate", {
+        const response = await apiStreamfetch("/api/translate/text", {
             method: "POST",
             body: body,
             signal,

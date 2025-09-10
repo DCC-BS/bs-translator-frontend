@@ -35,6 +35,9 @@ const cameraError = ref<string>();
 const flashSupported = ref(false);
 const torchEnabled = ref(false);
 
+// Dummy camera feed interval for cleanup
+const dummyFeedInterval = ref<NodeJS.Timeout>();
+
 const cameraPreviewElement = ref<HTMLVideoElement>();
 
 onMounted(() => {
@@ -106,6 +109,9 @@ async function capturePhoto(): Promise<void> {
 
     if (!available) {
         if (import.meta.dev) {
+            cameraAvailable.value = true;
+            cameraError.value = undefined;
+
             dummyCameraFeed();
         }
 
@@ -173,20 +179,77 @@ async function dummyCameraFeed() {
     cameraAvailable.value = true;
 
     const canvas = document.createElement("canvas");
-    canvas.width = 640; // Set desired width
-    canvas.height = 480; // Set desired height
+    // Use higher resolution for better quality
+    canvas.width = 1920; // Higher resolution width
+    canvas.height = 1080; // Higher resolution height
     const context = canvas.getContext("2d");
     if (!context) {
         logger.error("Failed to get canvas context");
         return;
     }
 
-    // Draw a simple pattern on the canvas
-    context.fillStyle = "red";
-    context.strokeStyle = "black";
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    // Enable high-quality image rendering
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = "high";
 
-    const stream = canvas.captureStream(30); // 30 FPS
+    // Load and draw the test image on the canvas
+    const image = new Image();
+
+    // Function to draw the image continuously for the stream
+    function drawImage() {
+        if (!context) return;
+
+        // Draw the image to fill the canvas, maintaining aspect ratio
+        const imgAspectRatio = image.width / image.height;
+        const canvasAspectRatio = canvas.width / canvas.height;
+
+        let drawWidth = canvas.width;
+        let drawHeight = canvas.height;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        if (imgAspectRatio > canvasAspectRatio) {
+            // Image is wider than canvas ratio
+            drawHeight = canvas.width / imgAspectRatio;
+            offsetY = (canvas.height - drawHeight) / 2;
+        } else {
+            // Image is taller than canvas ratio
+            drawWidth = canvas.height * imgAspectRatio;
+            offsetX = (canvas.width - drawWidth) / 2;
+        }
+
+        // Fill background with black
+        context.fillStyle = "black";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw the image centered with high quality
+        context.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
+    }
+
+    image.onload = () => {
+        // Initial draw
+        drawImage();
+
+        // Keep redrawing for the stream (canvas.captureStream needs continuous updates)
+        const interval = setInterval(drawImage, 16); // ~60 FPS
+
+        // Store interval reference for cleanup
+        dummyFeedInterval.value = interval;
+    };
+
+    image.onerror = () => {
+        logger.error("Failed to load test image, falling back to red rectangle");
+        // Fallback to red rectangle if image fails to load
+        context.fillStyle = "red";
+        context.strokeStyle = "black";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+    };
+
+    // Load the test image
+    image.src = "/test-image.png";
+
+    // Create stream with higher frame rate and quality
+    const stream = canvas.captureStream(60); // Higher FPS for smoother rendering
     currentStream.value = stream;
 
     watch(
@@ -292,6 +355,12 @@ async function takePhoto(): Promise<void> {
 }
 
 function stopCameraStream(): void {
+    // Clear dummy feed interval if it exists
+    if (dummyFeedInterval.value) {
+        clearInterval(dummyFeedInterval.value);
+        dummyFeedInterval.value = undefined;
+    }
+
     if (currentStream.value) {
         const tracks = currentStream.value.getTracks();
 

@@ -29,10 +29,9 @@ export default defineBackendHandler({
 
         delete headers["Content-Type"]; // Let the browser set the correct Content-Type with boundary
 
-        const req = event.node.req;
         const abortController = new AbortController();
-        req.on("close", () => {
-            console.log("Request closed, aborting fetch");
+        event.node.res.on("close", () => {
+            console.log("Response closed, aborting fetch");
             abortController.abort();
         });
 
