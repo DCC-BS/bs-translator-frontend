@@ -1,11 +1,9 @@
 <script lang="ts" setup>
-import { createWorker, PSM } from "tesseract.js";
 import { TranslationService } from "~/services/translationService";
 
 interface InputProps {
     image: Blob;
 }
-
 
 interface TranslatedTextBox {
     x: number;
@@ -20,7 +18,7 @@ interface TranslatedTextBox {
 
 const props = defineProps<InputProps>();
 
-const { sourceLanguage, targetLanguage, translateText, abort } = useTranslate();
+const { sourceLanguage, targetLanguage, abort } = useTranslate();
 
 const logger = useLogger();
 const translationService = useService(TranslationService);
@@ -31,7 +29,6 @@ const isLoading = ref(true);
 const isMobile = ref(false);
 
 const isTranslatingOcr = ref(false);
-const translationProgress = ref(0);
 
 // Konva stage references
 const stageContainer = ref<HTMLDivElement>();
@@ -65,12 +62,6 @@ const wasPinching = ref(false);
 const minZoom = ref(0.1);
 const maxZoom = ref(5);
 
-// OCR data for rendering overlays
-const rotationRadian = ref(0);
-const reverseRotationDegree = computed(
-    () => 360 - rotationRadian.value * (180 / Math.PI),
-);
-
 // Text selection state
 const selectedTextBoxes = computed(() =>
     translatedBoxes.value.filter((box) => box.isSelected),
@@ -85,8 +76,13 @@ onMounted(async () => {
         );
 
     await init();
-    setupEventListeners();
     window.addEventListener("resize", handleWindowResize);
+});
+
+watch(stageContainer, (newVal) => {
+    if (newVal) {
+        setupEventListeners();
+    }
 });
 
 onUnmounted(() => {
@@ -300,22 +296,27 @@ async function preprocess(): Promise<void> {
 
     translatedBoxes.value = [];
 
-    for await (const entry of entries) {
-        isLoading.value = false;
+    isTranslatingOcr.value = true;
 
-        const w = imageWidth.value * imgRatio.value;
-        const h = imageHeight.value;
+    try {
+        for await (const entry of entries) {
+            isLoading.value = false;
 
-        translatedBoxes.value.push({
-            x: entry.bbox.left * imgRatio.value,
-            y: (h - entry.bbox.top) * imgRatio.value,
-            width: (entry.bbox.right - entry.bbox.left) * imgRatio.value,
-            height: (entry.bbox.top - entry.bbox.bottom) * imgRatio.value,
-            originalText: entry.original || "",
-            translatedText: entry.translated || "",
-            isSelected: false,
-            paragraphId: `block - ${translatedBoxes.value.length}`,
-        });
+            const h = imageHeight.value;
+
+            translatedBoxes.value.push({
+                x: entry.bbox.left * imgRatio.value,
+                y: (h - entry.bbox.top) * imgRatio.value,
+                width: (entry.bbox.right - entry.bbox.left) * imgRatio.value,
+                height: (entry.bbox.top - entry.bbox.bottom) * imgRatio.value,
+                originalText: entry.original || "",
+                translatedText: entry.translated || "",
+                isSelected: false,
+                paragraphId: `block - ${translatedBoxes.value.length}`,
+            });
+        }
+    } finally {
+        isTranslatingOcr.value = false;
     }
 }
 
@@ -626,7 +627,7 @@ function zoomToFit(): void {
                         y: 0
                     }" />
                 </v-layer>
-                <v-layer :config="{ rotation: reverseRotationDegree }">
+                <v-layer>
                     <!-- Translated text overlays (no bounding boxes) -->
                     <template v-for="(box, index) in translatedBoxes" :key="`translated-box-${index}`">
                         <!-- Background for better text readability -->
@@ -668,7 +669,6 @@ function zoomToFit(): void {
             <div v-if="isLoading" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75">
                 <div class="text-center">
                     <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-                    <p class="text-gray-600">Processing OCR...</p>
                 </div>
             </div>
         </div>
@@ -676,7 +676,10 @@ function zoomToFit(): void {
         <div class="fixed bottom-0 left-0 right-0 flex flex-col items-center bg-gray-100/90 m-1 rounded-md">
             <!-- Translation status and controls -->
             <div v-if="isTranslatingOcr" class="w-full p-2">
-                <UProgress v-model="translationProgress" status :max="1"></UProgress>
+                <div class="flex items-center justify-center">
+                    <UIcon name="i-lucide-loader-2" class="animate-spin mr-2 inline-block" />
+                    <span class="text-gray-600">Translating...</span>
+                </div>
             </div>
 
             <!-- Instructions for zoom and text selection -->
@@ -691,7 +694,6 @@ function zoomToFit(): void {
 
             <!-- Text selection and copy controls -->
             <div class="flex gap-1 m-1 md:m-2 md:gap-3 justify-center px-1 md:px-4">
-                <UButton @click="() => abortController.abort()">Abort</UButton>
                 <UButton @click="selectAllTextBoxes" :size="isMobile ? 'xs' : 'md'">
                     Select All Paragraphs
                 </UButton>

@@ -1,3 +1,4 @@
+import type { ILogger } from "@dcc-bs/logger.bs.js";
 import {
     conversionImageTextEntrySchema,
     type ConversionImageTextEntry,
@@ -8,7 +9,9 @@ import { apiStreamfetch, isApiError } from "~/utils/apiFetch";
 
 export class TranslationService {
     static readonly $injectKey = "TranslationService";
-    static readonly $inject = [];
+    static readonly $inject = ["logger"];
+
+    constructor(private readonly logger: ILogger) {}
 
     /**
      * Translates text using streaming response
@@ -87,7 +90,18 @@ export class TranslationService {
                 }
 
                 const chunk = decoder.decode(value, { stream: true });
-                yield conversionImageTextEntrySchema.parse(JSON.parse(chunk));
+                const result = conversionImageTextEntrySchema.safeParse(
+                    JSON.parse(chunk),
+                );
+
+                if (!result.success) {
+                    this.logger.error(
+                        "Failed to parse translation image text entry:",
+                        { extra: result.error },
+                    );
+                } else {
+                    yield result.data;
+                }
             }
         } finally {
             reader.releaseLock();
