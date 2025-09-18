@@ -77,11 +77,11 @@ export async function defaultFetcher<T>(
     body: unknown,
     headers: Record<string, string>,
 ): Promise<T> {
-    return await $fetch<T>(url, {
+    return (await $fetch<T>(url, {
         method,
         body: JSON.stringify(body),
         headers,
-    });
+    })) as Promise<T>;
 }
 
 /**

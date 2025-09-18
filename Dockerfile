@@ -17,12 +17,7 @@ COPY ./package*.json ./bun.lock* ./
 RUN bun install --frozen-lockfile
 
 # Copy source code
-COPY ./app ./app
-COPY ./server ./server
-COPY ./i18n ./i18n
-COPY ./public ./public
-COPY ./static ./static
-COPY ./nuxt.config.ts ./tsconfig.json ./
+COPY . .
 
 # Build the application
 RUN bun x nuxi prepare
