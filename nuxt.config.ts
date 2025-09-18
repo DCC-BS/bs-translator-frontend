@@ -1,6 +1,19 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     compatibilityDate: "2024-11-01",
+    routeRules: {
+        "/api/ping": {
+            cors: true,
+            headers: {
+                "Cache-Control": "no-store",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET",
+                "Access-Control-Allow-Headers":
+                    "Origin, Content-Type, Accept, Authorization, X-Requested-With",
+                "Access-Control-Allow-Credentials": "true",
+            },
+        },
+    },
     // Build optimization for memory usage
     build: {
         analyze: false,
