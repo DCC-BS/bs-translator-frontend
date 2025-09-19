@@ -19,7 +19,7 @@
         "@mohtasham/md-to-docx": "git+https://github.com/DCC-BS/md-to-docx.js#v3.0.0",
         "@nuxt/ui": "^3.3.0",
         "@nuxtjs/i18n": "^10.0.3",
-        "@nuxtjs/mdc": "0.17.2",
+        "@nuxtjs/mdc": "0.17.4",
         "@vueuse/core": "^13.6.0",
         "konva": "^9.3.22",
         "motion-v": "^1.7.1",
