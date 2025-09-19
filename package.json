@@ -11,6 +11,7 @@
         "check": "biome check --write"
     },
     "dependencies": {
+        "@dcc-bs/audio-recorder.bs.js": "file:../audio-recorder.bs.js",
         "@dcc-bs/common-ui.bs.js": "git+https://github.com/DCC-BS/common-ui.bs.js.git#v1.0.5",
         "@dcc-bs/dependency-injection.bs.js": "git+https://github.com/DCC-BS/dependency-injection.bs.js.git#v0.0.13",
         "@dcc-bs/feedback-control.bs.js": "git+https://github.com/DCC-BS/feedback-control.bs.js.git#v0.1.5",
@@ -21,6 +22,7 @@
         "@nuxtjs/mdc": "0.17.2",
         "@vueuse/core": "^13.6.0",
         "konva": "^9.3.22",
+        "motion-v": "^1.7.1",
         "nuxt": "^4.0.1",
         "vue": "^3.5.18",
         "vue-konva": "^3.2.2",
