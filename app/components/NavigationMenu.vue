@@ -20,7 +20,7 @@ const items = computed<DropdownMenuItem[]>(() =>
 <template>
     <div class="flex justify-between gap-2 p-2 w-full z-50">
         <DisclaimerButton variant="ghost" />
-        <div class="text-md md:text-4xl font-bold bg-gradient-to-r text-cyan-600 hover:text-cyan-600">
+        <div class="text-md md:text-4xl font-bold bg-linear-to-r text-cyan-600 hover:text-cyan-600">
             {{ t("navigation.app") }}
         </div>
         <UDropdownMenu :items="items">
