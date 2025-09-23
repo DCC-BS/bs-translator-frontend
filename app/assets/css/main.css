@@ -5,4 +5,4 @@
 @import "@dcc-bs/common-ui.bs.js";
 /* @import "@dcc-bs/audio-recorder.bs.js"; */
 
-@config "../../../tailwind.config.js";
+@config "../../../tailwind.config.ts";
