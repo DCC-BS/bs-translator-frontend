@@ -1,0 +1,133 @@
+@theme {
+    /* Green color palette */
+    --color-green-50: #f2f7f3;
+    --color-green-100: #ddecde;
+    --color-green-200: #b8d6be;
+    --color-green-300: #7bb589;
+    --color-green-400: #469a5d;
+    --color-green-500: #2a9749;
+    --color-green-600: #32834a;
+    --color-green-700: #2a713f;
+    --color-green-800: #245333;
+    --color-green-900: #1f402a;
+
+    /* Blue color palette */
+    --color-blue-50: #f2fdff;
+    --color-blue-100: #dbf9ff;
+    --color-blue-200: #b6edfa;
+    --color-blue-300: #85d4ee;
+    --color-blue-400: #51b9da;
+    --color-blue-500: #079bca;
+    --color-blue-600: #0e81a7;
+    --color-blue-700: #146c8b;
+    --color-blue-800: #1b5268;
+    --color-blue-900: #1e4557;
+
+    /* Purple color palette */
+    --color-purple-50: #f9f6fd;
+    --color-purple-100: #f4edfa;
+    --color-purple-200: #e8daf4;
+    --color-purple-300: #d7bdea;
+    --color-purple-400: #c196dc;
+    --color-purple-500: #a56cc9;
+    --color-purple-600: #9156b4;
+    --color-purple-700: #723d8e;
+    --color-purple-800: #5f3375;
+    --color-purple-900: #512e61;
+
+    /* Red color palette */
+    --color-red-50: #fff1ef;
+    --color-red-100: #ffe0dc;
+    --color-red-200: #ffc7bf;
+    --color-red-300: #ff9f92;
+    --color-red-400: #ff6854;
+    --color-red-500: #ff3a1f;
+    --color-red-600: #ff1e00;
+    --color-red-700: #db1a00;
+    --color-red-800: #b81600;
+    --color-red-900: #941908;
+
+    /* Gray color palette */
+    --color-gray-20: #f8f8f8;
+    --color-gray-50: #f2f2f2;
+    --color-gray-100: #ebebeb;
+    --color-gray-200: #e3e3e3;
+    --color-gray-300: #bababa;
+    --color-gray-400: #a5a5a5;
+    --color-gray-500: #949494;
+    --color-gray-600: #777777;
+    --color-gray-700: #535353;
+    --color-gray-800: #403f3f;
+    --color-gray-900: #333333;
+
+    /* Brown color palette */
+    --color-brown-50: #faf6f4;
+    --color-brown-100: #f0e4dd;
+    --color-brown-200: #dcc3b0;
+    --color-brown-300: #bf9a7a;
+    --color-brown-400: #a57251;
+    --color-brown-500: #8b5734;
+    --color-brown-600: #73472a;
+    --color-brown-700: #5b3821;
+    --color-brown-800: #45301b;
+    --color-brown-900: #362718;
+
+    /* Yellow color palette */
+    --color-yellow-50: #fffdf2;
+    --color-yellow-100: #fff5cc;
+    --color-yellow-200: #ffe699;
+    --color-yellow-300: #ffcf4d;
+    --color-yellow-400: #ffbb1a;
+    --color-yellow-500: #ffaa00;
+    --color-yellow-600: #e69500;
+    --color-yellow-700: #b37700;
+    --color-yellow-800: #805900;
+    --color-yellow-900: #664700;
+
+    /* Teal color palette */
+    --color-teal-50: #f2fcfa;
+    --color-teal-100: #cff5ef;
+    --color-teal-200: #9aeadc;
+    --color-teal-300: #5bdcc5;
+    --color-teal-400: #29c9a9;
+    --color-teal-500: #00b590;
+    --color-teal-600: #009a79;
+    --color-teal-700: #007d63;
+    --color-teal-800: #005f4a;
+    --color-teal-900: #004c3b;
+
+    /* Monochrome colors */
+    --color-white: #ffffff;
+    --color-black: #000000;
+    --color-transparent: transparent;
+
+    /* Dynamic primary colors (these will be overridden at runtime by the Bettingen site) */
+    /* Note: The actual RGB values for primary colors should be defined elsewhere as CSS variables */
+    /* and then referenced here. For now, setting defaults based on your blue palette: */
+    --color-primary-50: #f2fdff;
+    --color-primary-100: #dbf9ff;
+    --color-primary-200: #b6edfa;
+    --color-primary-300: #85d4ee;
+    --color-primary-400: #51b9da;
+    --color-primary-500: #079bca;
+    --color-primary-600: #0e81a7;
+    --color-primary-700: #146c8b;
+    --color-primary-800: #1b5268;
+    --color-primary-900: #1e4557;
+}
+
+/* Primary color overrides for runtime customization */
+/* These CSS variables can be overridden by the Bettingen site at runtime */
+:root {
+    /* Default primary color values - can be overridden */
+    --color-primary-50: 242, 253, 255;
+    --color-primary-100: 219, 249, 255;
+    --color-primary-200: 182, 237, 250;
+    --color-primary-300: 133, 212, 238;
+    --color-primary-400: 81, 185, 218;
+    --color-primary-500: 7, 155, 202;
+    --color-primary-600: 14, 129, 167;
+    --color-primary-700: 20, 108, 139;
+    --color-primary-800: 27, 82, 104;
+    --color-primary-900: 30, 69, 87;
+}

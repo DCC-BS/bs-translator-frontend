@@ -3,16 +3,15 @@ import type { Config } from "tailwindcss";
 import fs from "node:fs";
 import path from "node:path";
 import plugin from "tailwindcss/plugin.js";
-// Note: colors import removed as colors are now defined in CSS theme file
 
 const customContent: Record<string, string> = {
     "arrow-east": '"→"',
     "arrow-west": '"←"',
     "arrow-north-east": '"↗"',
     "arrow-south": '"↓"',
-    "underscore-long": '""',
+    "underscore-long": '""',
     cross: '"✗"',
-    plus: '""',
+    plus: '""',
     reload: '"↻"',
     check: '"✓"',
     "caret-south": '"⌄"',
@@ -46,8 +45,6 @@ const fontSize: Record<string, [string, string]> = {
     sm: ["14px", "20px"],
     xs: ["12px", "18px"],
 };
-
-// Note: colorsShaded removed as colors are now defined in CSS theme file
 
 const projectRoot = path.resolve(".");
 
@@ -94,7 +91,6 @@ function getContentDependencies(path: string) {
 
 const config: Config = {
     content: getContentDependencies(projectRoot),
-    blocklist: [],
     plugins: [
         /**
          * Various additional variants
@@ -153,12 +149,6 @@ const config: Config = {
             );
         }),
     ],
-    corePlugins: {
-        textOpacity: false,
-        container: false,
-        // Disabled because we have our own implementation that adds a fallback.
-        content: false,
-    },
     theme: {
         customContent,
         screens: {
@@ -235,28 +225,6 @@ const config: Config = {
             full: "9999px",
             large: "10px",
             DEFAULT: "4px",
-        },
-        colors: {
-            // Monochrome colors.
-            white: "#ffffff",
-            current: "currentColor",
-            transparent: "transparent",
-            body: "black",
-            // Note: All other colors are now defined in the CSS theme file
-
-            // The dynamic CSS variable based primary color which is overridden by the Bettingen site at runtime.
-            primary: {
-                50: "rgb(var(--color-primary-50) / <alpha-value>)",
-                100: "rgb(var(--color-primary-100) / <alpha-value>)",
-                200: "rgb(var(--color-primary-200) / <alpha-value>)",
-                300: "rgb(var(--color-primary-300) / <alpha-value>)",
-                400: "rgb(var(--color-primary-400) / <alpha-value>)",
-                500: "rgb(var(--color-primary-500) / <alpha-value>)",
-                600: "rgb(var(--color-primary-600) / <alpha-value>)",
-                700: "rgb(var(--color-primary-700) / <alpha-value>)",
-                800: "rgb(var(--color-primary-800) / <alpha-value>)",
-                900: "rgb(var(--color-primary-900) / <alpha-value>)",
-            },
         },
         extend: {
             zIndex,
@@ -379,9 +347,10 @@ const config: Config = {
                 },
             },
             animation: {
-                "jump-x": `jump-x var(--animation-duration, 0.4s) ease-in-out`,
-                "jump-y": `jump-y var(--animation-duration, 0.5s) ease-in-out`,
-                "jump-scale": `jump-scale var(--animation-duration, 0.5s) ease-in-out`,
+                "jump-x": "jump-x var(--animation-duration, 0.4s) ease-in-out",
+                "jump-y": "jump-y var(--animation-duration, 0.5s) ease-in-out",
+                "jump-scale":
+                    "jump-scale var(--animation-duration, 0.5s) ease-in-out",
                 "jump-x-reverse":
                     "jump-x-reverse var(--animation-duration, 0.5s) ease-in-out",
                 "jump-xy":
