@@ -1,8 +1,5 @@
-@import "./kantonbs/index.css";
 @import "tailwindcss";
 @import "@nuxt/ui";
 @import "./markdown.css";
 @import "@dcc-bs/common-ui.bs.js";
 /* @import "@dcc-bs/audio-recorder.bs.js"; */
-
-@config "../../../tailwind.v4.config.ts";
