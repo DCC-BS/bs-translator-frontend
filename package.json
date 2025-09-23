@@ -11,7 +11,7 @@
         "check": "biome check --write"
     },
     "dependencies": {
-        "@dcc-bs/audio-recorder.bs.js": "file:../audio-recorder.bs.js",
+        "@dcc-bs/audio-recorder.bs.js": "git+https://github.com/DCC-BS/audio-recorder.bs.js#v0.0.3",
         "@dcc-bs/common-ui.bs.js": "git+https://github.com/DCC-BS/common-ui.bs.js.git#v1.0.5",
         "@dcc-bs/dependency-injection.bs.js": "git+https://github.com/DCC-BS/dependency-injection.bs.js.git#v0.0.13",
         "@dcc-bs/feedback-control.bs.js": "git+https://github.com/DCC-BS/feedback-control.bs.js.git#v0.1.5",
@@ -20,10 +20,13 @@
         "@nuxt/ui": "^3.3.0",
         "@nuxtjs/i18n": "^10.0.3",
         "@nuxtjs/mdc": "0.17.4",
+        "@vue/compiler-sfc": "^3.5.21",
         "@vueuse/core": "^13.6.0",
         "konva": "^9.3.22",
         "motion-v": "^1.7.1",
         "nuxt": "^4.0.1",
+        "tailwindcss": "^4.1.13",
+        "uuid": "^13.0.0",
         "vue": "^3.5.18",
         "vue-konva": "^3.2.2",
         "vue-router": "^4.5.1",
@@ -36,8 +39,6 @@
         "@iconify-json/lucide": "^1.2.58",
         "@types/bun": "^1.2.19",
         "jiti": "^2.5.1",
-        "sass": "1.93.1",
-        "sass-loader": "^16.0.5",
         "typescript": "^5.8.3"
     }
 }
