@@ -167,49 +167,64 @@ function onCapturePhoto() {
             </motion.div>
         </MotionUCard>
 
-        <!-- Language selection area -->
-        <LanguageSelectionBar class="mb-2" v-model:source-language="sourceLanguage"
-            v-model:target-language="targetLanguage" @swap-languages="swapLanguages" />
+        <SplitContainer>
+            <template #header>
+                <div class="flex items-center w-full">
 
-        <!-- Text editor area -->
-        <div class="grid grid-cols-1 grid-rows-2 md:grid-cols-2 md:grid-rows-1 gap-6">
-            <div class="min-h-[350px]">
-                <div class="flex flex-1 justify-between mb-2">
-                    <div class="flex items-center gap-2">
-                        <UBadge color="neutral" variant="soft">{{ t('ui.sourceText') }}</UBadge>
-                        <UButton size="xs" color="primary" @click="triggerFileUpload" :loading="isConverting"
+                    <div class="flex gap-2 flex-1">
+                        <UButton size="xs" color="secondary" @click="triggerFileUpload" :loading="isConverting"
                             :disabled="isConverting" icon="i-lucide-file-up" variant="soft">
-                            {{ isConverting ? t('ui.uploading') : t('ui.uploadFile') }}
+                            <span class="hidden md:inline">
+                                {{ isConverting ? t('ui.uploading') : t('ui.uploadFile') }}
+                            </span>
                         </UButton>
                         <input type="file" ref="fileInputRef" class="hidden" @change="onFileSelect"
                             accept=".txt,.doc,.docx,.pdf,.md,.html,.rtf" />
 
                         <UButton size="xs" color="secondary" variant="soft" icon="i-lucide-camera"
                             @click="onCapturePhoto">
-                            {{ t('ui.takePhoto') }}
+                            <span class="hidden md:inline">
+                                {{ t('ui.takePhoto') }}
+                            </span>
                         </UButton>
                     </div>
 
-                    <UBadge v-if="charCount > 0" color="primary" variant="soft">{{ charCount }} {{ t('ui.characters') }}
-                    </UBadge>
-                </div>
-                <SourceTextView v-model="sourceText" :is-over-drop-zone="isOverDropZone" :is-converting="isConverting"
-                    :error="conversionError" :fileName="fileName" :language-code="sourceLanguage" class="h-full"
-                    ref="dropZoneRef" @clear-error="clearError" />
+                    <!-- Language selection area -->
+                    <LanguageSelectionBar v-model:source-language="sourceLanguage"
+                        v-model:target-language="targetLanguage" @swap-languages="swapLanguages" />
 
-            </div>
-            <div class="min-h-[350px]">
-                <div class="flex justify-between mb-2 flex-1">
-                    <UBadge color="neutral" variant="soft">{{ t('ui.translation') }}</UBadge>
-                    <UBadge v-if="translatedText && !isTranslating" color="success" variant="soft">{{ t('ui.completed')
-                        }}
-                    </UBadge>
-                    <UBadge v-else-if="translatedText" color="info" variant="soft">{{ t('ui.inProgress') }}</UBadge>
+                    <div class="flex flex-1 justify-end mb-2">
+                        <UBadge color="neutral" variant="soft">{{ t('ui.translation') }}</UBadge>
+                        <UBadge v-if="translatedText && !isTranslating" color="success" variant="soft">{{
+                            t('ui.completed')
+                            }}
+                        </UBadge>
+                        <UBadge v-else-if="translatedText" color="info" variant="soft">{{ t('ui.inProgress') }}</UBadge>
+                    </div>
                 </div>
-                <TargetTextView v-model="translatedText" :is-translating="isTranslating" :languageCode="targetLanguage"
-                    class="h-full" />
-            </div>
-        </div>
+            </template>
+
+            <template #left>
+                <div class="h-full w-full relative">
+                    <SourceTextView v-model="sourceText" :is-over-drop-zone="isOverDropZone"
+                        :is-converting="isConverting" :error="conversionError" :fileName="fileName"
+                        :language-code="sourceLanguage" class="h-full" ref="dropZoneRef" @clear-error="clearError" />
+
+                    <div class="absolute bottom-0 right-0">
+                        <div v-if="charCount > 0">{{ charCount }} {{
+                            t('ui.characters') }}
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template #right>
+                <div class="h-full w-full">
+                    <TargetTextView v-model="translatedText" :is-translating="isTranslating"
+                        :languageCode="targetLanguage" class="h-full" />
+                </div>
+            </template>
+        </SplitContainer>
     </div>
 </template>
 

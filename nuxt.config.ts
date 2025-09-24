@@ -58,19 +58,12 @@ export default defineNuxtConfig({
     modules: [
         "@nuxt/ui",
         "@nuxtjs/i18n",
+        "@dcc-bs/common-ui.bs.js",
         "@dcc-bs/logger.bs.js",
         "@dcc-bs/feedback-control.bs.js",
         "@dcc-bs/dependency-injection.bs.js",
         "@dcc-bs/audio-recorder.bs.js",
         "@nuxtjs/mdc",
-        // [
-        //     "@kanton-basel-stadt/designsystem/nuxt",
-        //     {
-        //         iconOptions: {
-        //             compiler: "vue3",
-        //         },
-        //     },
-        // ],
     ],
     "feedback-control.bs.js": {
         repo: "Feedback",

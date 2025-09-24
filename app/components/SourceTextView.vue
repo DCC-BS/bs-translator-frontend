@@ -98,7 +98,7 @@ watch(
         </div>
 
         <UTextarea v-model="sourceText" class="w-full h-full min-h-[200px]"
-            :ui="{ base: 'relative transition-all duration-300 flex-1 h-full' }"
+            :ui="{ base: 'relative transition-all duration-300 flex-1 h-full' }" variant="none"
             :placeholder="t('ui.enterTextPlaceholder')" :dir="direction" autoresize autofocus />
 
         <UButton v-if="sourceText" icon="i-lucide-x" variant="link" color="neutral" size="xs"

@@ -157,7 +157,7 @@ async function downloadWord(): Promise<void> {
 </script>
 
 <template>
-    <div class="relative flex-1 bg-gray-50 p-[5px] dark:bg-gray-900 rounded-md max-h-[300px]"
+    <div class="relative flex-1 bg-gray-50 p-[5px] dark:bg-gray-900 max-h-[300px]"
         :class="{ 'translating-border': props.isTranslating }">
         <div v-if="showMarkdown && translatedText" :dir="direction"
             class="w-full h-full pb-12 overflow-auto prose dark:prose-invert max-w-none">
