@@ -124,9 +124,9 @@ function onCapturePhoto() {
 </script>
 
 <template>
-    <div class="p-4 mx-auto">
+    <div class="h-full w-full p-4">
         <!-- Translation settings panel -->
-        <MotionUCard layout class="mb-6 shadow-sm transition-all duration-300 ease-in-out overflow-hidden" :class="[
+        <!-- <MotionUCard layout class="mb-6 shadow-sm transition-all duration-300 ease-in-out overflow-hidden" :class="[
             settingsExpanded
                 ? 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700'
                 : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-800'
@@ -165,15 +165,15 @@ function onCapturePhoto() {
                     </UFormField>
                 </div>
             </motion.div>
-        </MotionUCard>
+        </MotionUCard> -->
 
-        <SplitContainer>
+        <SplitContainer class="h-full">
             <template #header>
                 <div class="flex items-center w-full">
 
                     <div class="flex gap-2 flex-1">
-                        <UButton size="xs" color="secondary" @click="triggerFileUpload" :loading="isConverting"
-                            :disabled="isConverting" icon="i-lucide-file-up" variant="soft">
+                        <UButton size="xs" color="neutral" @click="triggerFileUpload" :loading="isConverting"
+                            :disabled="isConverting" icon="i-lucide-file-up" variant="ghost">
                             <span class="hidden md:inline">
                                 {{ isConverting ? t('ui.uploading') : t('ui.uploadFile') }}
                             </span>
@@ -181,7 +181,7 @@ function onCapturePhoto() {
                         <input type="file" ref="fileInputRef" class="hidden" @change="onFileSelect"
                             accept=".txt,.doc,.docx,.pdf,.md,.html,.rtf" />
 
-                        <UButton size="xs" color="secondary" variant="soft" icon="i-lucide-camera"
+                        <UButton size="xs" color="neutral" variant="ghost" icon="i-lucide-camera"
                             @click="onCapturePhoto">
                             <span class="hidden md:inline">
                                 {{ t('ui.takePhoto') }}
@@ -194,12 +194,19 @@ function onCapturePhoto() {
                         v-model:target-language="targetLanguage" @swap-languages="swapLanguages" />
 
                     <div class="flex flex-1 justify-end mb-2">
-                        <UBadge color="neutral" variant="soft">{{ t('ui.translation') }}</UBadge>
-                        <UBadge v-if="translatedText && !isTranslating" color="success" variant="soft">{{
-                            t('ui.completed')
-                            }}
-                        </UBadge>
-                        <UBadge v-else-if="translatedText" color="info" variant="soft">{{ t('ui.inProgress') }}</UBadge>
+                        <UDropdownMenu>
+                            <UButton variant="link" color="neutral" trailing-icon="i-lucide-chevron-down">{{
+                                t('ui.tone') }}</UButton>
+                        </UDropdownMenu>
+                        <UDropdownMenu>
+                            <UButton variant="link" color="neutral" trailing-icon="i-lucide-chevron-down">{{
+                                t('ui.domain') }}</UButton>
+                        </UDropdownMenu>
+                        <UDropdownMenu>
+                            <UButton variant="link" color="neutral" leading-icon="i-lucide-book-text"
+                                trailing-icon="i-lucide-chevron-down">{{
+                                    t('ui.glossary') }}</UButton>
+                        </UDropdownMenu>
                     </div>
                 </div>
             </template>
@@ -219,9 +226,17 @@ function onCapturePhoto() {
             </template>
 
             <template #right>
-                <div class="h-full w-full">
+                <div class="h-full w-full relative">
                     <TargetTextView v-model="translatedText" :is-translating="isTranslating"
                         :languageCode="targetLanguage" class="h-full" />
+
+                    <div class="absolute bottom-0 right-0">
+                        <UBadge v-if="translatedText && !isTranslating" color="success" variant="soft">{{
+                            t('ui.completed')
+                        }}
+                        </UBadge>
+                        <UBadge v-else-if="translatedText" color="info" variant="soft">{{ t('ui.inProgress') }}</UBadge>
+                    </div>
                 </div>
             </template>
         </SplitContainer>
