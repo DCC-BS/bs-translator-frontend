@@ -2,7 +2,7 @@
 </script>
 
 <template>
-    <div class="mb-4 h-full">
+    <div class="h-full">
         <TranslateView />
     </div>
 </template>

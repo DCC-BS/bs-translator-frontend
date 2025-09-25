@@ -6,7 +6,7 @@ const { t } = useI18n();
 const items = computed(() =>
     domains.map((domain) => ({
         value: domain,
-        name: t(`domains.${domain}`),
+        label: t(`domains.${domain}`),
     })),
 );
 
@@ -16,10 +16,7 @@ const selectedDomain = defineModel<Domain>({
 </script>
 
 <template>
-    <USelectMenu v-model="selectedDomain" :items="items" :value-key="'value'">
-        <span>{{ t(`domains.${selectedDomain}`) }}</span>
-        <template #item="{ item }">
-            <span>{{ item.name }}</span>
-        </template>
-    </USelectMenu>
+    <div class="overflow-auto max-h-[500px]">
+        <URadioGroup v-model="selectedDomain" color="primary" variant="table" :items="items" />
+    </div>
 </template>

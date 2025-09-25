@@ -6,7 +6,7 @@ const { t } = useI18n();
 const items = computed(() =>
     tones.map((tone) => ({
         value: tone,
-        name: t(`tones.${tone}`),
+        label: t(`tones.${tone}`),
     })),
 );
 
@@ -16,10 +16,5 @@ const selectedTone = defineModel<Tone>({
 </script>
 
 <template>
-  <USelectMenu v-model="selectedTone" :items="items" :value-key="'value'">
-    <span>{{ t(`tones.${selectedTone}`) }}</span>
-    <template #item="{ item }">
-      <span>{{ item.name }}</span>
-    </template>
-  </USelectMenu>
+    <URadioGroup v-model="selectedTone" color="primary" variant="table" :items="items" />
 </template>

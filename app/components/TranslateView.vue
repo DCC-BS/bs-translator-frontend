@@ -194,19 +194,29 @@ function onCapturePhoto() {
                         v-model:target-language="targetLanguage" @swap-languages="swapLanguages" />
 
                     <div class="flex flex-1 justify-end mb-2">
-                        <UDropdownMenu>
+                        <UPopover :ui="{ content: 'bg-none ring-0 shadow-none' }">
                             <UButton variant="link" color="neutral" trailing-icon="i-lucide-chevron-down">{{
                                 t('ui.tone') }}</UButton>
-                        </UDropdownMenu>
-                        <UDropdownMenu>
+                            <template #content>
+                                <ToneSelectionView v-model="tone" />
+                            </template>
+                        </UPopover>
+                        <UPopover :ui="{ content: 'bg-none ring-0 shadow-none' }">
                             <UButton variant="link" color="neutral" trailing-icon="i-lucide-chevron-down">{{
                                 t('ui.domain') }}</UButton>
-                        </UDropdownMenu>
-                        <UDropdownMenu>
+
+                            <template #content>
+                                <DomainSelectionView v-model="domain" />
+                            </template>
+                        </UPopover>
+                        <UPopover>
                             <UButton variant="link" color="neutral" leading-icon="i-lucide-book-text"
                                 trailing-icon="i-lucide-chevron-down">{{
                                     t('ui.glossary') }}</UButton>
-                        </UDropdownMenu>
+                            <template #content>
+                                <GlossarySelectionView v-model="glossary" class="max-w-md" />
+                            </template>
+                        </UPopover>
                     </div>
                 </div>
             </template>
@@ -233,7 +243,7 @@ function onCapturePhoto() {
                     <div class="absolute bottom-0 right-0">
                         <UBadge v-if="translatedText && !isTranslating" color="success" variant="soft">{{
                             t('ui.completed')
-                        }}
+                            }}
                         </UBadge>
                         <UBadge v-else-if="translatedText" color="info" variant="soft">{{ t('ui.inProgress') }}</UBadge>
                     </div>
