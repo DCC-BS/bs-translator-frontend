@@ -94,8 +94,8 @@ function focusLastEntry(): void {
             "$el" in inputRef
                 ? inputRef.$el?.querySelector("input")
                 : inputRef instanceof HTMLInputElement
-                    ? inputRef
-                    : (inputRef as HTMLElement)?.querySelector("input");
+                  ? inputRef
+                  : (inputRef as HTMLElement)?.querySelector("input");
         inputElement?.focus();
     }
 }
