@@ -1,12 +1,18 @@
 <script lang="ts" setup>
-import { Disclaimer } from "@dcc-bs/common-ui.bs.js";
+
+
 </script>
 
 <template>
     <Disclaimer app-name="BS Übersetzer" />
     <FeedbackControl />
     <UApp>
-        <NavigationMenu />
-        <slot />
+        <NavigationBar />
+        <div class="h-[600px] md:h-[calc(100vh-100px)] flex flex-col">
+            <div class="grow">
+                <slot />
+            </div>
+            <DataBsFooter />
+        </div>
     </UApp>
 </template>

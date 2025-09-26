@@ -226,7 +226,7 @@ function calculateOptimalFontSize(
     boxWidth: number,
     boxHeight: number,
     maxFontSize = 18,
-    minFontSize = 8
+    minFontSize = 8,
 ): number {
     if (!text || boxWidth <= 0 || boxHeight <= 0) {
         return minFontSize;
@@ -241,12 +241,17 @@ function calculateOptimalFontSize(
 
     // Calculate font size based on width constraint
     const availableWidth = boxWidth - 4; // Account for padding
-    const estimatedCharsPerLine = Math.floor(availableWidth / (maxFontSize * avgCharWidthRatio));
-    const estimatedLines = Math.ceil(text.length / Math.max(estimatedCharsPerLine, 1));
+    const estimatedCharsPerLine = Math.floor(
+        availableWidth / (maxFontSize * avgCharWidthRatio),
+    );
+    const estimatedLines = Math.ceil(
+        text.length / Math.max(estimatedCharsPerLine, 1),
+    );
 
     // Font size based on height constraint
     const availableHeight = boxHeight - 4; // Account for padding
-    const fontSizeByHeight = availableHeight / (estimatedLines * lineHeightRatio);
+    const fontSizeByHeight =
+        availableHeight / (estimatedLines * lineHeightRatio);
 
     // Font size based on width constraint
     const fontSizeByWidth = availableWidth / (text.length * avgCharWidthRatio);
@@ -255,7 +260,10 @@ function calculateOptimalFontSize(
     const calculatedSize = Math.min(fontSizeByHeight, fontSizeByWidth);
 
     // Apply min/max constraints
-    return Math.max(minFontSize, Math.min(maxFontSize, Math.floor(calculatedSize)));
+    return Math.max(
+        minFontSize,
+        Math.min(maxFontSize, Math.floor(calculatedSize)),
+    );
 }
 
 /**
@@ -284,7 +292,6 @@ async function loadImage(): Promise<void> {
 
 // OCR and translation functions
 async function preprocess(): Promise<void> {
-
     const entries = translationService.translateImage(
         props.image,
         {
@@ -349,9 +356,9 @@ async function copyTextToClipboard(): Promise<void> {
     const textToCopy =
         selectedTextBoxes.value.length > 0
             ? selectedTextBoxes.value
-                .map((box) => box.translatedText)
-                .join("\n\n") // Separate paragraphs with double newlines
-            : translatedBoxes.value.map(x => x.translatedText).join("\n\n"); // Format all text as paragraphs
+                  .map((box) => box.translatedText)
+                  .join("\n\n") // Separate paragraphs with double newlines
+            : translatedBoxes.value.map((x) => x.translatedText).join("\n\n"); // Format all text as paragraphs
 
     if (textToCopy.trim()) {
         try {

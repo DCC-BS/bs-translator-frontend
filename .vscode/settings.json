@@ -13,11 +13,14 @@
     "[vue]": {
         "editor.defaultFormatter": "Vue.volar"
     },
-    "workbench.colorCustomizations": {
-        "editorCursor.foreground": "#ef857d",
-        "activityBarBadge.background": "#e9dbb7",
-        "activityBarBadge.foreground": "#262626",
-        "statusBar.background": "#9f5a51",
-        "statusBar.foreground": "#e9dbb7"
-    } // optional but recommended
+    "files.associations": {
+        "*.css": "tailwindcss"
+    },
+    "editor.quickSuggestions": {
+        "strings": "on"
+    },
+    "tailwindCSS.classAttributes": ["class", "ui"],
+    "tailwindCSS.experimental.classRegex": [
+        ["ui:\\s*{([^)]*)\\s*}", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+    ]
 }

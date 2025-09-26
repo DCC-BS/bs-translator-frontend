@@ -1,7 +1,7 @@
 import type { ILogger } from "@dcc-bs/logger.bs.js";
 import {
-    conversionImageTextEntrySchema,
     type ConversionImageTextEntry,
+    conversionImageTextEntrySchema,
 } from "~/models/convertionResult";
 import type { TranslationConfig } from "~/models/translationConfig";
 import type { TranslationInput } from "~/models/translationInput";

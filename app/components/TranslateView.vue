@@ -124,92 +124,62 @@ function onCapturePhoto() {
 </script>
 
 <template>
-    <div class="p-4 mx-auto">
-        <!-- Translation settings panel -->
-        <MotionUCard layout class="mb-6 shadow-sm transition-all duration-300 ease-in-out overflow-hidden" :class="[
-            settingsExpanded
-                ? 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700'
-                : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-800'
-        ]">
-            <div class=" flex justify-between items-center">
-                <h3 class="text-lg font-medium">{{ t('ui.translationSettings') }}</h3>
-                <UButton :icon="settingsExpanded ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'" variant="ghost"
-                    size="sm" class="transition-transform duration-200"
-                    @click="() => { settingsExpanded = !settingsExpanded }">
-                    {{ settingsExpanded ? t('ui.hideSettings') : t('ui.showSettings') }}
-                </UButton>
-            </div>
-
-            <motion.div :animate="{
-                height: settingsExpanded ? 'auto' : 0,
-                opacity: settingsExpanded ? 1 : 0,
-                marginTop: settingsExpanded ? 16 : 0
-            }" :transition="{
-                duration: 0.4,
-                ease: 'easeInOut',
-                height: { duration: 0.4 },
-                opacity: { duration: 0.3, delay: settingsExpanded ? 0.1 : 0 },
-                marginTop: { duration: 0.4 }
-            }" style="overflow: hidden;">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <UFormField :label="t('ui.tone')" :help="t('ui.toneHelp')">
-                        <ToneSelectionView v-model="tone" class="w-full" />
-                    </UFormField>
-
-                    <UFormField :label="t('ui.domain')" :help="t('ui.domainHelp')">
-                        <DomainSelectionView v-model="domain" class="w-full" />
-                    </UFormField>
-
-                    <UFormField :label="t('ui.glossary')" :help="t('ui.glossaryHelp')">
-                        <UInput v-model="glossary" :placeholder="t('ui.glossaryPlaceholder')" class="w-full" />
-                    </UFormField>
-                </div>
-            </motion.div>
-        </MotionUCard>
-
-        <!-- Language selection area -->
-        <LanguageSelectionBar class="mb-2" v-model:source-language="sourceLanguage"
-            v-model:target-language="targetLanguage" @swap-languages="swapLanguages" />
-
-        <!-- Text editor area -->
-        <div class="grid grid-cols-1 grid-rows-2 md:grid-cols-2 md:grid-rows-1 gap-6">
-            <div class="min-h-[350px]">
-                <div class="flex flex-1 justify-between mb-2">
-                    <div class="flex items-center gap-2">
-                        <UBadge color="neutral" variant="soft">{{ t('ui.sourceText') }}</UBadge>
-                        <UButton size="xs" color="primary" @click="triggerFileUpload" :loading="isConverting"
-                            :disabled="isConverting" icon="i-lucide-file-up" variant="soft">
-                            {{ isConverting ? t('ui.uploading') : t('ui.uploadFile') }}
+    <div class="h-full w-full p-4 flex flex-col">
+        <SplitContainer class="flex-1 min-h-0">
+            <template #header>
+                <div class="flex items-center w-full">
+                    <div class="flex gap-2 flex-1">
+                        <UButton size="xs" color="neutral" @click="triggerFileUpload" :loading="isConverting"
+                            :disabled="isConverting" icon="i-lucide-file-up" variant="ghost">
+                            <span class="hidden md:inline">
+                                {{ isConverting ? t('ui.uploading') : t('ui.uploadFile') }}
+                            </span>
                         </UButton>
                         <input type="file" ref="fileInputRef" class="hidden" @change="onFileSelect"
                             accept=".txt,.doc,.docx,.pdf,.md,.html,.rtf" />
 
-                        <UButton size="xs" color="secondary" variant="soft" icon="i-lucide-camera"
+                        <!-- <UButton size="xs" color="neutral" variant="ghost" icon="i-lucide-camera"
                             @click="onCapturePhoto">
-                            {{ t('ui.takePhoto') }}
-                        </UButton>
+                            <span class="hidden md:inline">
+                                {{ t('ui.takePhoto') }}
+                            </span>
+                        </UButton> -->
                     </div>
 
-                    <UBadge v-if="charCount > 0" color="primary" variant="soft">{{ charCount }} {{ t('ui.characters') }}
-                    </UBadge>
-                </div>
-                <SourceTextView v-model="sourceText" :is-over-drop-zone="isOverDropZone" :is-converting="isConverting"
-                    :error="conversionError" :fileName="fileName" :language-code="sourceLanguage" class="h-full"
-                    ref="dropZoneRef" @clear-error="clearError" />
+                    <!-- Language selection area -->
+                    <div class="hidden xl:inline">
+                        <LanguageSelectionBar v-model:source-language="sourceLanguage"
+                            v-model:target-language="targetLanguage" @swap-languages="swapLanguages" />
+                    </div>
 
-            </div>
-            <div class="min-h-[350px]">
-                <div class="flex justify-between mb-2 flex-1">
-                    <UBadge color="neutral" variant="soft">{{ t('ui.translation') }}</UBadge>
-                    <UBadge v-if="translatedText && !isTranslating" color="success" variant="soft">{{ t('ui.completed')
-                        }}
-                    </UBadge>
-                    <UBadge v-else-if="translatedText" color="info" variant="soft">{{ t('ui.inProgress') }}</UBadge>
+                    <OptionsToolBar v-model:tone="tone" v-model:domain="domain" v-model:glossary="glossary" />
                 </div>
-                <TargetTextView v-model="translatedText" :is-translating="isTranslating" :languageCode="targetLanguage"
-                    class="h-full" />
-            </div>
-        </div>
+                <div class="flex justify-center xl:hidden">
+                    <LanguageSelectionBar v-model:source-language="sourceLanguage"
+                        v-model:target-language="targetLanguage" @swap-languages="swapLanguages" />
+                </div>
+            </template>
+
+            <template #left>
+                <div class="h-full w-full relative">
+                    <SourceTextView v-model="sourceText" :is-over-drop-zone="isOverDropZone"
+                        :is-converting="isConverting" :error="conversionError" :fileName="fileName"
+                        :language-code="sourceLanguage" ref="dropZoneRef" @clear-error="clearError" />
+                    <div class="text-gray-300 absolute bottom-0 right-4">
+                        <div v-if="charCount > 0">{{ charCount }} {{
+                            t('ui.characters') }}
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template #right>
+                <div class="h-full w-full">
+                    <TargetTextView v-model="translatedText" :is-translating="isTranslating"
+                        :languageCode="targetLanguage" />
+                </div>
+            </template>
+        </SplitContainer>
     </div>
 </template>
 

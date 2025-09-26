@@ -238,7 +238,9 @@ async function dummyCameraFeed() {
     };
 
     image.onerror = () => {
-        logger.error("Failed to load test image, falling back to red rectangle");
+        logger.error(
+            "Failed to load test image, falling back to red rectangle",
+        );
         // Fallback to red rectangle if image fails to load
         context.fillStyle = "red";
         context.strokeStyle = "black";
