@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { DropdownMenuItem, TabsItem } from "@nuxt/ui";
+import type { TabsItem } from "@nuxt/ui";
 import type { Domain } from "~/models/domain";
 import type { Tone } from "~/models/tone";
 
@@ -8,38 +8,6 @@ const { t } = useI18n();
 const tone = defineModel<Tone>("tone");
 const domain = defineModel<Domain>("domain");
 const glossary = defineModel<string>("glossary");
-
-const items = computed<DropdownMenuItem[]>(() => [
-    {
-        label: t("ui.tone"),
-        value: "new",
-        children: [
-            {
-                slot: "tone",
-            },
-        ],
-    },
-    {
-        label: t("ui.domain"),
-        value: "load",
-        children: [
-            {
-                slot: "domain",
-            },
-        ],
-    },
-    {
-        label: t("ui.glossary"),
-        value: "save",
-        children: [
-            {
-                slot: "glossary",
-            },
-        ],
-    },
-]);
-
-const isOpen = ref(false);
 
 const tabs = ref<TabsItem[]>([
     {
@@ -59,7 +27,7 @@ const tabs = ref<TabsItem[]>([
 
 <template>
     <UDrawer>
-        <UButton class="md:hidden" icon="i-lucide-menu" color="neutral" variant="ghost" @click="isOpen = !isOpen">
+        <UButton class="md:hidden" icon="i-lucide-menu" color="neutral" variant="ghost">
         </UButton>
 
         <template #content>

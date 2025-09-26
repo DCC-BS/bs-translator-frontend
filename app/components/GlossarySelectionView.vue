@@ -35,7 +35,7 @@ const columns = computed<TableColumn<GlossaryEntry>[]>(() => [
                 disabled: row.index === glossary.value.length - 1,
                 onClick: () => {
                     glossary.value.splice(row.index, 1);
-                    selectedGlossary.value = covertToString(glossary.value);
+                    selectedGlossary.value = convertToString(glossary.value);
                 },
             });
         },
@@ -45,11 +45,9 @@ const columns = computed<TableColumn<GlossaryEntry>[]>(() => [
 watch(
     selectedGlossary,
     (newVal) => {
-        const current = covertToString(glossary.value);
+        const current = convertToString(glossary.value);
 
         if (newVal !== current) {
-            console.log("update glossary from prop", { newVal, current });
-
             glossary.value = fromString(newVal);
         }
 
@@ -68,7 +66,7 @@ onMounted(() => {
 function onBlur() {
     ensureEmptyEntry();
 
-    selectedGlossary.value = covertToString(glossary.value);
+    selectedGlossary.value = convertToString(glossary.value);
 }
 
 function ensureEmptyEntry() {
@@ -96,13 +94,13 @@ function focusLastEntry(): void {
             "$el" in inputRef
                 ? inputRef.$el?.querySelector("input")
                 : inputRef instanceof HTMLInputElement
-                  ? inputRef
-                  : (inputRef as HTMLElement)?.querySelector("input");
+                    ? inputRef
+                    : (inputRef as HTMLElement)?.querySelector("input");
         inputElement?.focus();
     }
 }
 
-function covertToString(glossary: GlossaryEntry[]): string {
+function convertToString(glossary: GlossaryEntry[]): string {
     const glossaryStr = glossary
         .filter(
             ({ term, description }) =>
