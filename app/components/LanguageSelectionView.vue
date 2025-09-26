@@ -8,10 +8,15 @@ const props = defineProps<{
 const { t } = useI18n();
 
 const items = computed(() => {
-    const values = languages.map((lang) => ({
+    const x = languages.map((lang) => ({
         ...lang,
         name: t(`languages.${lang.code}`),
     }));
+
+    const head = x.slice(0, 5);
+    const tail = x.slice(5).sort((a, b) => a.name.localeCompare(b.name));
+
+    const values = [...head, ...tail];
 
     if (props.includeAutoDetect) {
         values.unshift({
