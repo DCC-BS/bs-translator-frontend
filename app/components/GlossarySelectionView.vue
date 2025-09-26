@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TableColumn, TableRow } from '@nuxt/ui'
+import type { TableColumn, TableRow } from "@nuxt/ui";
 
 type GlossaryEntry = {
     term: string;
@@ -15,30 +15,31 @@ const { t } = useI18n();
 const glossary = ref<GlossaryEntry[]>([]);
 const filter = ref("");
 
-const UButton = resolveComponent('UButton');
+const UButton = resolveComponent("UButton");
 
 // Template refs for focusing on inputs
 const termInputRefs = ref<(HTMLElement | { $el: HTMLElement })[]>([]);
 const descriptionInputRefs = ref<(HTMLElement | { $el: HTMLElement })[]>([]);
 
 const columns = computed<TableColumn<GlossaryEntry>[]>(() => [
-    { accessorKey: 'term', header: t('ui.glossaryTerm') },
-    { accessorKey: 'description', header: t('ui.glossaryDescription') },
+    { accessorKey: "term", header: t("ui.glossaryTerm") },
+    { accessorKey: "description", header: t("ui.glossaryDescription") },
     {
-        id: 'actions', cell: ({ row }) => {
+        id: "actions",
+        cell: ({ row }) => {
             return h(UButton, {
-                icon: 'i-lucide-trash-2',
-                color: 'error',
-                variant: 'link',
-                size: 'sm',
-                disabled: (row.index === glossary.value.length - 1),
+                icon: "i-lucide-trash-2",
+                color: "error",
+                variant: "link",
+                size: "sm",
+                disabled: row.index === glossary.value.length - 1,
                 onClick: () => {
                     glossary.value.splice(row.index, 1);
                     selectedGlossary.value = covertToString(glossary.value);
                 },
             });
-        }
-    }
+        },
+    },
 ]);
 
 watch(
@@ -64,7 +65,6 @@ onMounted(() => {
     });
 });
 
-
 function onBlur() {
     ensureEmptyEntry();
 
@@ -75,7 +75,7 @@ function ensureEmptyEntry() {
     const last = glossary.value[glossary.value.length - 1];
 
     if (!last || (last.term.trim() !== "" && last.description.trim() !== "")) {
-        glossary.value.push({ term: '', description: '' });
+        glossary.value.push({ term: "", description: "" });
 
         // Focus on the new empty entry after DOM update
         nextTick(() => {
@@ -92,18 +92,22 @@ function focusLastEntry(): void {
     if (lastIndex >= 0 && termInputRefs.value[lastIndex]) {
         const inputRef = termInputRefs.value[lastIndex];
         // Handle both direct HTML element and component with $el property
-        const inputElement = ('$el' in inputRef)
-            ? inputRef.$el?.querySelector('input')
-            : inputRef instanceof HTMLInputElement
-                ? inputRef
-                : (inputRef as HTMLElement)?.querySelector('input');
+        const inputElement =
+            "$el" in inputRef
+                ? inputRef.$el?.querySelector("input")
+                : inputRef instanceof HTMLInputElement
+                  ? inputRef
+                  : (inputRef as HTMLElement)?.querySelector("input");
         inputElement?.focus();
     }
 }
 
 function covertToString(glossary: GlossaryEntry[]): string {
     const glossaryStr = glossary
-        .filter(({ term, description }) => term.trim().length > 0 && description.trim().length > 0)
+        .filter(
+            ({ term, description }) =>
+                term.trim().length > 0 && description.trim().length > 0,
+        )
         .map(({ term, description }) => `${term}: ${description}`)
         .join("; ");
     return glossaryStr;
@@ -113,19 +117,24 @@ function fromString(glossaryStr: string): GlossaryEntry[] {
     // Begriff1: Beschreibung1; Begriff2: Beschreibung2
 
     const glossary: GlossaryEntry[] = [];
-    const entries = glossaryStr.split(";").map((entry) => entry.trim()).filter((entry) => entry.length > 0);
+    const entries = glossaryStr
+        .split(";")
+        .map((entry) => entry.trim())
+        .filter((entry) => entry.length > 0);
     for (const entry of entries) {
         const [term, description] = entry.split(":").map((part) => part.trim());
         if (term && description) {
             glossary.push({ term, description });
         }
-
     }
     return glossary;
 }
 
 function filterEntry(row: TableRow<GlossaryEntry>): boolean {
-    if (row.original.term.trim() === "" || row.original.description.trim() === "") {
+    if (
+        row.original.term.trim() === "" ||
+        row.original.description.trim() === ""
+    ) {
         return true;
     }
 
@@ -133,14 +142,16 @@ function filterEntry(row: TableRow<GlossaryEntry>): boolean {
         return true;
     }
 
-    if (row.original.description.toLowerCase().includes(filter.value.toLowerCase())) {
+    if (
+        row.original.description
+            .toLowerCase()
+            .includes(filter.value.toLowerCase())
+    ) {
         return true;
     }
 
     return false;
 }
-
-
 </script>
 
 <template>

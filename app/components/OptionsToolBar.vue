@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import type { Domain } from '~/models/domain';
-import type { Tone } from '~/models/tone';
-import type { DropdownMenuItem, TabsItem } from '@nuxt/ui';
-
+import type { DropdownMenuItem, TabsItem } from "@nuxt/ui";
+import type { Domain } from "~/models/domain";
+import type { Tone } from "~/models/tone";
 
 const { t } = useI18n();
 
@@ -12,45 +11,50 @@ const glossary = defineModel<string>("glossary");
 
 const items = computed<DropdownMenuItem[]>(() => [
     {
-        label: t('ui.tone'), value: 'new', children: [
+        label: t("ui.tone"),
+        value: "new",
+        children: [
             {
-                slot: "tone"
-            }
-        ]
+                slot: "tone",
+            },
+        ],
     },
     {
-        label: t('ui.domain'), value: 'load', children: [
+        label: t("ui.domain"),
+        value: "load",
+        children: [
             {
-                slot: "domain"
-            }
-        ]
+                slot: "domain",
+            },
+        ],
     },
     {
-        label: t('ui.glossary'), value: 'save', children: [
+        label: t("ui.glossary"),
+        value: "save",
+        children: [
             {
-                slot: "glossary"
-            }
-        ]
+                slot: "glossary",
+            },
+        ],
     },
 ]);
 
 const isOpen = ref(false);
 
-
 const tabs = ref<TabsItem[]>([
     {
-        label: t('ui.tone'),
+        label: t("ui.tone"),
         slot: "tone",
     },
     {
-        label: t('ui.domain'),
+        label: t("ui.domain"),
         slot: "domain",
     },
     {
-        label: t('ui.glossary'),
+        label: t("ui.glossary"),
         slot: "glossary",
-    }
-])
+    },
+]);
 </script>
 
 <template>

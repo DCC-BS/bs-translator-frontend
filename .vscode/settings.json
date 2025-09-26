@@ -19,14 +19,8 @@
     "editor.quickSuggestions": {
         "strings": "on"
     },
-    "tailwindCSS.classAttributes": [
-        "class",
-        "ui"
-    ],
+    "tailwindCSS.classAttributes": ["class", "ui"],
     "tailwindCSS.experimental.classRegex": [
-        [
-            "ui:\\s*{([^)]*)\\s*}",
-            "(?:'|\"|`)([^']*)(?:'|\"|`)"
-        ]
+        ["ui:\\s*{([^)]*)\\s*}", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
     ]
 }
