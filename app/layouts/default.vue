@@ -8,8 +8,8 @@
     <FeedbackControl />
     <UApp>
         <NavigationBar />
-        <div class="h-[calc(100vh-70px)] flex flex-col justify-stretch">
-            <div class="h-full flex-grow">
+        <div class="h-[600px] md:h-[calc(100vh-100px)] flex flex-col">
+            <div class="grow">
                 <slot />
             </div>
             <DataBsFooter />

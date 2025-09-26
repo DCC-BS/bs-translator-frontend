@@ -74,7 +74,7 @@ watch(
 </script>
 
 <template>
-    <div class="relative flex-1 overflow-auto" ref="dropZoneRef">
+    <div class="relative w-full h-full" ref="dropZoneRef">
         <!-- Drop zone overlay -->
         <div v-if="props.isOverDropZone" class="absolute inset-0 bg-gray-100/80 dark:bg-gray-800/80 border-2 border-dashed border-primary-500 rounded-lg 
                 flex flex-col items-center justify-center z-10 transition-all duration-200 backdrop-blur-sm">
@@ -97,9 +97,9 @@ watch(
             <span class="text-gray-600 dark:text-gray-300">{{ t('ui.convertingFile') }}</span>
         </div>
 
-        <UTextarea v-model="sourceText" class="w-full h-full min-h-[200px]"
-            :ui="{ base: 'relative transition-all duration-300 flex-1 h-full' }" variant="none"
-            :placeholder="t('ui.enterTextPlaceholder')" :dir="direction" autoresize autofocus />
+        <UTextarea v-model="sourceText" class="absolute inset-0 pb-6"
+            :ui="{ base: 'resize-none relative transition-all duration-300 flex-1 h-full' }" variant="none"
+            :placeholder="t('ui.enterTextPlaceholder')" :dir="direction" autofocus />
 
         <UButton v-if="sourceText" icon="i-lucide-x" variant="link" color="neutral" size="xs"
             class="absolute top-1 right-1 opacity-50 hover:opacity-100" @click="clearText" />

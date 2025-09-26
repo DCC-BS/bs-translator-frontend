@@ -157,15 +157,14 @@ async function downloadWord(): Promise<void> {
 </script>
 
 <template>
-    <div class="relative flex-1 bg-gray-50 p-[5px] dark:bg-gray-900"
-        :class="{ 'translating-border': props.isTranslating }">
+    <div class="relative bg-gray-50 p-[5px] m-0 h-full w-full" :class="{ 'translating-border': props.isTranslating }">
         <div v-if="showMarkdown && translatedText" :dir="direction"
-            class="w-full h-full pb-12 overflow-auto prose dark:prose-invert max-w-none">
+            class="absolute inset-0 overflow-y-auto pl-2 pb-12 prose">
             <MDC :value="translatedText" />
         </div>
-        <UTextarea v-else v-model="translatedText" class="w-full h-full" variant="none"
-            :ui="{ base: 'pb-12 transition-all duration-300 flex-1 bg-gray-50 dark:bg-gray-900 h-full' }"
-            :placeholder="t('ui.translationPlaceholder')" :dir="direction" autoresize readonly />
+        <UTextarea v-else v-model="translatedText" class="absolute inset-0" variant="none"
+            :ui="{ base: 'resize-none pb-12 transition-all duration-300 bg-gray-50 dark:bg-gray-900 h-full' }"
+            :placeholder="t('ui.translationPlaceholder')" :dir="direction" readonly />
         <div class="absolute bottom-4 right-4 flex gap-2 flex-wrap justify-end" data-test="copy-button-container">
             <UButton v-if="translatedText" :icon="markdownIcon" variant="soft" size="sm" class="mr-2"
                 :color="showMarkdown ? 'primary' : 'neutral'" @click="toggleMarkdown"
