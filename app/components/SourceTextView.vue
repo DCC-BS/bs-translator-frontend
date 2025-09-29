@@ -17,6 +17,10 @@ const toast = useToast();
 const { t } = useI18n();
 const sourceText = defineModel<string>();
 const { direction } = useLanguageDirection(toRef(props, "languageCode"));
+const { transcribe } = useTranscribe();
+
+const charCount = computed(() => sourceText.value?.length || 0);
+const isRecordingDrawerOpen = ref(false);
 
 /**
  * Clears the text input field
@@ -71,6 +75,15 @@ watch(
         }
     },
 );
+
+async function onRecordingStopped(audioBlob: Blob, _: string): Promise<void> {
+    isRecordingDrawerOpen.value = false;
+
+    for await (const chunk of transcribe(audioBlob)) {
+        console.log(chunk);
+        sourceText.value += chunk;
+    }
+}
 </script>
 
 <template>
@@ -97,12 +110,32 @@ watch(
             <span class="text-gray-600 dark:text-gray-300">{{ t('ui.convertingFile') }}</span>
         </div>
 
-        <UTextarea v-model="sourceText" class="absolute inset-0 pb-6" data-testid="sourceTextInput"
+        <!-- Text area -->
+        <UTextarea v-model="sourceText" class="absolute inset-0 pb-10" data-testid="sourceTextInput"
             :ui="{ base: 'resize-none relative transition-all duration-300 flex-1 h-full' }" variant="none"
             :placeholder="t('ui.enterTextPlaceholder')" :dir="direction" autofocus />
 
+        <!-- Clear text button -->
         <UButton v-if="sourceText" icon="i-lucide-x" variant="link" color="neutral" size="xs"
             class="absolute top-1 right-1 opacity-50 hover:opacity-100" @click="clearText" />
+
+        <!-- Character count and microphone button -->
+        <div class="flex items-end justify-between text-gray-300 absolute bottom-0 left-0 right-0">
+            <div class="p-2">
+                <UDrawer v-model:open="isRecordingDrawerOpen">
+                    <UButton icon="i-lucide-mic" variant="link" color="neutral" data-testid="microphoneButton" />
+                    <template #content>
+                        <div class="p-2">
+                            <AudioRecorder auto-start :show-result="false" @recording-stopped="onRecordingStopped" />
+                        </div>
+                    </template>
+                </UDrawer>
+            </div>
+
+            <div class="p-1" v-if="charCount > 0">{{ charCount }} {{
+                t('ui.characters') }}
+            </div>
+        </div>
     </div>
 </template>
 

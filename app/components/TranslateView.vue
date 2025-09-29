@@ -7,8 +7,6 @@ import {
 import { motion } from "motion-v";
 import { UCard } from "#components";
 
-const MotionUCard = motion.create(UCard);
-
 // Get i18n translation function
 const { t } = useI18n();
 
@@ -44,7 +42,6 @@ const {
     sourceText.value = text;
 });
 
-const charCount = computed(() => sourceText.value?.length || 0);
 const fileInputRef = ref<HTMLInputElement | null>(null);
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const settingsExpanded = ref(true);
@@ -165,11 +162,6 @@ function onCapturePhoto() {
                     <SourceTextView v-model="sourceText" :is-over-drop-zone="isOverDropZone"
                         :is-converting="isConverting" :error="conversionError" :fileName="fileName"
                         :language-code="sourceLanguage" ref="dropZoneRef" @clear-error="clearError" />
-                    <div class="text-gray-300 absolute bottom-0 right-4">
-                        <div v-if="charCount > 0">{{ charCount }} {{
-                            t('ui.characters') }}
-                        </div>
-                    </div>
                 </div>
             </template>
 
