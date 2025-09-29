@@ -47,14 +47,14 @@ const tabs = ref<TabsItem[]>([
 
     <div class="hidden md:flex flex-1 justify-end mb-2">
         <UPopover :ui="{ content: 'bg-none ring-0 shadow-none' }">
-            <UButton variant="link" color="neutral" trailing-icon="i-lucide-chevron-down">{{
+            <UButton variant="link" color="neutral" trailing-icon="i-lucide-chevron-down" data-testid="tone-button">{{
                 t('ui.tone') }}</UButton>
             <template #content>
                 <ToneSelectionView v-model="tone" />
             </template>
         </UPopover>
         <UPopover :ui="{ content: 'bg-none ring-0 shadow-none' }">
-            <UButton variant="link" color="neutral" trailing-icon="i-lucide-chevron-down">{{
+            <UButton variant="link" color="neutral" trailing-icon="i-lucide-chevron-down" data-testid="domain-button">{{
                 t('ui.domain') }}</UButton>
 
             <template #content>
@@ -63,7 +63,7 @@ const tabs = ref<TabsItem[]>([
         </UPopover>
         <UPopover>
             <UButton variant="link" color="neutral" leading-icon="i-lucide-book-text"
-                trailing-icon="i-lucide-chevron-down">
+                trailing-icon="i-lucide-chevron-down" data-testid="glossary-button">
                 {{
                     t('ui.glossary') }}</UButton>
             <template #content>

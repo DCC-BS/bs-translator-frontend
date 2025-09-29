@@ -72,7 +72,7 @@ function onBlur() {
 function ensureEmptyEntry() {
     const last = glossary.value[glossary.value.length - 1];
 
-    if (!last || (last.term.trim() !== "" || last.description.trim() !== "")) {
+    if (!last || last.term.trim() !== "" || last.description.trim() !== "") {
         glossary.value.push({ term: "", description: "" });
 
         // Focus on the new empty entry after DOM update
@@ -94,8 +94,8 @@ function focusLastEntry(): void {
             "$el" in inputRef
                 ? inputRef.$el?.querySelector("input")
                 : inputRef instanceof HTMLInputElement
-                    ? inputRef
-                    : (inputRef as HTMLElement)?.querySelector("input");
+                  ? inputRef
+                  : (inputRef as HTMLElement)?.querySelector("input");
         inputElement?.focus();
     }
 }

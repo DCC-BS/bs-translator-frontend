@@ -97,7 +97,7 @@ watch(
             <span class="text-gray-600 dark:text-gray-300">{{ t('ui.convertingFile') }}</span>
         </div>
 
-        <UTextarea v-model="sourceText" class="absolute inset-0 pb-6"
+        <UTextarea v-model="sourceText" class="absolute inset-0 pb-6" data-testid="sourceTextInput"
             :ui="{ base: 'resize-none relative transition-all duration-300 flex-1 h-full' }" variant="none"
             :placeholder="t('ui.enterTextPlaceholder')" :dir="direction" autofocus />
 

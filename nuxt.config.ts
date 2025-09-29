@@ -28,6 +28,11 @@ export default defineNuxtConfig({
             // Optimize chunk size
             chunkSizeWarningLimit: 1000,
         },
+        resolve: {
+            alias: {
+                dexie: "dexie/dist/dexie.mjs",
+            },
+        },
     },
     // Define app head configuration
     app: {
