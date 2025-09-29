@@ -126,7 +126,8 @@ async function onRecordingStopped(audioBlob: Blob, _: string): Promise<void> {
                     <UButton icon="i-lucide-mic" variant="link" color="neutral" data-testid="microphoneButton" />
                     <template #content>
                         <div class="p-2">
-                            <AudioRecorder auto-start :show-result="false" @recording-stopped="onRecordingStopped" />
+                            <AudioRecorder :logger="console.log" auto-start :show-result="false"
+                                @recording-stopped="onRecordingStopped" />
                         </div>
                     </template>
                 </UDrawer>

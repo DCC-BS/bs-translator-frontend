@@ -23,7 +23,7 @@ test("Text should be translated", async ({ page }) => {
     await page.getByTestId("microphoneButton").click();
     await page.waitForTimeout(500); // wait for recording to finish
     await page.getByText(startRecording).click({ force: true });
-    await page.waitForTimeout(500); // wait for recording to finish
+    await page.waitForTimeout(1000); // wait for recording to finish
     await page.getByText(stopRecording).click();
 
     await page.waitForTimeout(1000); // wait for translation to finish
