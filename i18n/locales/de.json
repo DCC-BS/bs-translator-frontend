@@ -132,6 +132,10 @@
         "hideSettings": "Einstellungen ausblenden",
         "takePhoto": "Foto aufnehmen"
     },
+    "audio": {
+        "recover": "Wiederherstellen",
+        "abandonedRecording": "Sie haben eine unvollendete Aufnahme ({date}). Möchten Sie sie wiederherstellen?"
+    },
     "camera": {
         "takePhoto": "Foto aufnehmen",
         "switching": "Wechselt...",

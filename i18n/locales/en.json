@@ -132,6 +132,10 @@
         "hideSettings": "Hide Settings",
         "takePhoto": "Take Photo"
     },
+    "audio": {
+        "recover": "Recover",
+        "abandonedRecording": "You have an abandoned recording ({date}). Would you like to recover it?"
+    },
     "camera": {
         "takePhoto": "Take Photo",
         "switching": "Switching...",

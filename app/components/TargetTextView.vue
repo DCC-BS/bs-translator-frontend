@@ -70,7 +70,6 @@ async function copyToClipboard(): Promise<void> {
                     title: t("ui.copySuccess"),
                     color: "success",
                     icon: "i-lucide-check-circle",
-                    duration: 2000000,
                 });
 
                 return;
@@ -165,21 +164,23 @@ async function downloadWord(): Promise<void> {
         <UTextarea data-testid="targetTextInput" v-else v-model="translatedText" class="absolute inset-0" variant="none"
             :ui="{ base: 'resize-none pb-12 transition-all duration-300 bg-gray-50 dark:bg-gray-900 h-full' }"
             :placeholder="t('ui.translationPlaceholder')" :dir="direction" readonly />
-        <div class="absolute bottom-4 right-4 flex gap-2 flex-wrap justify-end" data-test="copy-button-container">
-            <UButton v-if="translatedText" :icon="markdownIcon" variant="soft" size="sm" class="mr-2"
-                :color="showMarkdown ? 'primary' : 'neutral'" @click="toggleMarkdown" data-test="toggle-markdown-button"
-                data-testid="toggleMarkdownButton">
-                {{ showMarkdown ? t('ui.viewPlainText') : t('ui.viewAsMarkdown') }}
-            </UButton>
-            <UButton v-if="translatedText" :icon="copySuccess ? 'i-lucide-check' : 'i-lucide-clipboard'" variant="soft"
-                :color="copySuccess ? 'success' : 'neutral'" size="sm" data-test="copy-to-clipboard-button"
-                @click="copyToClipboard" data-testid="copyToClipboardButton">
-                {{ copySuccess ? t('ui.copied') : (showMarkdown ? t('ui.copyAsRichText') : t('ui.copyToClipboard')) }}
-            </UButton>
-            <UButton v-if="translatedText" icon="i-lucide-download" variant="soft" size="sm" color="primary"
-                @click="downloadWord" data-test="download-translated-text-button">
-                {{ t('ui.downloadTranslatedText') }}
-            </UButton>
+        <div class="absolute p-2 bottom-0 inset-x-0 flex gap-0 flex-wrap justify-end">
+            <UTooltip :text="showMarkdown ? t('ui.viewPlainText') : t('ui.viewAsMarkdown')" :disabled="!translatedText">
+                <UButton v-if="translatedText" :icon="markdownIcon" variant="link" color="neutral"
+                    @click="toggleMarkdown" data-testid="toggleMarkdownButton">
+                </UButton>
+            </UTooltip>
+            <UTooltip :text="t('ui.copyToClipboard')" :disabled="!translatedText">
+                <UButton v-if="translatedText" :icon="copySuccess ? 'i-lucide-check' : 'i-lucide-clipboard'"
+                    variant="link" :color="copySuccess ? 'success' : 'neutral'" @click="copyToClipboard"
+                    data-testid="copyToClipboardButton">
+                </UButton>
+            </UTooltip>
+            <UTooltip :text="t('ui.downloadTranslatedText')" :disabled="!translatedText">
+                <UButton v-if="translatedText" icon="i-lucide-download" variant="link" color="neutral"
+                    @click="downloadWord">
+                </UButton>
+            </UTooltip>
         </div>
     </div>
 </template>

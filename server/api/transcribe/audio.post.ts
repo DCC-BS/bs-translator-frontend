@@ -14,7 +14,8 @@ export default defineEventHandler(async (event) => {
                 }
 
                 const form = new FormData();
-                form.append("file", body.get("file") as Blob);
+                form.append("audio_file", body.get("audio_file") as Blob);
+                form.append("language", body.get("language") as string);
 
                 delete headers["Content-Type"]; // Let the browser set the correct Content-Type with boundary
 

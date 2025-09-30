@@ -31,7 +31,7 @@ const tabs = ref<TabsItem[]>([
         </UButton>
 
         <template #content>
-            <UTabs :items="tabs">
+            <UTabs :items="tabs" :ui="{ content: 'h-[75dvh]' }" class="my-2">
                 <template #tone>
                     <ToneSelectionView v-model="tone" />
                 </template>
@@ -39,7 +39,7 @@ const tabs = ref<TabsItem[]>([
                     <DomainSelectionView v-model="domain" />
                 </template>
                 <template #glossary>
-                    <GlossarySelectionView v-model="glossary" class="max-w-md" />
+                    <GlossarySelectionView v-model="glossary" class="max-w-md h-full" />
                 </template>
             </UTabs>
         </template>
@@ -67,7 +67,7 @@ const tabs = ref<TabsItem[]>([
                 {{
                     t('ui.glossary') }}</UButton>
             <template #content>
-                <GlossarySelectionView v-model="glossary" class="max-w-md" />
+                <GlossarySelectionView v-model="glossary" class="max-w-md max-h-[calc(100vh-140px)] overflow-auto" />
             </template>
         </UPopover>
     </div>

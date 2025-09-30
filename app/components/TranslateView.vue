@@ -4,8 +4,6 @@ import {
     useBreakpoints,
     watchDebounced,
 } from "@vueuse/core";
-import { motion } from "motion-v";
-import { UCard } from "#components";
 
 // Get i18n translation function
 const { t } = useI18n();
@@ -126,12 +124,6 @@ function onCapturePhoto() {
             <template #header>
                 <div class="flex items-center w-full">
                     <div class="flex gap-2 flex-1">
-                        <UButton size="xs" color="neutral" @click="triggerFileUpload" :loading="isConverting"
-                            :disabled="isConverting" icon="i-lucide-file-up" variant="ghost">
-                            <span class="hidden md:inline">
-                                {{ isConverting ? t('ui.uploading') : t('ui.uploadFile') }}
-                            </span>
-                        </UButton>
                         <input type="file" ref="fileInputRef" class="hidden" @change="onFileSelect"
                             accept=".txt,.doc,.docx,.pdf,.md,.html,.rtf" />
 
@@ -161,7 +153,8 @@ function onCapturePhoto() {
                 <div class="h-full w-full relative">
                     <SourceTextView v-model="sourceText" :is-over-drop-zone="isOverDropZone"
                         :is-converting="isConverting" :error="conversionError" :fileName="fileName"
-                        :language-code="sourceLanguage" ref="dropZoneRef" @clear-error="clearError" />
+                        :language-code="sourceLanguage" ref="dropZoneRef" @clear-error="clearError"
+                        @trigger-file-upload="triggerFileUpload" />
                 </div>
             </template>
 

@@ -1,13 +1,16 @@
+import type { LanguageCode } from "~/models/languages";
+
 export function useTranscribe() {
     const error = ref<string>();
     const logger = useLogger();
     const toast = useToast();
 
-    async function* transcribe(blob: Blob) {
+    async function* transcribe(blob: Blob, language: LanguageCode) {
         const formData = new FormData();
-        formData.append("file", blob, "audio.webm");
+        formData.append("audio_file", blob, "audio.webm");
+        formData.append("language", language);
 
-        const response = await apiStreamfetch("/api/transcribe", {
+        const response = await apiStreamfetch("/api/transcribe/audio", {
             method: "POST",
             body: formData,
         });
