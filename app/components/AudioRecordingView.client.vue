@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { AudioRecorder } from '#components';
 
-const emit = defineEmits<(e: "onRecodingComplete", file: Blob) => void>();
+const emit = defineEmits<(e: "onRecordingComplete", file: Blob) => void>();
 
 const { t } = useI18n();
 
@@ -17,9 +17,16 @@ const toast = useToast();
 const isRecordingDrawerOpen = ref(false);
 const isRecording = ref(false);
 
-const lastAbandonedRecordingLocalDate = computed(() => {
+const lastAbandonedRecording = computed(() => {
     if (abandonedRecording.value && abandonedRecording.value.length > 0) {
-        const last = abandonedRecording.value[abandonedRecording.value.length - 1];
+        return abandonedRecording.value[abandonedRecording.value.length - 1];
+    }
+    return null;
+});
+
+const lastAbandonedRecordingLocalDate = computed(() => {
+    if (lastAbandonedRecording.value) {
+        const last = lastAbandonedRecording.value;
 
         if (last) {
             return new Date(last.createdAt).toLocaleString();
@@ -32,7 +39,7 @@ const lastAbandonedRecordingLocalDate = computed(() => {
 function onRecordingStopped(file: Blob, _: string) {
     isRecording.value = false;
     isRecordingDrawerOpen.value = false;
-    emit("onRecodingComplete", file);
+    emit("onRecordingComplete", file);
 }
 
 function stopRecording() {
@@ -42,13 +49,12 @@ function stopRecording() {
 async function recover() {
     if (!abandonedRecording.value) return;
 
-    const last = abandonedRecording.value[abandonedRecording.value.length - 1];
-    if (last) {
+    if (lastAbandonedRecording.value) {
         try {
-            const blob = await getMp3Blob(last.id);
-            deleteAbandonedRecording(last.id);
+            const blob = await getMp3Blob(lastAbandonedRecording.value.id);
+            deleteAbandonedRecording(lastAbandonedRecording.value.id);
             isRecordingDrawerOpen.value = false;
-            emit("onRecodingComplete", blob);
+            emit("onRecordingComplete", blob);
         } catch (e: unknown) {
             const message = e instanceof Error ? e.message : String(e);
 

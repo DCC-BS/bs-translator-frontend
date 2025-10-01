@@ -129,7 +129,7 @@ async function onRecordingStopped(audioBlob: Blob): Promise<void> {
         <!-- Character count and microphone button -->
         <div class="flex items-end justify-between text-gray-300 absolute bottom-0 inset-x-0">
             <div class="p-2">
-                <AudioRecodingView @onRecodingComplete="onRecordingStopped" />
+                <AudioRecordingView @on-recording-complete="onRecordingStopped" />
 
                 <UButton color="neutral" variant="link" @click="emit('trigger-file-upload')" :loading="isConverting"
                     :disabled="isConverting" icon="i-lucide-file-up" />

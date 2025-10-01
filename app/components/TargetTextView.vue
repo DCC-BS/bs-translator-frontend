@@ -178,7 +178,7 @@ async function downloadWord(): Promise<void> {
             </UTooltip>
             <UTooltip :text="t('ui.downloadTranslatedText')" :disabled="!translatedText">
                 <UButton v-if="translatedText" icon="i-lucide-download" variant="link" color="neutral"
-                    @click="downloadWord">
+                    @click="downloadWord" data-testid="downloadWordButton">
                 </UButton>
             </UTooltip>
         </div>
