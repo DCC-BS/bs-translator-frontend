@@ -107,6 +107,7 @@
         "completed": "Completed",
         "inProgress": "In Progress",
         "uploadFile": "Upload File",
+        "transcribingFile": "Transcribing file...",
         "uploading": "Uploading...",
         "error": "Error",
         "errorDescription": "Please try again with a different file.",
@@ -131,6 +132,10 @@
         "showSettings": "Show Settings",
         "hideSettings": "Hide Settings",
         "takePhoto": "Take Photo"
+    },
+    "audio": {
+        "recover": "Recover",
+        "abandonedRecording": "You have an abandoned recording ({date}). Would you like to recover it?"
     },
     "camera": {
         "takePhoto": "Take Photo",

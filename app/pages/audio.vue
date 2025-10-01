@@ -3,9 +3,9 @@
 </script>
 
 <template>
-  <div>
+  <ClientOnly>
     <AudioRecorder />
 
     <AudioSessionExplorer></AudioSessionExplorer>
-  </div>
+  </ClientOnly>
 </template>

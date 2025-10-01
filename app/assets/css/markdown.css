@@ -42,6 +42,10 @@
     color: #111827;
 }
 
+.prose > * > *:first-child {
+    margin-top: 2px;
+}
+
 /* Links */
 .prose a {
     color: #2563eb;

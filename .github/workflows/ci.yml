@@ -26,16 +26,20 @@ jobs:
       - run: bun install
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: bun generate
-      - run: bun run test --coverage
+      - run: bun run build
       - name: Run Biome
         run: biome ci .
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
+      - name: Install Playwright Browsers
+        run: bunx playwright install --with-deps
+      - name: Run Playwright tests
+        run: bunx playwright test
+      - uses: daun/playwright-report-summary@v3
+        if: always()
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-      - name: Upload test results to Codecov
+          report-file: results.json
+      - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@v1
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30

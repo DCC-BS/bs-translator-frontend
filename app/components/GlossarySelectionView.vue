@@ -32,6 +32,7 @@ const columns = computed<TableColumn<GlossaryEntry>[]>(() => [
                 color: "error",
                 variant: "link",
                 size: "sm",
+                tabindex: -1,
                 disabled: row.index === glossary.value.length - 1,
                 onClick: () => {
                     glossary.value.splice(row.index, 1);
@@ -72,7 +73,7 @@ function onBlur() {
 function ensureEmptyEntry() {
     const last = glossary.value[glossary.value.length - 1];
 
-    if (!last || (last.term.trim() !== "" || last.description.trim() !== "")) {
+    if (!last || last.term.trim() !== "" || last.description.trim() !== "") {
         glossary.value.push({ term: "", description: "" });
 
         // Focus on the new empty entry after DOM update
@@ -94,8 +95,8 @@ function focusLastEntry(): void {
             "$el" in inputRef
                 ? inputRef.$el?.querySelector("input")
                 : inputRef instanceof HTMLInputElement
-                    ? inputRef
-                    : (inputRef as HTMLElement)?.querySelector("input");
+                  ? inputRef
+                  : (inputRef as HTMLElement)?.querySelector("input");
         inputElement?.focus();
     }
 }
@@ -157,7 +158,7 @@ function filterEntry(row: TableRow<GlossaryEntry>): boolean {
         <div class="w-full">
             <UInput v-model="filter" :placeholder="$t('ui.glossaryFilter')" size="sm" clearable class="w-full" />
         </div>
-        <UTable :data="glossary" :columns="columns" v-model:global-filter="filter"
+        <UTable class="h-[95%]" :data="glossary" :columns="columns" v-model:global-filter="filter"
             :global-filter-options="{ globalFilterFn: filterEntry }" :ui="{ td: 'p-0 m-0' }">
             <template #term-cell="{ row }">
                 <UInput :ref="(el) => { if (el) termInputRefs[row.index] = el as any; }" v-model="row.original.term"
