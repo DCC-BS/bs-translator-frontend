@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
 
     const form = await readFormData(event);
 
-    if (!form.get("file")) {
+    if (!form.get("audio_file")) {
         throw new Error("No file provided");
     }
 
