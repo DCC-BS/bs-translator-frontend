@@ -108,6 +108,7 @@
         "inProgress": "In Bearbeitung",
         "uploadFile": "Datei hochladen",
         "uploading": "Hochladen...",
+        "transcribingFile": "Datei wird transkribiert...",
         "error": "Fehler",
         "errorDescription": "Bitte versuchen Sie es mit einer anderen Datei erneut.",
         "dismiss": "Verwerfen",

@@ -107,6 +107,7 @@
         "completed": "Completed",
         "inProgress": "In Progress",
         "uploadFile": "Upload File",
+        "transcribingFile": "Transcribing file...",
         "uploading": "Uploading...",
         "error": "Error",
         "errorDescription": "Please try again with a different file.",
