@@ -119,7 +119,7 @@ async function onRecordingStopped(audioBlob: Blob): Promise<void> {
 
         <!-- Text area -->
         <UTextarea v-model="sourceText" class="absolute inset-0 pb-10" data-testid="sourceTextInput"
-            :ui="{ base: 'resize-none relative transition-all duration-300 flex-1 h-full' }" variant="none"
+            :ui="{ base: 'resize-none relative transition-all duration-300 flex-1 h-full pr-6' }" variant="none"
             :placeholder="t('ui.enterTextPlaceholder')" :dir="direction" autofocus />
 
         <!-- Clear text button -->

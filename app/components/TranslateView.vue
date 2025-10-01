@@ -1,14 +1,6 @@
 <script lang="ts" setup>
-import {
-    breakpointsTailwind,
-    useBreakpoints,
-    watchDebounced,
-} from "@vueuse/core";
+import { watchDebounced } from "@vueuse/core";
 
-// Get i18n translation function
-const { t } = useI18n();
-
-const { query, path } = useRoute();
 const router = useRouter();
 
 // Get translation states and functions from the translate composable
@@ -41,28 +33,6 @@ const {
 });
 
 const fileInputRef = ref<HTMLInputElement | null>(null);
-const breakpoints = useBreakpoints(breakpointsTailwind);
-const settingsExpanded = ref(true);
-
-onMounted(() => {
-    settingsExpanded.value = breakpoints.greater("md").value;
-
-    if (query.source) {
-        sourceLanguage.value = query.source as string;
-    }
-
-    if (query.destination) {
-        targetLanguage.value = query.destination as string;
-    }
-
-    if (query.text) {
-        const guid = localStorage.getItem("sourceTextGuid");
-        const txt = localStorage.getItem("sourceText");
-        if (txt && guid?.trim() === (query.text as string).trim()) {
-            sourceText.value = txt;
-        }
-    }
-});
 
 function swapLanguages(): void {
     swapRef(sourceText, translatedText);
@@ -81,19 +51,6 @@ watchDebounced(
     () => {
         if (sourceText.value && targetLanguage.value) {
             handleTranslate();
-
-            const guid = crypto.randomUUID();
-            localStorage.setItem("sourceText", sourceText.value);
-            localStorage.setItem("sourceTextGuid", guid);
-
-            router.replace({
-                path: path,
-                query: {
-                    text: guid,
-                    source: sourceLanguage.value,
-                    destination: targetLanguage.value,
-                },
-            });
         }
     },
     { debounce: 1000 },

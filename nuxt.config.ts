@@ -76,7 +76,7 @@ export default defineNuxtConfig({
         project: "bs-translator",
         githubToken: process.env.GITHUB_TOKEN,
     },
-    devtools: { enabled: true },
+    devtools: { enabled: false },
     css: ["~/assets/css/main.css"],
     typescript: {
         typeCheck: true,
