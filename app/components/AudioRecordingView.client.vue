@@ -1,16 +1,16 @@
 <script lang="ts" setup>
-import type { AudioRecorder } from '#components';
+import type { AudioRecorder } from "#components";
 
 const emit = defineEmits<(e: "onRecordingComplete", file: Blob) => void>();
 
 const { t } = useI18n();
 
-const {
-    isReady,
-    abandonedRecording,
-    deleteAbandonedRecording,
-    getMp3Blob
-} = useAudioSessions({ deleteOldSessionsDaysInterval: 30, maxSessionsToKeep: 1, logger: console.log });
+const { isReady, abandonedRecording, deleteAbandonedRecording, getMp3Blob } =
+    useAudioSessions({
+        deleteOldSessionsDaysInterval: 30,
+        maxSessionsToKeep: 1,
+        logger: console.log,
+    });
 
 const audioRecorder = ref<typeof AudioRecorder>();
 const toast = useToast();
@@ -60,8 +60,8 @@ async function recover() {
 
             toast.add({
                 title: message,
-                color: 'error',
-                icon: 'i-lucide-alert-circle',
+                color: "error",
+                icon: "i-lucide-alert-circle",
             });
         }
     }
