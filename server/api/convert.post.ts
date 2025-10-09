@@ -1,15 +1,32 @@
+import type { ConvertionResult } from "~~/shared/models/convertionResult";
+
 export default defineBackendHandler<
     never,
     { file: File; sourceLanguage: string },
-    string,
-    string
+    ConvertionResult,
+    ConvertionResult
 >({
     url: "/convert/doc",
     method: "POST",
     bodyProvider: async (event) => {
         const inputFormData = await readFormData(event);
-        const file = inputFormData.get("file") as File;
-        const sourceLanguage = inputFormData.get("source_language") as string;
+        const file = inputFormData.get("file");
+        const sourceLanguage = inputFormData.get("source_language");
+
+        if (!(file instanceof File)) {
+            throw createError({
+                statusCode: 400,
+                statusMessage: "Bad Request: 'file' is missing or not a file.",
+            });
+        }
+
+        if (typeof sourceLanguage !== "string" || !sourceLanguage) {
+            throw createError({
+                statusCode: 400,
+                statusMessage:
+                    "Bad Request: 'source_language' is missing or invalid.",
+            });
+        }
 
         return { file, sourceLanguage };
     },
@@ -39,6 +56,6 @@ export default defineBackendHandler<
             setResponseStatus(event, response.status);
         }
 
-        return await response.json();
+        return (await response.json()) as ConvertionResult;
     },
 });
