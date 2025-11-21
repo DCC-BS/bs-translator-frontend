@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import type { TableColumn, TableRow } from "@nuxt/ui";
+import { v4 as uuidv4 } from "uuid";
 
 type GlossaryEntry = {
+    id: string;
     term: string;
     description: string;
 };
@@ -15,32 +16,45 @@ const { t } = useI18n();
 const glossary = ref<GlossaryEntry[]>([]);
 const filter = ref("");
 
-const UButton = resolveComponent("UButton");
-
-// Template refs for focusing on inputs
 const termInputRefs = ref<(HTMLElement | { $el: HTMLElement })[]>([]);
-const descriptionInputRefs = ref<(HTMLElement | { $el: HTMLElement })[]>([]);
 
-const columns = computed<TableColumn<GlossaryEntry>[]>(() => [
-    { accessorKey: "term", header: t("ui.glossaryTerm") },
-    { accessorKey: "description", header: t("ui.glossaryDescription") },
-    {
-        id: "actions",
-        cell: ({ row }) => {
-            return h(UButton, {
-                icon: "i-lucide-trash-2",
-                color: "error",
-                variant: "link",
-                size: "sm",
-                disabled: row.index === glossary.value.length - 1,
-                onClick: () => {
-                    glossary.value.splice(row.index, 1);
-                    selectedGlossary.value = convertToString(glossary.value);
-                },
-            });
-        },
-    },
-]);
+function updateSelectedGlossaryFromState(): void {
+    selectedGlossary.value = convertToString(glossary.value);
+}
+
+function getInnerInputFromRef(refCandidate: HTMLElement | { $el: HTMLElement } | undefined): HTMLInputElement | null {
+    if (!refCandidate) return null;
+    const root: HTMLElement = "$el" in refCandidate ? refCandidate.$el : refCandidate;
+    const el = root instanceof HTMLInputElement ? root : root.querySelector("input");
+    return (el as HTMLInputElement | null) ?? null;
+}
+
+function addEmptyRowAndFocus(): void {
+    const newId = uuidv4();
+    glossary.value.push({ id: newId, term: "", description: "" });
+    updateSelectedGlossaryFromState();
+    nextTick(() => {
+        setTimeout(() => {
+            focusLastEntry();
+        }, 0);
+    });
+}
+
+const visibleEntries = computed(() => {
+    const q = (filter.value ?? "").toString().toLowerCase();
+    return glossary.value
+        .map((entry, index) => ({ entry, index }))
+        .filter(({ entry }) => {
+            // Always show rows with empty fields (like the trailing empty row)
+            if (entry.term.trim() === "" || entry.description.trim() === "") {
+                return true;
+            }
+            if (!q) {
+                return true;
+            }
+            return entry.term.toLowerCase().includes(q) || entry.description.toLowerCase().includes(q);
+        });
+});
 
 watch(
     selectedGlossary,
@@ -66,90 +80,87 @@ onMounted(() => {
 function onBlur() {
     ensureEmptyEntry();
 
-    selectedGlossary.value = convertToString(glossary.value);
+    const stringValue = convertToString(glossary.value);
+    selectedGlossary.value = stringValue;
 }
 
 function ensureEmptyEntry() {
     const last = glossary.value[glossary.value.length - 1];
 
-    if (!last || (last.term.trim() !== "" || last.description.trim() !== "")) {
-        glossary.value.push({ term: "", description: "" });
+    const lastHasTerm = last && last.term.trim() !== "";
+    const lastHasDescription = last && last.description.trim() !== "";
+    const shouldAddEmpty = !last || (lastHasTerm && lastHasDescription);
 
-        // Focus on the new empty entry after DOM update
-        nextTick(() => {
-            focusLastEntry();
-        });
+    if (shouldAddEmpty) {
+        addEmptyRowAndFocus();
     }
 }
 
 /**
  * Focus on the term input of the last glossary entry
+ * Retries if the ref isn't available yet (for timing issues with DOM updates)
  */
-function focusLastEntry(): void {
+function focusLastEntry(retryCount = 0): void {
     const lastIndex = glossary.value.length - 1;
-    if (lastIndex >= 0 && termInputRefs.value[lastIndex]) {
-        const inputRef = termInputRefs.value[lastIndex];
-        // Handle both direct HTML element and component with $el property
-        const inputElement =
-            "$el" in inputRef
-                ? inputRef.$el?.querySelector("input")
-                : inputRef instanceof HTMLInputElement
-                    ? inputRef
-                    : (inputRef as HTMLElement)?.querySelector("input");
-        inputElement?.focus();
+    if (lastIndex < 0) return;
+
+    const refInput = getInnerInputFromRef(termInputRefs.value[lastIndex]);
+
+    const id = glossary.value[lastIndex]?.id;
+    const fallbackInput = id
+        ? (document.querySelector(`#term-${id} input`) as HTMLInputElement | null)
+        : null;
+
+    const input = (refInput as HTMLInputElement | null) ?? fallbackInput;
+    if (input) {
+        input.focus();
+        return;
+    }
+
+    // Retry a few times to allow DOM to render
+    if (retryCount < 8) {
+        nextTick(() => setTimeout(() => focusLastEntry(retryCount + 1), 0));
     }
 }
 
+function deleteRowAt(index: number): void {
+    glossary.value.splice(index, 1);
+    updateSelectedGlossaryFromState();
+}
+
 function convertToString(glossary: GlossaryEntry[]): string {
-    const glossaryStr = glossary
-        .filter(
-            ({ term, description }) =>
-                term.trim().length > 0 && description.trim().length > 0,
-        )
+    const filteredGlossary = glossary.filter(
+        ({ term, description }) =>
+            term.trim().length > 0 && description.trim().length > 0,
+    );
+
+    const glossaryStr = filteredGlossary
         .map(({ term, description }) => `${term}: ${description}`)
         .join("; ");
+
     return glossaryStr;
 }
 
 function fromString(glossaryStr: string): GlossaryEntry[] {
-    // Begriff1: Beschreibung1; Begriff2: Beschreibung2
-
     const glossary: GlossaryEntry[] = [];
     const entries = glossaryStr
         .split(";")
         .map((entry) => entry.trim())
         .filter((entry) => entry.length > 0);
+
     for (const entry of entries) {
         const [term, description] = entry.split(":").map((part) => part.trim());
+
         if (term && description) {
-            glossary.push({ term, description });
+            const newId = uuidv4();
+            glossary.push({ id: newId, term, description });
         }
     }
+
     return glossary;
 }
 
-function filterEntry(row: TableRow<GlossaryEntry>): boolean {
-    if (
-        row.original.term.trim() === "" ||
-        row.original.description.trim() === ""
-    ) {
-        return true;
-    }
-
-    if (row.original.term.toLowerCase().includes(filter.value.toLowerCase())) {
-        return true;
-    }
-
-    if (
-        row.original.description
-            .toLowerCase()
-            .includes(filter.value.toLowerCase())
-    ) {
-        return true;
-    }
-
-    return false;
-}
+// Filtering is handled by visibleEntries
 </script>
 
 <template>
@@ -157,19 +168,34 @@ function filterEntry(row: TableRow<GlossaryEntry>): boolean {
         <div class="w-full">
             <UInput v-model="filter" :placeholder="$t('ui.glossaryFilter')" size="sm" clearable class="w-full" />
         </div>
-        <UTable :data="glossary" :columns="columns" v-model:global-filter="filter"
-            :global-filter-options="{ globalFilterFn: filterEntry }" :ui="{ td: 'p-0 m-0' }">
-            <template #term-cell="{ row }">
-                <UInput :ref="(el) => { if (el) termInputRefs[row.index] = el as any; }" v-model="row.original.term"
-                    :placeholder="$t('ui.glossaryTerm')" variant="ghost" :ui="{ root: 'm-0 p-0', base: 'rounded-none' }"
-                    @blur="onBlur" />
-            </template>
-
-            <template #description-cell="{ row }">
-                <UInput :ref="(el) => { if (el) descriptionInputRefs[row.index] = el as any; }"
-                    v-model="row.original.description" :placeholder="$t('ui.glossaryDescription')" variant="ghost"
-                    :ui="{ root: 'm-0 p-0', base: 'rounded-none' }" @blur="onBlur" />
-            </template>
-        </UTable>
+        <div class="h-[95%]">
+            <div class="grid grid-cols-12 items-center px-1 py-2">
+                <div class="col-span-5 text-sm font-semibold">
+                    {{ $t('ui.glossaryTerm') }}
+                </div>
+                <div class="col-span-6 text-sm font-semibold">
+                    {{ $t('ui.glossaryDescription') }}
+                </div>
+                <div class="col-span-1" />
+            </div>
+            <USeparator />
+            <div v-for="(row, vIndex) in visibleEntries" :key="row.entry.id"
+                class="grid grid-cols-12 items-center py-1">
+                <div class="col-span-5">
+                    <UInput :id="`term-${row.entry.id}`"
+                        :ref="(el: unknown) => { if (el) termInputRefs[row.index] = el as any; }"
+                        v-model="row.entry.term" :placeholder="$t('ui.glossaryTerm')" variant="ghost"
+                        :ui="{ root: 'm-0 p-0', base: 'rounded-none' }" @blur="onBlur" />
+                </div>
+                <div class="col-span-6">
+                    <UInput v-model="row.entry.description" :placeholder="$t('ui.glossaryDescription')" variant="ghost"
+                        :ui="{ root: 'm-0 p-0', base: 'rounded-none' }" @blur="onBlur" />
+                </div>
+                <div class="col-span-1 flex justify-end">
+                    <UButton icon="i-lucide-trash-2" color="error" variant="link" size="sm" tabindex="-1"
+                        :disabled="row.index === glossary.length - 1" @click="deleteRowAt(row.index)" />
+                </div>
+            </div>
+        </div>
     </div>
 </template>

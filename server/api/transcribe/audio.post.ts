@@ -1,11 +1,24 @@
 import type { H3Event } from "h3";
-import { sendToBackend } from "~~/server/utils/api";
 
 export default defineEventHandler(async (event) => {
     if (import.meta.env.STUB_API !== "true") {
-        return await sendToBackend(event, "/translation/text", {
+        return await sendToBackend(event, "/transcription/audio", {
             method: "POST",
+            bodyProvider: async (event) => {
+                const body = await readFormData(event);
+                return body;
+            },
             fetcher: async (url, method, body, headers, event) => {
+                if (!body) {
+                    throw new Error("No body provided");
+                }
+
+                const form = new FormData();
+                form.append("audio_file", body.get("audio_file") as Blob);
+                form.append("language", body.get("language") as string);
+
+                delete headers["Content-Type"]; // Let the browser set the correct Content-Type with boundary
+
                 const abortController = new AbortController();
                 event.node.res.on("close", () => {
                     console.log("Response closed, aborting fetch");
@@ -14,7 +27,7 @@ export default defineEventHandler(async (event) => {
 
                 const response = await fetch(url, {
                     method,
-                    body: JSON.stringify(body),
+                    body: form,
                     headers: headers,
                     signal: abortController.signal,
                 });
@@ -30,21 +43,20 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    await sendDummyStream(event);
+    const form = await readFormData(event);
+
+    if (!form.get("audio_file")) {
+        throw new Error("No file provided");
+    }
+
+    sendDummyStream(event);
 });
 
 async function sendDummyStream(event: H3Event) {
     setResponseHeader(event, "Content-Type", "text/event-stream");
     setResponseHeader(event, "Cache-Control", "no-cache");
 
-    const body = await readBody<{
-        text: string;
-    }>(event);
-
-    const chunks = body.text.split(" ").map((word) => `${word} `);
-    if (chunks.length > 0) {
-        chunks[chunks.length - 1] = chunks[chunks.length - 1]?.trim() ?? "";
-    }
+    const chunks = ["This ", "is ", "a ", "dummy ", "streaming ", "response"];
     let index = 0;
 
     function pushChunk() {

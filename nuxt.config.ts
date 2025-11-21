@@ -28,6 +28,11 @@ export default defineNuxtConfig({
             // Optimize chunk size
             chunkSizeWarningLimit: 1000,
         },
+        resolve: {
+            alias: {
+                dexie: "dexie/dist/dexie.mjs",
+            },
+        },
     },
     // Define app head configuration
     app: {
@@ -71,7 +76,7 @@ export default defineNuxtConfig({
         project: "bs-translator",
         githubToken: process.env.GITHUB_TOKEN,
     },
-    devtools: { enabled: true },
+    devtools: { enabled: false },
     css: ["~/assets/css/main.css"],
     typescript: {
         typeCheck: true,

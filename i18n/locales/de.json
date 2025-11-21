@@ -108,6 +108,7 @@
         "inProgress": "In Bearbeitung",
         "uploadFile": "Datei hochladen",
         "uploading": "Hochladen...",
+        "transcribingFile": "Datei wird transkribiert...",
         "error": "Fehler",
         "errorDescription": "Bitte versuchen Sie es mit einer anderen Datei erneut.",
         "dismiss": "Verwerfen",
@@ -131,6 +132,10 @@
         "showSettings": "Einstellungen anzeigen",
         "hideSettings": "Einstellungen ausblenden",
         "takePhoto": "Foto aufnehmen"
+    },
+    "audio": {
+        "recover": "Wiederherstellen",
+        "abandonedRecording": "Sie haben eine unvollendete Aufnahme ({date}). Möchten Sie sie wiederherstellen?"
     },
     "camera": {
         "takePhoto": "Foto aufnehmen",

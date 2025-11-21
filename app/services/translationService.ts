@@ -1,11 +1,11 @@
 import type { ILogger } from "@dcc-bs/logger.bs.js";
-import {
-    type ConversionImageTextEntry,
-    conversionImageTextEntrySchema,
-} from "~/models/convertionResult";
 import type { TranslationConfig } from "~/models/translationConfig";
 import type { TranslationInput } from "~/models/translationInput";
 import { apiStreamfetch, isApiError } from "~/utils/apiFetch";
+import {
+    type ConversionImageTextEntry,
+    conversionImageTextEntrySchema,
+} from "~~/shared/models/convertionResult";
 
 export class TranslationService {
     static readonly $injectKey = "TranslationService";
