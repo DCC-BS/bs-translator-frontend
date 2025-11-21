@@ -18,7 +18,7 @@
         "@vue/compiler-sfc": "^3.5.21",
         "@vueuse/core": "^13.9.0",
         "dexie": "^4.2.0",
-        "konva": "10.0.11",
+        "konva": "10.0.12",
         "motion-v": "^1.7.1",
         "nuxt": "^4.0.1",
         "tailwindcss": "^4.1.13",
@@ -1287,7 +1287,7 @@
 
     "kolorist": ["kolorist@1.8.0", "", {}, "sha512-Y+60/zizpJ3HRH8DCss+q95yr6145JXZo46OTpFvDZWLfRCE4qChOyk1b26nMaNpfHHgxagk9dXT5OP0Tfe+dQ=="],
 
-    "konva": ["konva@10.0.11", "", {}, "sha512-h0O6YNrwdgfb76kzkiMIqkyufUxE6GPcNwJZhYalnZ5qnYBEuxSRk62fQwtJqygGP5hdZKzJs2ea1ivVP+zetw=="],
+    "konva": ["konva@10.0.12", "", {}, "sha512-DHmkeG5FbW6tLCkbMQTi1ihWycfzljrn0V7umUUuewxx7aoINcI71ksgBX9fTPNXhlsK4/JoMgKwI/iCde+BRw=="],
 
     "kuler": ["kuler@2.0.0", "", {}, "sha512-Xq9nH7KlWZmXAtodXDDRE7vs6DU1gTU8zYDHDiWLSip45Egwq3plLHzPn27NgvzL2r1LMPC1vdqh98sQxtqj4A=="],
 
