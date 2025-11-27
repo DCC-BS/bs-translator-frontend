@@ -23,7 +23,7 @@
         "@mohtasham/md-to-docx": "git+https://github.com/DCC-BS/md-to-docx.js#v3.0.0",
         "@nuxt/ui": "4.2.1",
         "@nuxtjs/i18n": "^10.0.3",
-        "@nuxtjs/mdc": "0.18.2",
+        "@nuxtjs/mdc": "0.18.4",
         "@playwright/test": "^1.55.1",
         "@vue/compiler-sfc": "^3.5.21",
         "@vueuse/core": "^13.9.0",
