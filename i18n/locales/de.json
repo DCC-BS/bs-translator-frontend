@@ -133,7 +133,9 @@
         "downloadFailed": "Download fehlgeschlagen",
         "showSettings": "Einstellungen anzeigen",
         "hideSettings": "Einstellungen ausblenden",
-        "takePhoto": "Foto aufnehmen"
+        "takePhoto": "Foto aufnehmen",
+        "recordAudio": "Audio aufnehmen",
+        "clearText": "Text löschen"
     },
     "audio": {
         "recover": "Wiederherstellen",

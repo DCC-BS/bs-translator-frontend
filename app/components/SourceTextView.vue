@@ -123,16 +123,18 @@ async function onRecordingStopped(audioBlob: Blob): Promise<void> {
             :placeholder="t('ui.enterTextPlaceholder')" :dir="direction" autofocus />
 
         <!-- Clear text button -->
-        <UButton v-if="sourceText" icon="i-lucide-x" variant="link" color="neutral" size="xs"
-            class="absolute top-1 right-1 opacity-50 hover:opacity-100" @click="clearText" />
-
+        <UTooltip v-if="sourceText" :text="t('ui.clearText')" :delay-duration="0">
+            <UButton v-if="sourceText" icon="i-lucide-x" variant="link" color="neutral" size="xs"
+                class="absolute top-1 right-1 opacity-50 hover:opacity-100" @click="clearText" />
+        </UTooltip>
         <!-- Character count and microphone button -->
         <div class="flex items-end justify-between text-gray-300 absolute bottom-0 inset-x-0">
             <div class="p-2">
                 <AudioRecordingView @on-recording-complete="onRecordingStopped" />
-
-                <UButton color="neutral" variant="link" @click="emit('trigger-file-upload')" :loading="isConverting"
-                    :disabled="isConverting" icon="i-lucide-file-up" />
+                <UTooltip :text="t('ui.uploadFile')" :delay-duration="0">
+                    <UButton color="neutral" variant="link" @click="emit('trigger-file-upload')" :loading="isConverting"
+                        :disabled="isConverting" icon="i-lucide-file-up" />
+                </UTooltip>
             </div>
 
             <div class="p-1" v-if="charCount > 0">{{ charCount }} {{

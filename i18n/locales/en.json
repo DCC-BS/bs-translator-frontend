@@ -133,7 +133,9 @@
         "downloadFailed": "Download failed",
         "showSettings": "Show Settings",
         "hideSettings": "Hide Settings",
-        "takePhoto": "Take Photo"
+        "takePhoto": "Take Photo",
+        "recordAudio": "Record Audio",
+        "clearText": "Clear Text"
     },
     "audio": {
         "recover": "Recover",
