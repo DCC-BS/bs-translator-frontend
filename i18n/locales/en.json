@@ -12,6 +12,8 @@
         "de": "German",
         "el": "Greek",
         "en": "English",
+        "en-us": "English (USA)",
+        "en-gb": "English (UK)",
         "es": "Spanish",
         "et": "Estonian",
         "fa": "Persian",

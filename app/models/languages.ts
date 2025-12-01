@@ -12,7 +12,8 @@ export interface Language {
  */
 export const languages: Language[] = [
     { code: "de", icon: "flag:de-4x3" }, // German - Germany
-    { code: "en", icon: "flag:gb-4x3" }, // English - United Kingdom
+    { code: "en-us", icon: "flag:us-4x3" }, // English - United States
+    { code: "en-gb", icon: "flag:gb-4x3" }, // English - United Kingdom
     { code: "fr", icon: "flag:fr-4x3" }, // French - France
     { code: "it", icon: "flag:it-4x3" }, // Italian - Italy
     { code: "af", icon: "flag:za-4x3" }, // Afrikaans - South Africa
