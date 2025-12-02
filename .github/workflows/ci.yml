@@ -3,43 +3,23 @@ name: Build & Test
 on:
   push:
     branches:
-        - main
+      - main
   pull_request:
     branches:
-        - main
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: DCC-BS/ci-workflows/actions/node-bun-biome-playwright@v1.0.0
         with:
-          node-version: "24.x"
-          registry-url: "https://npm.pkg.github.com"
-      - name: Setup Biome
-        uses: biomejs/setup-biome@v2
-        with:
-          version: latest
-      - name: Install Bun
-        run: npm install -g bun
-      - run: bun install
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: bun run build
-      - name: Run Biome
-        run: biome ci .
-      - name: Install Playwright Browsers
-        run: bunx playwright install --with-deps
-      - name: Run Playwright tests
-        run: bunx playwright test
-      - uses: daun/playwright-report-summary@v3
-        if: always()
-        with:
-          report-file: results.json
-      - uses: actions/upload-artifact@v5
-        if: ${{ !cancelled() }}
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
+          node_version: "24.x"
+          working_directory: "."
+          run_biome: "true"
+          run_playwright: "true"
+          install_method: "bun"
+          build_command: "bun run build"
+          test_command: "bunx playwright test"
+          artifact_name: "playwright-report"
+          artifact_retention_days: 30

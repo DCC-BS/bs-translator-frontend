@@ -12,6 +12,8 @@
         "de": "German",
         "el": "Greek",
         "en": "English",
+        "en-us": "English (USA)",
+        "en-gb": "English (UK)",
         "es": "Spanish",
         "et": "Estonian",
         "fa": "Persian",
@@ -131,7 +133,9 @@
         "downloadFailed": "Download failed",
         "showSettings": "Show Settings",
         "hideSettings": "Hide Settings",
-        "takePhoto": "Take Photo"
+        "takePhoto": "Take Photo",
+        "recordAudio": "Record Audio",
+        "clearText": "Clear Text"
     },
     "audio": {
         "recover": "Recover",

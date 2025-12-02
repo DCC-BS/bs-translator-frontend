@@ -22,10 +22,14 @@ function updateSelectedGlossaryFromState(): void {
     selectedGlossary.value = convertToString(glossary.value);
 }
 
-function getInnerInputFromRef(refCandidate: HTMLElement | { $el: HTMLElement } | undefined): HTMLInputElement | null {
+function getInnerInputFromRef(
+    refCandidate: HTMLElement | { $el: HTMLElement } | undefined,
+): HTMLInputElement | null {
     if (!refCandidate) return null;
-    const root: HTMLElement = "$el" in refCandidate ? refCandidate.$el : refCandidate;
-    const el = root instanceof HTMLInputElement ? root : root.querySelector("input");
+    const root: HTMLElement =
+        "$el" in refCandidate ? refCandidate.$el : refCandidate;
+    const el =
+        root instanceof HTMLInputElement ? root : root.querySelector("input");
     return (el as HTMLInputElement | null) ?? null;
 }
 
@@ -52,7 +56,10 @@ const visibleEntries = computed(() => {
             if (!q) {
                 return true;
             }
-            return entry.term.toLowerCase().includes(q) || entry.description.toLowerCase().includes(q);
+            return (
+                entry.term.toLowerCase().includes(q) ||
+                entry.description.toLowerCase().includes(q)
+            );
         });
 });
 
@@ -108,7 +115,9 @@ function focusLastEntry(retryCount = 0): void {
 
     const id = glossary.value[lastIndex]?.id;
     const fallbackInput = id
-        ? (document.querySelector(`#term-${id} input`) as HTMLInputElement | null)
+        ? (document.querySelector(
+              `#term-${id} input`,
+          ) as HTMLInputElement | null)
         : null;
 
     const input = (refInput as HTMLInputElement | null) ?? fallbackInput;

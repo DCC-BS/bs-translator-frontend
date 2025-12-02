@@ -51,11 +51,21 @@ bun install
 
 ## Development
 
-Start the development server on `http://localhost:3000`:
+- **Start backend dependencies with Docker Compose (dev)**: This launches the backend and required services, but not the frontend.
+
+```bash
+docker compose -f docker-compose.dev.yml up -d --build
+# Stop when done
+docker compose -f docker-compose.dev.yml down
+```
+
+- **Start the frontend locally (Nuxt dev server)** on `http://localhost:3000`:
 
 ```bash
 bun run dev
 ```
+
+Note: In dev, the backend is exposed on `http://localhost:8000` (as configured in `docker-compose.dev.yml`). Ensure your `.env` has `API_URL=http://localhost:8000`.
 
 ### Backend Setup
 
@@ -75,37 +85,18 @@ Check and fix code issues:
 bun run check
 ```
 
-## Production
+## Production (Docker Compose)
 
-Build the application for production:
-
-```bash
-bun run build
-```
-
-Generate static site:
+Run the full stack (nginx, frontend, backend, LLM) with Docker Compose:
 
 ```bash
-bun run generate
+docker compose -f docker-compose.yaml up -d --build
+# Stop and remove
+docker compose -f docker-compose.yaml down
 ```
 
-Start production server:
+Once started, access the application via `http://localhost:8090`.
 
-```bash
-bun run start
-```
-
-## Docker Deployment
-
-The application includes a Dockerfile for production deployment:
-
-```bash
-# Build the Docker image
-docker build -t bs-translator-frontend .
-
-# Run the container
-docker run -p 3000:3000 bs-translator-frontend
-```
 
 ## Project Architecture
 

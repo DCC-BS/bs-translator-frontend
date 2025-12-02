@@ -70,7 +70,9 @@ async function recover() {
 
 <template>
     <UDrawer v-model:open="isRecordingDrawerOpen" @close="stopRecording">
-        <UButton icon="i-lucide-mic" variant="link" color="neutral" data-testid="microphoneButton" />
+        <UTooltip :text="t('ui.recordAudio')" :delay-duration="0">
+            <UButton icon="i-lucide-mic" variant="link" color="neutral" data-testid="microphoneButton" />
+        </UTooltip>
         <template #content>
             <div class="w-full">
                 <div class="p-2 max-w-[800px] m-auto">
