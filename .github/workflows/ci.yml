@@ -9,15 +9,17 @@ on:
       - main
 
 jobs:
-  ci:
-    uses: DCC-BS/ci-workflows/.github/workflows/frontend-ci.yml@v1
-    with:
-      node_version: "24.x"
-      working_directory: "."
-      run_biome: "true"
-      run_playwright: "true"
-      install_method: "bun"
-      build_command: "bun run build"
-      test_command: "bunx playwright test"
-      artifact_name: "playwright-report"
-      artifact_retention_days: 30
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: DCC-BS/ci-workflows/actions/node-bun-biome-playwright@v1.0.0
+        with:
+          node_version: "24.x"
+          working_directory: "."
+          run_biome: "true"
+          run_playwright: "true"
+          install_method: "bun"
+          build_command: "bun run build"
+          test_command: "bunx playwright test"
+          artifact_name: "playwright-report"
+          artifact_retention_days: 30

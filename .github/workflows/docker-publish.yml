@@ -19,13 +19,44 @@ permissions:
 
 jobs:
   publish:
-    uses: DCC-BS/ci-workflows/.github/workflows/publish-docker.yml@v1
-    secrets: inherit
-    with:
-      release_type: ${{ inputs.version_bump }}
-      registry: ghcr.io
-      image_name: ghcr.io/${{ github.repository }}
-      context: .
-      dockerfile: ./Dockerfile
-      platforms: linux/amd64,linux/arm64
-      push: true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Bump version
+        id: version_bump
+        uses: DCC-BS/ci-workflows/actions/bump-version@v1.0.0
+        with:
+          release_type: ${{ inputs.version_bump }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=${{ steps.version_bump.outputs.new_version }}
+            type=raw,value=latest
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
