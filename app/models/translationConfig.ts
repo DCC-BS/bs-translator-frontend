@@ -29,7 +29,7 @@ export interface TranslationConfig {
  * Default translation configuration
  */
 export const defaultTranslationConfig: TranslationConfig = {
-    target_language: "en",
+    target_language: "en-us",
     source_language: undefined,
     domain: undefined,
     tone: undefined,

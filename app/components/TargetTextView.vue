@@ -167,21 +167,21 @@ async function downloadWord(): Promise<void> {
         <div class="absolute p-2 bottom-0 inset-x-0 flex gap-0 flex-wrap justify-end">
             <UTooltip v-if="translatedText" :text="showMarkdown ? t('ui.viewPlainText') : t('ui.viewAsMarkdown')"
                 :disabled="!translatedText" :delay-duration="0">
-                <UButton v-if="translatedText" :icon="markdownIcon" variant="link" color="neutral"
-                    @click="toggleMarkdown" data-testid="toggleMarkdownButton">
+                <UButton :icon="markdownIcon" variant="link" color="neutral" @click="toggleMarkdown"
+                    data-testid="toggleMarkdownButton">
                 </UButton>
             </UTooltip>
             <UTooltip v-if="translatedText" :text="t('ui.copyToClipboard')" :disabled="!translatedText"
                 :delay-duration="0">
-                <UButton v-if="translatedText" :icon="copySuccess ? 'i-lucide-check' : 'i-lucide-clipboard'"
-                    variant="link" :color="copySuccess ? 'success' : 'neutral'" @click="copyToClipboard"
+                <UButton :icon="copySuccess ? 'i-lucide-check' : 'i-lucide-clipboard'" variant="link"
+                    :color="copySuccess ? 'success' : 'neutral'" @click="copyToClipboard"
                     data-testid="copyToClipboardButton">
                 </UButton>
             </UTooltip>
             <UTooltip v-if="translatedText" :text="t('ui.downloadTranslatedText')" :disabled="!translatedText"
                 :delay-duration="0">
-                <UButton v-if="translatedText" icon="i-lucide-download" variant="link" color="neutral"
-                    @click="downloadWord" data-testid="downloadWordButton">
+                <UButton icon="i-lucide-download" variant="link" color="neutral" @click="downloadWord"
+                    data-testid="downloadWordButton">
                 </UButton>
             </UTooltip>
         </div>

@@ -124,7 +124,7 @@ async function onRecordingStopped(audioBlob: Blob): Promise<void> {
 
         <!-- Clear text button -->
         <UTooltip v-if="sourceText" :text="t('ui.clearText')" :delay-duration="0">
-            <UButton v-if="sourceText" icon="i-lucide-x" variant="link" color="neutral" size="xs"
+            <UButton icon="i-lucide-x" variant="link" color="neutral" size="xs"
                 class="absolute top-1 right-1 opacity-50 hover:opacity-100" @click="clearText" />
         </UTooltip>
         <!-- Character count and microphone button -->

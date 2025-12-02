@@ -20,7 +20,7 @@ export const useTranslate = () => {
         default: () => "auto",
     });
     const targetLanguage = useCookie<LanguageCode>("targetLanguage", {
-        default: () => "en",
+        default: () => "en-us",
     });
 
     const sourceText = ref<string>("");
