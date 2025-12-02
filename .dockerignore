@@ -1,17 +1,23 @@
+.git
+.vscode
+.editorconfig
+README.md
+dockercompose*
+node_modules
+__pycache__
+.pytest_cache
+.nuxt
+dist
+.output
+logs
+test-results
 # Dependencies
 ./node_modules
-bun.lockb
 
 # Build output
 ./.output
 ./.nuxt
 ./dist
-
-# Development files
-./.env
-./.env.local
-./.env.*.local
-./.editorconfig
 
 # IDE files
 ./.vscode
@@ -49,6 +55,5 @@ __tests__
 biome.json
 
 # Docker files
-Dockerfile*
 docker-compose*
 .dockerignore

@@ -1,0 +1,34 @@
+networks:
+  translator-network:
+    driver: bridge
+
+services:
+  nginx:
+    extends:
+      file: ./docker/services.compose.yml
+      service: nginx
+    depends_on:
+      - translator-frontend
+    networks:
+      - translator-network
+
+  llm:
+    extends:
+      file: ./docker/services.compose.yml
+      service: llm
+    networks:
+      - translator-network
+
+  translator-backend:
+    extends:
+      file: ./docker/services.compose.yml
+      service: translator-backend
+    networks:
+      - translator-network
+
+  translator-frontend:
+    extends:
+      file: ./docker/services.compose.yml
+      service: translator-frontend
+    networks:
+      - translator-network

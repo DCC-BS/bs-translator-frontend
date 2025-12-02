@@ -10,7 +10,7 @@ WORKDIR /app
 # Set Node.js memory limit for build process
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-# Copy package.json and bun.lockb
+# Copy package.json and bun.lock
 COPY ./package*.json ./bun.lock* ./
 
 # Install dependencies using bun
@@ -29,8 +29,15 @@ FROM node:24-alpine
 # Set the working directory
 WORKDIR /app
 
+# Security: Set non-root user
+USER node
+
+# Environment
+ENV NODE_ENV=production
+ENV NITRO_PORT=3000
+
 # Copy the built application from the build stage
-COPY --from=build /app/.output ./
+COPY --from=build --chown=node:node /app/.output ./
 
 # Expose the port the app runs on
 EXPOSE 3000
