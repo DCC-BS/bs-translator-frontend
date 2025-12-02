@@ -38,12 +38,7 @@ services:
       --uvicorn-log-level warning
       --disable-log-requests
   faster_whisper:
-    build:
-      context: https://github.com/DCC-BS/bentoml-faster-whisper.git
-      dockerfile: ./Dockerfile
-      platforms:
-        - linux/amd64
-        - linux/arm64
+    image: quay.io/ktbs/fd-itbs/faster-whisper:v1.4.1
     ports:
       - "50001:50001"
     env_file: ".env.backend"
@@ -56,7 +51,7 @@ services:
               device_ids: ["1"]
               capabilities: [gpu]
   docling:
-    image: quay.io/docling-project/docling-serve-cu124:latest
+    image: quay.io/docling-project/docling-serve-cu124:v1.1.0
     container_name: docling
     deploy:
       resources:
