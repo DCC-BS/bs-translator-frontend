@@ -19,6 +19,20 @@ services:
     networks:
       - translator-network
 
+  faster_whisper:
+    extends:
+      file: ./docker/services.compose.yml
+      service: faster_whisper
+    networks:
+      - translator-network
+
+  docling:
+    extends:
+      file: ./docker/services.compose.yml
+      service: docling
+    networks:
+      - translator-network
+
   translator-backend:
     extends:
       file: ./docker/services.compose.yml

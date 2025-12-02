@@ -19,8 +19,8 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              count: all
-              capabilities: [ gpu ]
+              device_ids: ["0"]
+              capabilities: [gpu]
     ipc: host
     volumes:
       - ~/.cache/huggingface:/root/.cache/huggingface
@@ -37,6 +37,43 @@ services:
       --reasoning-parser qwen3
       --uvicorn-log-level warning
       --disable-log-requests
+  faster_whisper:
+    build:
+      context: https://github.com/DCC-BS/bentoml-faster-whisper.git
+      dockerfile: ./Dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
+    ports:
+      - "50001:50001"
+    env_file: ".env.backend"
+    deploy:
+      resources:
+        reservations:
+          memory: 16g
+          devices:
+            - driver: nvidia
+              device_ids: ["1"]
+              capabilities: [gpu]
+  docling:
+    image: quay.io/docling-project/docling-serve-cu124:latest
+    container_name: docling
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["1"]
+              capabilities: [gpu]
+    ports:
+      - "8004:5001"
+    environment:
+      - DOCLING_MODELS_PATH=/models
+      - DOCLING_CONFIG_FILE=/app/docling_config.json
+      - DOCLING_SERVE_ENABLE_UI=true
+    volumes:
+      - "${HOME}/.cache/docling:/models"
+      - ./docling_config.json:/app/docling_config.json:ro
   translator-backend:
     image: ghcr.io/dcc-bs/bs-translator-backend:latest
     expose:
