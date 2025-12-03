@@ -34,7 +34,12 @@ export default defineEventHandler(async () => {
             );
         }
 
-        // Simulate a successful check for now
+        if (response.status !== "ready") {
+            throw new Error(
+                `Upstream API health check failed: ${response.status}`,
+            );
+        }
+
         healthCheck.checks.api = "connected";
 
         return healthCheck;
