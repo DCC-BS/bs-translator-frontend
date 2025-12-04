@@ -119,8 +119,8 @@ async function onRecordingStopped(audioBlob: Blob): Promise<void> {
 
         <!-- Text area -->
         <UTextarea v-model="sourceText" class="absolute inset-0 pb-10" data-testid="sourceTextInput"
-            :ui="{ base: 'resize-none relative transition-all duration-300 flex-1 h-full pr-6' }" variant="none"
-            :placeholder="t('ui.enterTextPlaceholder')" :dir="direction" autofocus />
+            data-tour="text-input" :ui="{ base: 'resize-none relative transition-all duration-300 flex-1 h-full pr-6' }"
+            variant="none" :placeholder="t('ui.enterTextPlaceholder')" :dir="direction" autofocus />
 
         <!-- Clear text button -->
         <UTooltip v-if="sourceText" :text="t('ui.clearText')" :delay-duration="0">
@@ -131,7 +131,7 @@ async function onRecordingStopped(audioBlob: Blob): Promise<void> {
         <div class="flex items-end justify-between text-gray-300 absolute bottom-0 inset-x-0">
             <div class="p-2">
                 <AudioRecordingView @on-recording-complete="onRecordingStopped" />
-                <UTooltip :text="t('ui.uploadFile')" :delay-duration="0">
+                <UTooltip :text="t('ui.uploadFile')" :delay-duration="0" data-tour="upload-file">
                     <UButton color="neutral" variant="link" @click="emit('trigger-file-upload')" :loading="isConverting"
                         :disabled="isConverting" icon="i-lucide-file-up" />
                 </UTooltip>

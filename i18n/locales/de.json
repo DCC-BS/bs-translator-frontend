@@ -183,5 +183,16 @@
     "navigation": {
         "languages": "Sprachen",
         "app": "BS-Übersetzer"
+    },
+    "tour": {
+        "welcome": {
+            "title": "Willkommen bei BS-Übersetzer!",
+            "content": "BS-Übersetzer ist ein Übersetzung-Tool entwickelt vom DCC - Data Competence Center am Statistischen Amt. Alle Daten werden auf lokalen Servern der IT BS verarbeitet. Du kannst mit BS-Übersetzer auch besondere Personendaten und Daten, die dem Amtsgeheimnis (Erhöhter Schutzbedarf) unterliegen, verarbeiten. Ich zeige Dir jetzt die Hauptfunktionen von BS-Übersetzer."
+        },
+        "skip": "Überspringen",
+        "next": "Weiter",
+        "prev": "Zurück",
+        "finish": "Beenden",
+        "restart": "Tour neu starten"
     }
 }

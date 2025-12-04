@@ -74,6 +74,7 @@ export default defineNuxtConfig({
         "@dcc-bs/dependency-injection.bs.js",
         "@dcc-bs/audio-recorder.bs.js",
         "@nuxtjs/mdc",
+        "nuxt-tour",
     ],
     "feedback-control.bs.js": {
         repo: "Feedback",

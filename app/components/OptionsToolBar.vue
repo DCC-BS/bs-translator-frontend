@@ -45,7 +45,7 @@ const tabs = ref<TabsItem[]>([
         </template>
     </UDrawer>
 
-    <div class="hidden md:flex flex-1 justify-end mb-2">
+    <div class="hidden md:flex flex-1 justify-end mb-2" data-tour="input-options">
         <UPopover :ui="{ content: 'bg-none ring-0 shadow-none' }">
             <UButton variant="link" color="neutral" trailing-icon="i-lucide-chevron-down" data-testid="tone-button">{{
                 t('ui.tone') }}</UButton>

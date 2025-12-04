@@ -183,5 +183,16 @@
     "navigation": {
         "languages": "Languages",
         "app": "BS Translator"
+    },
+    "tour": {
+        "welcome": {
+            "title": "Welcome to BS Translator!",
+            "content": "BS Translator is a translation tool developed by the DCC - Data Competence Center at Statistisches Amt Basel-Stadt. All data is processed on local servers of the IT BS. You can also process special personal data and data that fall under 'Amtsgeheimnis' (Erhöhter Schutzbedarf). I will now show you the main functions of BS Translator."
+        },
+        "skip": "Skip",
+        "next": "Next",
+        "prev": "Previous",
+        "finish": "Finish",
+        "restart": "Restart Tour"
     }
 }
