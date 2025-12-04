@@ -4,6 +4,7 @@
 </script>
 
 <template>
+    <Changelogs />
     <Disclaimer app-name="BS Übersetzer" />
     <FeedbackControl />
     <UApp>

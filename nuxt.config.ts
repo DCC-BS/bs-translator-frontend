@@ -14,6 +14,11 @@ export default defineNuxtConfig({
             },
         },
     },
+    fonts: {
+        providers: {
+            bunny: false,
+        },
+    },
     // Build optimization for memory usage
     build: {
         analyze: false,
@@ -75,6 +80,9 @@ export default defineNuxtConfig({
         owner: "DCC-BS",
         project: "bs-translator",
         githubToken: process.env.GITHUB_TOKEN,
+    },
+    "common-ui.bs.js": {
+        path: "server/changelogs", // Path to changelog files directory
     },
     devtools: { enabled: false },
     css: ["~/assets/css/main.css"],
