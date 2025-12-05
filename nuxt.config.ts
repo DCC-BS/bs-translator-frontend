@@ -14,6 +14,11 @@ export default defineNuxtConfig({
             },
         },
     },
+    fonts: {
+        providers: {
+            bunny: false,
+        },
+    },
     // Build optimization for memory usage
     build: {
         analyze: false,
@@ -69,12 +74,16 @@ export default defineNuxtConfig({
         "@dcc-bs/dependency-injection.bs.js",
         "@dcc-bs/audio-recorder.bs.js",
         "@nuxtjs/mdc",
+        "nuxt-tour",
     ],
     "feedback-control.bs.js": {
         repo: "Feedback",
         owner: "DCC-BS",
         project: "bs-translator",
         githubToken: process.env.GITHUB_TOKEN,
+    },
+    "common-ui.bs.js": {
+        path: "server/changelogs", // Path to changelog files directory
     },
     devtools: { enabled: false },
     css: ["~/assets/css/main.css"],

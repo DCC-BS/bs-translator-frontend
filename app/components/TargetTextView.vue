@@ -157,7 +157,7 @@ async function downloadWord(): Promise<void> {
 
 <template>
     <div class="relative bg-gray-50 p-[5px] m-0 h-full w-full" :class="{ 'translating-border': props.isTranslating }">
-        <div data-testid="targetMarkdown" v-if="showMarkdown && translatedText" :dir="direction"
+        <div data-testid="targetMarkdown" data-tour="text-output" v-if="showMarkdown && translatedText" :dir="direction"
             class="absolute inset-0 overflow-y-auto pl-2 pb-12 prose">
             <MDC :value="translatedText" />
         </div>
@@ -167,21 +167,21 @@ async function downloadWord(): Promise<void> {
         <div class="absolute p-2 bottom-0 inset-x-0 flex gap-0 flex-wrap justify-end">
             <UTooltip v-if="translatedText" :text="showMarkdown ? t('ui.viewPlainText') : t('ui.viewAsMarkdown')"
                 :disabled="!translatedText" :delay-duration="0">
-                <UButton :icon="markdownIcon" variant="link" color="neutral" @click="toggleMarkdown"
-                    data-testid="toggleMarkdownButton">
+                <UButton data-tour="view-plain-text" :icon="markdownIcon" variant="link" color="neutral"
+                    @click="toggleMarkdown" data-testid="toggleMarkdownButton">
                 </UButton>
             </UTooltip>
             <UTooltip v-if="translatedText" :text="t('ui.copyToClipboard')" :disabled="!translatedText"
                 :delay-duration="0">
-                <UButton :icon="copySuccess ? 'i-lucide-check' : 'i-lucide-clipboard'" variant="link"
-                    :color="copySuccess ? 'success' : 'neutral'" @click="copyToClipboard"
+                <UButton data-tour="copy-to-clipboard" :icon="copySuccess ? 'i-lucide-check' : 'i-lucide-clipboard'"
+                    variant="link" :color="copySuccess ? 'success' : 'neutral'" @click="copyToClipboard"
                     data-testid="copyToClipboardButton">
                 </UButton>
             </UTooltip>
             <UTooltip v-if="translatedText" :text="t('ui.downloadTranslatedText')" :disabled="!translatedText"
                 :delay-duration="0">
-                <UButton icon="i-lucide-download" variant="link" color="neutral" @click="downloadWord"
-                    data-testid="downloadWordButton">
+                <UButton data-tour="download-as-word" icon="i-lucide-download" variant="link" color="neutral"
+                    @click="downloadWord" data-testid="downloadWordButton">
                 </UButton>
             </UTooltip>
         </div>
