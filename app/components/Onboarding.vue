@@ -109,11 +109,13 @@ const steps = [
     target: '[data-tour="record-audio"]',
     title: t("tour.record-audio.title"),
     body: t("tour.record-audio.content"),
+    popperConfig: { placement: "top" },
   },
   {
     target: '[data-tour="upload-file"]',
     title: t("tour.upload-file.title"),
     body: t("tour.upload-file.content"),
+    popperConfig: { placement: "top" },
   },
   {
     target: '[data-tour="view-plain-text"]',

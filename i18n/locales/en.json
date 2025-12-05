@@ -189,6 +189,46 @@
             "title": "Welcome to BS Translator!",
             "content": "BS Translator is a translation tool developed by the DCC - Data Competence Center at Statistisches Amt Basel-Stadt. All data is processed on local servers of the IT BS. You can also process special personal data and data that fall under 'Amtsgeheimnis' (Erhöhter Schutzbedarf). I will now show you the main functions of BS Translator."
         },
+        "language-selector": {
+            "title": "Select source and target language",
+            "content": "Here you can select the source and target language. The source language can also be automatically detected. The target language is the language into which the text is to be translated. With the button in the middle you can swap the source and target language."
+        },
+        "input-options": {
+            "title": "Translation options",
+            "content": "Here you can configure the tone, domain and glossary. The tone determines the writing style of the translation. The domain determines the subject area of the translation to use domain-specific terms. The glossary allows you to define terms that are relevant for the translation."
+        },
+        "text-input": {
+            "title": "Enter source text",
+            "content": "Here you can enter the text you want to translate. You can also drag and drop files into this field to translate them."
+        },
+        "text-output": {
+            "title": "Translated text",
+            "content": "Here the translated text is displayed."
+        },
+        "record-audio": {
+            "title": "Record audio",
+            "content": "Here you can record the text you want to translate using your microphone."
+        },
+        "upload-file": {
+            "title": "Upload file",
+            "content": "Here you can upload a file to translate. This function is still being improved. Currently, only smaller documents with up to 20 pages can be translated. The formatting such as titles, tables, lists, bold and italic will be preserved. Other formatting will be lost."
+        },
+        "view-plain-text": {
+            "title": "View as plain text",
+            "content": "Here you can view the translated text as plain text. This means that the formatting is discarded."
+        },
+        "copy-to-clipboard": {
+            "title": "Copy to clipboard",
+            "content": "Here you can copy the translated text to the clipboard."
+        },
+        "download-as-word": {
+            "title": "Download as Word",
+            "content": "Here you can download the translated text as a Word file."
+        },
+        "finished": {
+            "title": "That's it!",
+            "content": "You now know the basic functions of BS Translator. You can restart this tour at any time by clicking the question mark in the top right corner."
+        },
         "skip": "Skip",
         "next": "Next",
         "prev": "Previous",
