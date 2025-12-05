@@ -186,7 +186,7 @@ const finishButton: ButtonProp = {
 </template>
 
 <style scoped>
-@reference "../assets/css/main.css";
+@import "../assets/css/main.css";
 
 :deep(#nt-tooltip) {
   max-width: 450px;
@@ -199,8 +199,6 @@ const finishButton: ButtonProp = {
 :deep(#nt-action-prev) {
   @apply bg-primary text-white;
 }
-
-:deep(#nt-action-skip) {}
 
 :deep(#nt-action-finish) {
   @apply bg-success text-white;

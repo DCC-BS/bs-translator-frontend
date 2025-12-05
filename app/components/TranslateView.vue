@@ -107,7 +107,7 @@ function onCapturePhoto() {
 
                     <!-- Language selection area -->
                     <div class="hidden xl:inline">
-                        <LanguageSelectionBar data-tour="language-selector" v-model:source-language="sourceLanguage"
+                        <LanguageSelectionBar v-model:source-language="sourceLanguage"
                             v-model:target-language="targetLanguage" @swap-languages="swapLanguages" />
                     </div>
 

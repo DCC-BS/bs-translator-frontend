@@ -21,7 +21,7 @@ function swapLanguages(): void {
 
 <template>
     <!-- Language selection area -->
-    <div class="flex items-start sm:items-center ">
+    <div class="flex items-start sm:items-center" data-tour="language-selector">
         <div class="flex-1 flex justify-end">
             <LanguageSelectionView v-model="sourceLanguage" include-auto-detect />
         </div>
