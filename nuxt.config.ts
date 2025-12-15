@@ -1,4 +1,3 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     compatibilityDate: "2024-11-01",
     routeRules: {
@@ -43,7 +42,10 @@ export default defineNuxtConfig({
     app: {
         head: {
             titleTemplate: "BS Übersetzer",
-            link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
+            link: [
+                { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
+                { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+            ],
             htmlAttrs: {
                 lang: "de",
             },
@@ -59,6 +61,11 @@ export default defineNuxtConfig({
                 },
                 { name: "application-name", content: "BS Übersetzer" },
                 { name: "msapplication-config", content: "/browserconfig.xml" },
+                { name: "mobile-web-app-capable", content: "yes" },
+                {
+                    name: "apple-mobile-web-app-status-bar-style",
+                    content: "black-translucent",
+                },
             ],
         },
     },
@@ -75,6 +82,7 @@ export default defineNuxtConfig({
         "@dcc-bs/audio-recorder.bs.js",
         "@nuxtjs/mdc",
         "nuxt-tour",
+        "@vite-pwa/nuxt",
     ],
     "feedback-control.bs.js": {
         repo: "Feedback",
@@ -120,6 +128,73 @@ export default defineNuxtConfig({
     $development: {
         "logger.bs.js": {
             loglevel: "debug",
+        },
+    },
+    pwa: {
+        devOptions: {
+            enabled: false,
+        },
+        registerType: "autoUpdate",
+        workbox: {
+            globPatterns: ["**/*.{js,css,html,png,jpg,jpeg,svg,wasm,ico}"],
+            globIgnores: ["dev-sw-dist/**/*"],
+            navigateFallback: "/",
+            clientsClaim: true,
+            skipWaiting: true,
+            runtimeCaching: [
+                {
+                    urlPattern: /\/favicon\.ico$/,
+                    handler: "CacheFirst",
+                    options: {
+                        cacheName: "favicon-cache",
+                        expiration: {
+                            maxEntries: 1,
+                            maxAgeSeconds: 7 * 24 * 60 * 60, // 1 week
+                        },
+                    },
+                },
+            ],
+        },
+        client: {
+            periodicSyncForUpdates: 60 * 10, // 10 minutes
+        },
+
+        manifest: {
+            name: "BS Übersetzer",
+            short_name: "Übersetzer",
+            description:
+                "Übersetzer für den Kanton Basel-Stadt. Entwickelt vom DCC - Data Competence Center",
+            theme_color: "#8c4a92",
+            background_color: "#FFFFFF",
+            start_url: "/",
+            display: "standalone",
+            orientation: "portrait",
+            icons: [
+                {
+                    src: "pwa-192x192.png",
+                    sizes: "192x192",
+                    type: "image/png",
+                    purpose: "any",
+                },
+                {
+                    src: "pwa-512x512.png",
+                    sizes: "512x512",
+                    type: "image/png",
+                    purpose: "any",
+                },
+                {
+                    src: "pwa-maskable-192x192.png",
+                    sizes: "192x192",
+                    type: "image/png",
+                    purpose: "maskable",
+                },
+                {
+                    src: "pwa-maskable-512x512.png",
+                    sizes: "512x512",
+                    type: "image/png",
+                    purpose: "maskable",
+                },
+            ],
         },
     },
 });
