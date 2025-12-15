@@ -38,15 +38,6 @@ export default defineNuxtConfig({
             },
         },
     },
-    nitro: {
-        // Ensure changelog markdown files are bundled into the generated output
-        serverAssets: [
-            {
-                baseName: "changelogs",
-                dir: "server/changelogs",
-            },
-        ],
-    },
     // Define app head configuration
     app: {
         head: {
@@ -98,9 +89,6 @@ export default defineNuxtConfig({
         owner: "DCC-BS",
         project: "bs-translator",
         githubToken: process.env.GITHUB_TOKEN,
-    },
-    "common-ui.bs.js": {
-        changelogsPath: "server/changelogs",
     },
     devtools: { enabled: false },
     css: ["~/assets/css/main.css"],

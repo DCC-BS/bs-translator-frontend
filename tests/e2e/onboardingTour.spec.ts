@@ -242,7 +242,7 @@ test("Tour overlay appears when tour is active", async ({ page }) => {
 
     // Check if overlay is present (dark background)
     const overlay = page.locator(
-        ".absolute.bg-gray-500.z-99.inset-0.opacity-30",
+        ".absolute.bg-gray-500.z-50.inset-0.opacity-30",
     );
     await expect(overlay).toBeVisible();
 

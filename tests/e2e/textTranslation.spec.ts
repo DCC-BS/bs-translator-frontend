@@ -9,8 +9,8 @@ const domainEnergy = local.domains.Energy;
 const glossaryTerm = local.ui.glossaryTerm;
 const glossaryDescription = local.ui.glossaryDescription;
 
-test("Text should be translated", async ({ page, context }) => {
-    // Skip tour for this test
+// Helper to skip tour by setting the completion cookie
+async function skipTour(context: BrowserContext) {
     await context.addCookies([
         {
             name: "tourCompleted",
@@ -19,6 +19,11 @@ test("Text should be translated", async ({ page, context }) => {
             path: "/",
         },
     ]);
+}
+
+test("Text should be translated", async ({ page, context }) => {
+    // Skip tour for this test
+    await skipTour(context);
 
     await page.goto("/");
 
@@ -33,14 +38,7 @@ test("Text should be translated", async ({ page, context }) => {
 
 test("Switch to plain text view", async ({ page, context }) => {
     // Skip tour for this test
-    await context.addCookies([
-        {
-            name: "tourCompleted",
-            value: "true",
-            domain: "localhost",
-            path: "/",
-        },
-    ]);
+    await skipTour(context);
 
     await page.goto("/");
 
@@ -60,14 +58,7 @@ test("Switch to plain text view", async ({ page, context }) => {
 
 test("Copy rich translated text", async ({ page, context }) => {
     // Skip tour for this test
-    await context.addCookies([
-        {
-            name: "tourCompleted",
-            value: "true",
-            domain: "localhost",
-            path: "/",
-        },
-    ]);
+    await skipTour(context);
 
     await page.goto("/");
 
@@ -98,14 +89,7 @@ test("Copy rich translated text", async ({ page, context }) => {
 
 test("Copy plain translated text", async ({ page, context }) => {
     // Skip tour for this test
-    await context.addCookies([
-        {
-            name: "tourCompleted",
-            value: "true",
-            domain: "localhost",
-            path: "/",
-        },
-    ]);
+    await skipTour(context);
 
     await page.goto("/");
 
@@ -128,14 +112,7 @@ test("Copy plain translated text", async ({ page, context }) => {
 
 test("Api call is correct when tone is set", async ({ page, context }) => {
     // Skip tour for this test
-    await context.addCookies([
-        {
-            name: "tourCompleted",
-            value: "true",
-            domain: "localhost",
-            path: "/",
-        },
-    ]);
+    await skipTour(context);
 
     let requestBody: { config: { tone: string } } = { config: { tone: "" } };
 
@@ -159,14 +136,7 @@ test("Api call is correct when tone is set", async ({ page, context }) => {
 
 test("Api call is correct when domain is set", async ({ page, context }) => {
     // Skip tour for this test
-    await context.addCookies([
-        {
-            name: "tourCompleted",
-            value: "true",
-            domain: "localhost",
-            path: "/",
-        },
-    ]);
+    await skipTour(context);
 
     let requestBody: { config: { domain: string } } = {
         config: { domain: "" },
@@ -192,14 +162,7 @@ test("Api call is correct when domain is set", async ({ page, context }) => {
 
 test("Api call is correct when glossary is set", async ({ page, context }) => {
     // Skip tour for this test
-    await context.addCookies([
-        {
-            name: "tourCompleted",
-            value: "true",
-            domain: "localhost",
-            path: "/",
-        },
-    ]);
+    await skipTour(context);
 
     let requestBody: { config: { glossary: string } } = {
         config: { glossary: "" },

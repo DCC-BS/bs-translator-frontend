@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { type BrowserContext, expect, test } from "@playwright/test";
 
 import local from "../../i18n/locales/en.json" with { type: "json" };
 
@@ -6,11 +6,8 @@ const recordAudioTooltip = local.ui.recordAudio;
 const uploadFileTooltip = local.ui.uploadFile;
 const clearTextTooltip = local.ui.clearText;
 
-test("Tooltips are visible on hover for action buttons", async ({
-    page,
-    context,
-}) => {
-    // Skip tour for this test
+// Helper to skip tour by setting the completion cookie
+async function skipTour(context: BrowserContext) {
     await context.addCookies([
         {
             name: "tourCompleted",
@@ -19,6 +16,13 @@ test("Tooltips are visible on hover for action buttons", async ({
             path: "/",
         },
     ]);
+}
+test("Tooltips are visible on hover for action buttons", async ({
+    page,
+    context,
+}) => {
+    // Skip tour for this test
+    await skipTour(context);
 
     await page.goto("/");
 
@@ -41,14 +45,7 @@ test("Clear text button appears when text is entered", async ({
     context,
 }) => {
     // Skip tour for this test
-    await context.addCookies([
-        {
-            name: "tourCompleted",
-            value: "true",
-            domain: "localhost",
-            path: "/",
-        },
-    ]);
+    await skipTour(context);
 
     await page.goto("/");
 
@@ -85,14 +82,7 @@ test("Clear text button appears when text is entered", async ({
 
 test("Target text action buttons have tooltips", async ({ page, context }) => {
     // Skip tour for this test
-    await context.addCookies([
-        {
-            name: "tourCompleted",
-            value: "true",
-            domain: "localhost",
-            path: "/",
-        },
-    ]);
+    await skipTour(context);
 
     await page.goto("/");
 
@@ -147,14 +137,7 @@ test("Tour data attributes are present on key elements", async ({
     context,
 }) => {
     // Skip tour for this test
-    await context.addCookies([
-        {
-            name: "tourCompleted",
-            value: "true",
-            domain: "localhost",
-            path: "/",
-        },
-    ]);
+    await skipTour(context);
 
     await page.goto("/");
 
@@ -185,14 +168,7 @@ test("Tour restart button is present in navigation", async ({
     context,
 }) => {
     // Skip tour for this test
-    await context.addCookies([
-        {
-            name: "tourCompleted",
-            value: "true",
-            domain: "localhost",
-            path: "/",
-        },
-    ]);
+    await skipTour(context);
 
     await page.goto("/");
 
@@ -214,14 +190,7 @@ test("Tour restart button is present in navigation", async ({
 
 test("File upload button shows tooltip", async ({ page, context }) => {
     // Skip tour for this test
-    await context.addCookies([
-        {
-            name: "tourCompleted",
-            value: "true",
-            domain: "localhost",
-            path: "/",
-        },
-    ]);
+    await skipTour(context);
 
     await page.goto("/");
 

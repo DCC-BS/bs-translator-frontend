@@ -1,4 +1,4 @@
-import { computed, type ComputedRef } from "vue";
+import { type ComputedRef, computed } from "vue";
 
 type RestartHandler = () => void | Promise<void>;
 type SetExampleTextHandler = (text: string) => void;

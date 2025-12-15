@@ -178,29 +178,29 @@ const finishButton: ButtonProp = {
 
 
 <template>
-  <VTour ref="tour" :steps="steps" @onTourStart="onTourStart" @onTourEnd="onTourComplete"
-    @skip="() => { onTourComplete() }" :highlight="true" :jumpOptions="{ duration: 10 }" :skip-button="skipBtn"
-    :next-button="nextBtn" :prev-button="prevButton" :finish-button="finishButton" :trap-focus="trapFocus" />
+    <VTour ref="tour" :steps="steps" @onTourStart="onTourStart" @onTourEnd="onTourComplete"
+        @skip="() => { onTourComplete() }" :highlight="true" :jumpOptions="{ duration: 10 }" :skip-button="skipBtn"
+        :next-button="nextBtn" :prev-button="prevButton" :finish-button="finishButton" :trap-focus="trapFocus" />
 
-  <div class="absolute bg-gray-500 z-99 inset-0 opacity-30" v-if="tourIsActive"></div>
+    <div class="absolute bg-gray-500 z-50 inset-0 opacity-30" v-if="tourIsActive"></div>
 </template>
 
 <style scoped>
 @import "../assets/css/main.css";
 
 :deep(#nt-tooltip) {
-  max-width: 450px;
+    max-width: 450px;
 }
 
 :deep(#nt-action-next) {
-  @apply bg-primary text-white;
+    @apply bg-primary text-white;
 }
 
 :deep(#nt-action-prev) {
-  @apply bg-primary text-white;
+    @apply bg-primary text-white;
 }
 
 :deep(#nt-action-finish) {
-  @apply bg-success text-white;
+    @apply bg-success text-white;
 }
 </style>
