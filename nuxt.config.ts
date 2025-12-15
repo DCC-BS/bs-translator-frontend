@@ -38,6 +38,15 @@ export default defineNuxtConfig({
             },
         },
     },
+    nitro: {
+        // Ensure changelog markdown files are bundled into the generated output
+        serverAssets: [
+            {
+                baseName: "changelogs",
+                dir: "server/changelogs",
+            },
+        ],
+    },
     // Define app head configuration
     app: {
         head: {
@@ -91,7 +100,7 @@ export default defineNuxtConfig({
         githubToken: process.env.GITHUB_TOKEN,
     },
     "common-ui.bs.js": {
-        path: "server/changelogs", // Path to changelog files directory
+        changelogsPath: "server/changelogs",
     },
     devtools: { enabled: false },
     css: ["~/assets/css/main.css"],
@@ -132,7 +141,7 @@ export default defineNuxtConfig({
     },
     pwa: {
         devOptions: {
-            enabled: false,
+            enabled: true,
         },
         registerType: "autoUpdate",
         workbox: {
@@ -166,7 +175,6 @@ export default defineNuxtConfig({
                 "Übersetzer für den Kanton Basel-Stadt. Entwickelt vom DCC - Data Competence Center",
             theme_color: "#8c4a92",
             background_color: "#FFFFFF",
-            start_url: "/",
             display: "standalone",
             orientation: "portrait",
             icons: [

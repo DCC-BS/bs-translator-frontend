@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-
 // Add translation hook
 const { t } = useI18n();
 const { restartTour, canRestartTour } = useTourController();
@@ -10,19 +9,19 @@ const isRestarting = ref(false);
  * Restarts the onboarding tour via the shared tour controller.
  */
 async function handleRestartTour(): Promise<void> {
-  if (isRestarting.value || !canRestartTour.value) {
-    return;
-  }
+    if (isRestarting.value || !canRestartTour.value) {
+        return;
+    }
 
-  isRestarting.value = true;
+    isRestarting.value = true;
 
-  try {
-    await restartTour();
-  } catch (error) {
-    logger.error("Failed to restart onboarding tour", error);
-  } finally {
-    isRestarting.value = false;
-  }
+    try {
+        await restartTour();
+    } catch (error) {
+        logger.error("Failed to restart onboarding tour", error);
+    } finally {
+        isRestarting.value = false;
+    }
 }
 </script>
 

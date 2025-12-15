@@ -18,7 +18,8 @@ const {
 } = useTranslate();
 
 // Register handler for setting example text during onboarding
-const { registerSetExampleTextHandler, unregisterSetExampleTextHandler } = useTourController();
+const { registerSetExampleTextHandler, unregisterSetExampleTextHandler } =
+    useTourController();
 
 onMounted(() => {
     registerSetExampleTextHandler((text: string) => {

@@ -40,7 +40,7 @@ Update existing playwright tests when the functionality of the feature changes.
 
     ```typescript
     // Correct
-    func increment() {
+    function increment() {
       count.value++
     }
 
@@ -55,12 +55,12 @@ Update existing playwright tests when the functionality of the feature changes.
 
     ```typescript
     // Correct
-    func processData(data: unknown) {
+    function processData(data: unknown) {
       // Type-check and narrow the type before using
     }
 
     // Incorrect
-    func processData(data: any) {
+    function processData(data: any) {
       // This bypasses type checking
     }
     ```
@@ -112,9 +112,9 @@ Update existing playwright tests when the functionality of the feature changes.
       email: string
     }
 
-    type UserWithoutId = Omit
+    type UserWithoutId = Omit<User, "id">;
 
-    func createUser(user: UserWithoutId): User {
+    function createUser(user: UserWithoutId): User {
       return { ...user, id: generateId() }
     }
     ```
@@ -124,13 +124,13 @@ Update existing playwright tests when the functionality of the feature changes.
 
     ```typescript
     // Correct
-    async func fetchUserData(userId: number): Promise {
+    async function fetchUserData(userId: number): Promise<User> {
       const response = await fetch(`/api/users/${userId}`);
       return await response.json();
     }
 
     // Incorrect
-    func fetchUserData(userId: number): Promise {
+    function fetchUserData(userId: number): Promise<User> {
       return fetch(`/api/users/${userId}`)
         .then(response => response.json())
     }
@@ -142,13 +142,13 @@ Update existing playwright tests when the functionality of the feature changes.
     ```typescript
     // Correct
     const name = ref('');
-    func increment(): void {
+    function increment(): void {
       count.value++;
     }
 
     // Incorrect
     const name = ref('')
-    func increment(): void {
+    function increment(): void {
       count.value++
     }
     ```

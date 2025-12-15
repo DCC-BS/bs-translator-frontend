@@ -2,9 +2,9 @@
 import type { VTour } from "#components";
 import type { ButtonProp, TourStep } from "#nuxt-tour/props";
 
-
 const { t } = useI18n();
-const { registerRestartHandler, unregisterRestartHandler, setExampleText } = useTourController();
+const { registerRestartHandler, unregisterRestartHandler, setExampleText } =
+    useTourController();
 
 const exampleText = "Schreibe hier deinen text.";
 const tour = ref<InstanceType<typeof VTour>>();
@@ -17,162 +17,162 @@ const trapFocus = ref(false);
 
 // Tour control functions
 function startTour(): void {
-  showTour.value = true;
-  setExampleText(exampleText);
-  tour.value?.startTour();
+    showTour.value = true;
+    setExampleText(exampleText);
+    tour.value?.startTour();
 }
 
 /**
  * Ensures the guided tour can be restarted from other components.
  */
 async function restartTour(): Promise<void> {
-  if (tourIsActive.value) {
-    tour.value?.endTour();
-    await nextTick();
-  }
+    if (tourIsActive.value) {
+        tour.value?.endTour();
+        await nextTick();
+    }
 
-  tourCompleted.value = false;
-  showTour.value = true;
-  setExampleText(exampleText);
-  tour.value?.resetTour();
+    tourCompleted.value = false;
+    showTour.value = true;
+    setExampleText(exampleText);
+    tour.value?.resetTour();
 }
 
 function onTourStart(): void {
-  tourIsActive.value = true;
-  window.addEventListener("keydown", handleKeyboardNavigation);
+    tourIsActive.value = true;
+    window.addEventListener("keydown", handleKeyboardNavigation);
 }
 
 async function onTourComplete(): Promise<void> {
-  tourCompleted.value = true;
-  tourIsActive.value = false;
-  window.removeEventListener("keydown", handleKeyboardNavigation);
-  setExampleText(""); // Clear the example text
+    tourCompleted.value = true;
+    tourIsActive.value = false;
+    window.removeEventListener("keydown", handleKeyboardNavigation);
+    setExampleText(""); // Clear the example text
 }
 
 function handleKeyboardNavigation(event: KeyboardEvent): void {
-  if (!tourIsActive.value) return;
+    if (!tourIsActive.value) return;
 
-  // Check if user is typing in an input field
-  const target = event.target as HTMLElement;
-  if (
-    target.tagName === "INPUT" ||
-    target.tagName === "TEXTAREA" ||
-    target.isContentEditable
-  ) {
-    return;
-  }
+    // Check if user is typing in an input field
+    const target = event.target as HTMLElement;
+    if (
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable
+    ) {
+        return;
+    }
 
-  switch (event.key) {
-    case "ArrowRight":
-    case "ArrowDown":
-      event.preventDefault();
-      tour.value?.nextStep();
-      break;
-    case "ArrowLeft":
-    case "ArrowUp":
-      event.preventDefault();
-      tour.value?.prevStep();
-      break;
-    case "Escape":
-      event.preventDefault();
-      tour.value?.endTour();
-      break;
-  }
+    switch (event.key) {
+        case "ArrowRight":
+        case "ArrowDown":
+            event.preventDefault();
+            tour.value?.nextStep();
+            break;
+        case "ArrowLeft":
+        case "ArrowUp":
+            event.preventDefault();
+            tour.value?.prevStep();
+            break;
+        case "Escape":
+            event.preventDefault();
+            tour.value?.endTour();
+            break;
+    }
 }
 
 const steps = [
-  {
-    title: t("tour.welcome.title"),
-    body: t("tour.welcome.content"),
-  },
-  {
-    target: '[data-tour="language-selector"]',
-    title: t("tour.language-selector.title"),
-    body: t("tour.language-selector.content"),
-  },
-  {
-    target: '[data-tour="input-options"]',
-    title: t("tour.input-options.title"),
-    body: t("tour.input-options.content"),
-  },
-  {
-    target: '[data-tour="text-input"]',
-    title: t("tour.text-input.title"),
-    body: t("tour.text-input.content"),
-  },
-  {
-    target: '[data-tour="text-output"]',
-    title: t("tour.text-output.title"),
-    body: t("tour.text-output.content"),
-  },
-  {
-    target: '[data-tour="record-audio"]',
-    title: t("tour.record-audio.title"),
-    body: t("tour.record-audio.content"),
-    popperConfig: { placement: "top" },
-  },
-  {
-    target: '[data-tour="upload-file"]',
-    title: t("tour.upload-file.title"),
-    body: t("tour.upload-file.content"),
-    popperConfig: { placement: "top" },
-  },
-  {
-    target: '[data-tour="view-plain-text"]',
-    title: t("tour.view-plain-text.title"),
-    body: t("tour.view-plain-text.content"),
-  },
-  {
-    target: '[data-tour="copy-to-clipboard"]',
-    title: t("tour.copy-to-clipboard.title"),
-    body: t("tour.copy-to-clipboard.content"),
-  },
-  {
-    target: '[data-tour="download-as-word"]',
-    title: t("tour.download-as-word.title"),
-    body: t("tour.download-as-word.content"),
-  },
-  {
-    title: t("tour.finished.title"),
-    body: t("tour.finished.content"),
-  }
+    {
+        title: t("tour.welcome.title"),
+        body: t("tour.welcome.content"),
+    },
+    {
+        target: '[data-tour="language-selector"]',
+        title: t("tour.language-selector.title"),
+        body: t("tour.language-selector.content"),
+    },
+    {
+        target: '[data-tour="input-options"]',
+        title: t("tour.input-options.title"),
+        body: t("tour.input-options.content"),
+    },
+    {
+        target: '[data-tour="text-input"]',
+        title: t("tour.text-input.title"),
+        body: t("tour.text-input.content"),
+    },
+    {
+        target: '[data-tour="text-output"]',
+        title: t("tour.text-output.title"),
+        body: t("tour.text-output.content"),
+    },
+    {
+        target: '[data-tour="record-audio"]',
+        title: t("tour.record-audio.title"),
+        body: t("tour.record-audio.content"),
+        popperConfig: { placement: "top" },
+    },
+    {
+        target: '[data-tour="upload-file"]',
+        title: t("tour.upload-file.title"),
+        body: t("tour.upload-file.content"),
+        popperConfig: { placement: "top" },
+    },
+    {
+        target: '[data-tour="view-plain-text"]',
+        title: t("tour.view-plain-text.title"),
+        body: t("tour.view-plain-text.content"),
+    },
+    {
+        target: '[data-tour="copy-to-clipboard"]',
+        title: t("tour.copy-to-clipboard.title"),
+        body: t("tour.copy-to-clipboard.content"),
+    },
+    {
+        target: '[data-tour="download-as-word"]',
+        title: t("tour.download-as-word.title"),
+        body: t("tour.download-as-word.content"),
+    },
+    {
+        title: t("tour.finished.title"),
+        body: t("tour.finished.content"),
+    },
 ] as TourStep[];
 
 // life cycle hooks
 onMounted(async () => {
-  registerRestartHandler(restartTour);
+    registerRestartHandler(restartTour);
 
-  await nextTick();
-  // Auto-start tour for first-time users (delay to ensure UI is ready)
-  if (!tourCompleted.value) {
-    startTour();
-  }
+    await nextTick();
+    // Auto-start tour for first-time users (delay to ensure UI is ready)
+    if (!tourCompleted.value) {
+        startTour();
+    }
 });
 
 // Clean up keyboard listener on unmount
 onUnmounted(() => {
-  if (tourIsActive.value) {
-    window.removeEventListener("keydown", handleKeyboardNavigation);
-  }
+    if (tourIsActive.value) {
+        window.removeEventListener("keydown", handleKeyboardNavigation);
+    }
 
-  unregisterRestartHandler();
+    unregisterRestartHandler();
 });
 
 const skipBtn: ButtonProp = {
-  label: t("tour.skip"),
-  leftIcon: "lucide:chevron-last",
+    label: t("tour.skip"),
+    leftIcon: "lucide:chevron-last",
 };
 const nextBtn: ButtonProp = {
-  label: t("tour.next"),
-  rightIcon: "lucide:arrow-big-right",
+    label: t("tour.next"),
+    rightIcon: "lucide:arrow-big-right",
 };
 const prevButton: ButtonProp = {
-  label: t("tour.prev"),
-  leftIcon: "lucide:arrow-big-left",
+    label: t("tour.prev"),
+    leftIcon: "lucide:arrow-big-left",
 };
 const finishButton: ButtonProp = {
-  label: t("tour.finish"),
-  rightIcon: "lucide:check",
+    label: t("tour.finish"),
+    rightIcon: "lucide:check",
 };
 </script>
 
