@@ -1,10 +1,10 @@
+import { isApiError } from "@dcc-bs/communication.bs.js";
 import { watchDebounced } from "@vueuse/core";
 import type { Domain } from "~/models/domain";
 import type { LanguageCode } from "~/models/languages";
 import type { Tone } from "~/models/tone";
 import type { TranslationConfig } from "~/models/translationConfig";
 import { TranslationService } from "~/services/translationService";
-import { isApiError } from "~/utils/apiFetch";
 
 export const useTranslate = () => {
     const translationService = useService(TranslationService);

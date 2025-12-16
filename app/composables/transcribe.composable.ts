@@ -1,16 +1,18 @@
+import { isApiError } from "@dcc-bs/communication.bs.js";
 import type { LanguageCode } from "~/models/languages";
 
 export function useTranscribe() {
     const error = ref<string>();
     const logger = useLogger();
-    const toast = useToast();
+    const { showToast } = useUserFeedback();
+    const { apiStreamFetch } = useApi();
 
     async function* transcribe(blob: Blob, language: LanguageCode) {
         const formData = new FormData();
         formData.append("audio_file", blob, "audio.webm");
         formData.append("language", language);
 
-        const response = await apiStreamfetch("/api/transcribe/audio", {
+        const response = await apiStreamFetch("/api/transcribe/audio", {
             method: "POST",
             body: formData,
         });
@@ -18,12 +20,7 @@ export function useTranscribe() {
         if (isApiError(response)) {
             error.value = response.message;
             logger.error(response);
-            toast.add({
-                title: "Transcription Error",
-                description: response.message,
-                icon: "i-lucide-circle-alert",
-                color: "error",
-            });
+            showToast(response.message, "error");
 
             yield "";
         } else {

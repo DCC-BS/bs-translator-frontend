@@ -1,6 +1,6 @@
+import { isApiError } from "@dcc-bs/communication.bs.js";
 import { useDropZone } from "@vueuse/core";
 import { FetchError } from "ofetch";
-import { apiFetch, isApiError } from "~/utils/apiFetch";
 import type { ConvertionResult } from "~~/shared/models/convertionResult";
 
 /**
@@ -15,6 +15,7 @@ export function useFileConvert(
     const logger = useLogger();
     const { showToast } = useUserFeedback();
     const { t } = useI18n();
+    const { apiFetch } = useApi();
 
     const dropZoneRef = ref<HTMLDivElement>();
     const isConverting = ref<boolean>(false);

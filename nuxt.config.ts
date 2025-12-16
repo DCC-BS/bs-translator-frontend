@@ -133,7 +133,7 @@ export default defineNuxtConfig({
         },
         registerType: "autoUpdate",
         workbox: {
-            globPatterns: ["**/*.{js,css,html,png,jpg,jpeg,svg,wasm,ico}"],
+            globPatterns: ["**/*.{js,css,html,png,jpg,jpeg,svg,ico}"],
             globIgnores: ["dev-sw-dist/**/*"],
             navigateFallback: "/",
             clientsClaim: true,

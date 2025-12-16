@@ -9,9 +9,11 @@ export default defineNuxtPlugin((nuxtApp) => {
     orchestrator.setup((builder) => {
         const logger = useLogger();
         const { t } = useI18n(); // this needs to be created in the setup context
+        const apiClient = useApi();
 
         builder.registerInstance("translate", t);
         builder.registerInstance("logger", logger);
+        builder.registerInstance("apiClient", apiClient);
 
         builder.register(TranslationService);
     });
