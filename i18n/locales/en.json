@@ -232,5 +232,22 @@
         "prev": "Previous",
         "finish": "Finish",
         "restart": "Restart Tour"
+    },
+    "api_error": {
+        "fetch_failed": "Fetch failed. Please try again.",
+        "unexpected_error": "An unexpected error occurred. Maybe the server is down, if the error persists. Please use the feedback button to send us a message.",
+        "translation": {
+            "errorTimeout": "Translation request timed out. Try a shorter text.",
+            "aborted": "Translation aborted."
+        },
+        "conversion": {
+            "no_document": "No document found. Try to upload the document again.",
+            "invalid_mime_type": "Invalid document type.",
+            "errorTimeout": "Conversion timed out. Try a shorter file."
+        },
+        "transcribe": {
+            "errorTimeout": "Transcription timed out. Try a shorter recording.",
+            "aborted": "Transcription aborted."
+        }
     }
 }

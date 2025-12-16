@@ -1,6 +1,5 @@
 import { isApiError } from "@dcc-bs/communication.bs.js";
 import { useDropZone } from "@vueuse/core";
-import { FetchError } from "ofetch";
 import type { ConvertionResult } from "~~/shared/models/convertionResult";
 
 /**
@@ -12,8 +11,7 @@ export function useFileConvert(
     sourceLanguage: Ref<string>,
     onComplete: (text: string) => void,
 ) {
-    const logger = useLogger();
-    const { showToast } = useUserFeedback();
+    const { showError } = useUserFeedback();
     const { t } = useI18n();
     const { apiFetch } = useApi();
 
@@ -51,9 +49,9 @@ export function useFileConvert(
             });
 
             if (isApiError(result)) {
-                logger.error("File conversion error:", { extra: result });
-
-                showToast(t(`conversion.error.${result.errorId}`), "error");
+                showError(
+                    new Error(t(`api_error.conversion.${result.errorId}`)),
+                );
                 return;
             }
 
@@ -97,15 +95,7 @@ export function useFileConvert(
 
             onComplete(result.markdown);
         } catch (err) {
-            error.value =
-                err instanceof Error ? err.message : "Failed to convert file";
-
-            if (err instanceof FetchError) {
-                error.value = err.message ?? err.statusMessage;
-            }
-
-            logger.error("File conversion error:", err);
-            showToast(t("conversion.errorDescription"), "error");
+            showError(new Error(t("api_error.unexpected_error")));
         } finally {
             isConverting.value = false;
         }

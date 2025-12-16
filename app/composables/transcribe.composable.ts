@@ -3,8 +3,8 @@ import type { LanguageCode } from "~/models/languages";
 
 export function useTranscribe() {
     const error = ref<string>();
-    const logger = useLogger();
-    const { showToast } = useUserFeedback();
+    const { t } = useI18n();
+    const { showError } = useUserFeedback();
     const { apiStreamFetch } = useApi();
 
     async function* transcribe(blob: Blob, language: LanguageCode) {
@@ -19,8 +19,7 @@ export function useTranscribe() {
 
         if (isApiError(response)) {
             error.value = response.message;
-            logger.error(response);
-            showToast(response.message, "error");
+            showError(new Error(t(`api_error.transcribe.${response.errorId}`)));
 
             yield "";
         } else {

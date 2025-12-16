@@ -8,9 +8,8 @@ import { TranslationService } from "~/services/translationService";
 
 export const useTranslate = () => {
     const translationService = useService(TranslationService);
-    const { showToast } = useUserFeedback();
+    const { showError } = useUserFeedback();
     const { t } = useI18n();
-    const logger = useLogger();
 
     const tone = useCookie<Tone>("tone", { default: () => "default" });
     const domain = useCookie<Domain>("domain", { default: () => "None" });
@@ -41,8 +40,6 @@ export const useTranslate = () => {
             return;
         }
 
-        const logger = useLogger();
-
         translatedText.value = ""; // Clear previous translation
         isTranslating.value = true;
 
@@ -61,23 +58,10 @@ export const useTranslate = () => {
                     translatedText.value += chunk;
                 }
             } catch (error) {
-                logger.error("Translation error:", error);
-
                 if (!signal.aborted) {
-                    showToast(t("translation.errorTimeout"), "error");
+                    showError(new Error(t("api_error.translation.aborted")));
                 }
             }
-        } catch (error) {
-            logger.error("Translation error:", error);
-
-            if (error instanceof TypeError) {
-                logger.error("cauuse", error.cause);
-                logger.error("message", error.message);
-                logger.error("stack", error.stack);
-                logger.error("name", error.name);
-            }
-
-            showToast(t("translation.errorDescription"), "error");
         } finally {
             isTranslating.value = false;
         }
@@ -101,11 +85,7 @@ export const useTranslate = () => {
                 translated += chunk;
             }
         } catch (error) {
-            if (!signal.aborted) {
-                logger.error("Translation error:", error);
-            }
-
-            showToast(t("translation.errorDescription"), "error");
+            showError(new Error(t("api_error.translation.errorTimeout")));
         } finally {
             isTranslating.value = false;
         }
@@ -117,8 +97,6 @@ export const useTranslate = () => {
         text: string,
         signal: AbortSignal,
     ): AsyncIterable<string> {
-        const logger = useLogger();
-
         const config: TranslationConfig = {
             source_language: sourceLanguage.value,
             target_language: targetLanguage.value,
@@ -130,12 +108,12 @@ export const useTranslate = () => {
         try {
             yield* translationService.translate(text, config, signal);
         } catch (error: unknown) {
-            logger.error("Translation error:", { extra: error });
-
             if (isApiError(error)) {
-                showToast(t(`translation.error.${error.errorId}`), "error");
+                showError(
+                    new Error(t(`api_error.translation.${error.errorId}`)),
+                );
             } else {
-                showToast(t("translation.errorDescription"), "error");
+                showError(new Error(t("api_error.unexpected_error")));
             }
 
             return;
