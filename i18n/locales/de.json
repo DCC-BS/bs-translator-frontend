@@ -164,7 +164,6 @@
         "abort": "Abbrechen"
     },
     "translation": {
-        "errorTitle": "Übersetzung fehlgeschlagen",
         "errorDescription": "Die Übersetzungsserver sind möglicherweise derzeit nicht verfügbar. Bitte versuchen Sie es später erneut.",
         "errorTimeout": "Übersetzungsanfrage dauerte zu lange. Versuchen Sie einen kürzeren Text.",
         "error": {
@@ -172,7 +171,6 @@
         }
     },
     "conversion": {
-        "errorTitle": "Dateikonvertierung fehlgeschlagen",
         "errorDescription": "Die Datei konnte nicht konvertiert werden. {reason}",
         "error": {
             "no_document": "Kein Dokument gefunden. Versuchen Sie, das Dokument erneut hochzuladen.",

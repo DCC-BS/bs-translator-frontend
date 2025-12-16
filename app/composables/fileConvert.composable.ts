@@ -13,7 +13,7 @@ export function useFileConvert(
     onComplete: (text: string) => void,
 ) {
     const logger = useLogger();
-    const { showError } = useUserFeedback();
+    const { showToast } = useUserFeedback();
     const { t } = useI18n();
 
     const dropZoneRef = ref<HTMLDivElement>();
@@ -52,10 +52,7 @@ export function useFileConvert(
             if (isApiError(result)) {
                 logger.error("File conversion error:", { extra: result });
 
-                showError(
-                    t("conversion.errorTitle"),
-                    t(`conversion.error.${result.errorId}`),
-                );
+                showToast(t(`conversion.error.${result.errorId}`), "error");
                 return;
             }
 
@@ -107,10 +104,7 @@ export function useFileConvert(
             }
 
             logger.error("File conversion error:", err);
-            showError(
-                t("conversion.errorTitle"),
-                t("conversion.errorDescription"),
-            );
+            showToast(t("conversion.errorDescription"), "error");
         } finally {
             isConverting.value = false;
         }

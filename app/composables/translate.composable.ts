@@ -8,7 +8,7 @@ import { isApiError } from "~/utils/apiFetch";
 
 export const useTranslate = () => {
     const translationService = useService(TranslationService);
-    const { showError } = useUserFeedback();
+    const { showToast } = useUserFeedback();
     const { t } = useI18n();
     const logger = useLogger();
 
@@ -64,10 +64,7 @@ export const useTranslate = () => {
                 logger.error("Translation error:", error);
 
                 if (!signal.aborted) {
-                    showError(
-                        t("translation.errorTitle"),
-                        t("translation.errorTimeout"),
-                    );
+                    showToast(t("translation.errorTimeout"), "error");
                 }
             }
         } catch (error) {
@@ -80,10 +77,7 @@ export const useTranslate = () => {
                 logger.error("name", error.name);
             }
 
-            showError(
-                t("translation.errorTitle"),
-                t("translation.errorDescription"),
-            );
+            showToast(t("translation.errorDescription"), "error");
         } finally {
             isTranslating.value = false;
         }
@@ -111,10 +105,7 @@ export const useTranslate = () => {
                 logger.error("Translation error:", error);
             }
 
-            showError(
-                t("translation.errorTitle"),
-                t("translation.errorDescription"),
-            );
+            showToast(t("translation.errorDescription"), "error");
         } finally {
             isTranslating.value = false;
         }
@@ -127,7 +118,6 @@ export const useTranslate = () => {
         signal: AbortSignal,
     ): AsyncIterable<string> {
         const logger = useLogger();
-        const toast = useToast();
 
         const config: TranslationConfig = {
             source_language: sourceLanguage.value,
@@ -143,19 +133,9 @@ export const useTranslate = () => {
             logger.error("Translation error:", { extra: error });
 
             if (isApiError(error)) {
-                toast.add({
-                    title: t("translation.errorTitle"),
-                    description: t(`translation.error.${error.errorId}`),
-                    color: "error",
-                    icon: "i-lucide-circle-alert",
-                });
+                showToast(t(`translation.error.${error.errorId}`), "error");
             } else {
-                toast.add({
-                    title: t("translation.errorTitle"),
-                    description: t("translation.errorDescription"),
-                    color: "error",
-                    icon: "i-lucide-circle-alert",
-                });
+                showToast(t("translation.errorDescription"), "error");
             }
 
             return;

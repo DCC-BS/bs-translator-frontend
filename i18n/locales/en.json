@@ -164,7 +164,6 @@
         "abort": "Cancel"
     },
     "translation": {
-        "errorTitle": "Translation failed",
         "errorDescription": "The translation servers may be down currently. Please try again later.",
         "errorTimeout": "Translation request timed out. Try a shorter text.",
         "error": {
@@ -172,7 +171,6 @@
         }
     },
     "conversion": {
-        "errorTitle": "File Conversion Failed",
         "errorDescription": "Unable to convert the file. {reason}",
         "error": {
             "no_document": "No document found. Try to upload the document again.",

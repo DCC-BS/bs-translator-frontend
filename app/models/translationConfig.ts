@@ -23,6 +23,9 @@ export interface TranslationConfig {
 
     /** Additional context for translation */
     context?: string;
+
+    /** Enable Reasoning */
+    reasoning?: boolean;
 }
 
 /**
@@ -35,4 +38,5 @@ export const defaultTranslationConfig: TranslationConfig = {
     tone: undefined,
     glossary: undefined,
     context: undefined,
+    reasoning: false,
 };
