@@ -85,7 +85,19 @@ export const useTranslate = () => {
                 translated += chunk;
             }
         } catch (error) {
-            showError(new Error(t("api_error.translation.errorTimeout")));
+            if (signal.aborted) {
+                showError(new Error(t("api_error.translation.aborted")));
+            } else if (isApiError(error)) {
+                showError(
+                    new Error(t(`api_error.translation.${error.errorId}`)),
+                );
+            } else {
+                showError(
+                    error instanceof Error
+                        ? error
+                        : new Error(t("api_error.unexpected_error")),
+                );
+            }
         } finally {
             isTranslating.value = false;
         }
