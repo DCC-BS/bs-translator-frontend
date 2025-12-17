@@ -17,6 +17,20 @@ const {
     abort,
 } = useTranslate();
 
+// Register handler for setting example text during onboarding
+const { registerSetExampleTextHandler, unregisterSetExampleTextHandler } =
+    useTourController();
+
+onMounted(() => {
+    registerSetExampleTextHandler((text: string) => {
+        sourceText.value = text;
+    });
+});
+
+onUnmounted(() => {
+    unregisterSetExampleTextHandler();
+});
+
 /**
  * Initialize file conversion with callback for processed text
  */

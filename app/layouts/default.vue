@@ -4,10 +4,12 @@
 </script>
 
 <template>
+    <Changelogs />
+    <Onboarding />
     <Disclaimer app-name="BS Übersetzer" />
     <FeedbackControl />
     <UApp>
-        <NavigationBar />
+        <NavigationMenu />
         <div class="h-[600px] md:h-[calc(100vh-100px)] flex flex-col">
             <div class="grow">
                 <slot />

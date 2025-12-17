@@ -164,7 +164,6 @@
         "abort": "Abbrechen"
     },
     "translation": {
-        "errorTitle": "Übersetzung fehlgeschlagen",
         "errorDescription": "Die Übersetzungsserver sind möglicherweise derzeit nicht verfügbar. Bitte versuchen Sie es später erneut.",
         "errorTimeout": "Übersetzungsanfrage dauerte zu lange. Versuchen Sie einen kürzeren Text.",
         "error": {
@@ -172,7 +171,6 @@
         }
     },
     "conversion": {
-        "errorTitle": "Dateikonvertierung fehlgeschlagen",
         "errorDescription": "Die Datei konnte nicht konvertiert werden. {reason}",
         "error": {
             "no_document": "Kein Dokument gefunden. Versuchen Sie, das Dokument erneut hochzuladen.",
@@ -183,5 +181,73 @@
     "navigation": {
         "languages": "Sprachen",
         "app": "BS-Übersetzer"
+    },
+    "tour": {
+        "welcome": {
+            "title": "Willkommen bei BS-Übersetzer!",
+            "content": "BS-Übersetzer ist ein Übersetzung-Tool entwickelt vom DCC - Data Competence Center am Statistischen Amt. Alle Daten werden auf lokalen Servern der IT BS verarbeitet. Du kannst mit BS-Übersetzer auch besondere Personendaten und Daten, die dem Amtsgeheimnis (Erhöhter Schutzbedarf) unterliegen, verarbeiten. Ich zeige Dir jetzt die Hauptfunktionen von BS-Übersetzer."
+        },
+        "language-selector": {
+            "title": "Quell- und Zielsprache auswählen",
+            "content": "Hier kannst du die Quell- und Zielsprache auswählen. Die Quellsprache kann auch automatisch erkannt werden. Die Zielsprache ist die Sprache, in die der Text übersetzt werden soll. Mit dem Button in der Mitte kannst du die Quell- und Zielsprache vertauschen."
+        },
+        "input-options": {
+            "title": "Übersetzungsoptionen",
+            "content": "Hier kannst du die Tonalität, die Domäne und das Glossar konfigurieren. Die Tonalität bestimmt den Schreibstil der Übersetzung. Die Domäne bestimmt das Fachgebiet der Übersetzung um Domänenspezifische Begriffe zu verwenden. Das Glossar ermöglicht es dir Begriffe zu definieren, die für die Übersetzung relevant sind."
+        },
+        "text-input": {
+            "title": "Quelltext eingeben",
+            "content": "Hier kannst du deinen zu übersetzenden Text eingeben. Du kannst auch Datein in dieses Feld ziehen, um sie zu übersetzen."
+        },
+        "text-output": {
+            "title": "Übersetzter Text",
+            "content": "Hier wird der übersetzte Text angezeigt."
+        },
+        "record-audio": {
+            "title": "Audio aufnehmen",
+            "content": "Hier kannst du deinen zu übersetzenden Text per Mikrofon aufnehmen."
+        },
+        "upload-file": {
+            "title": "Datei hochladen",
+            "content": "Hier kannst du eine Datei hochladen, um sie zu übersetzen. Diese Funktion wird noch verbessert. Aktuell können nur kleinere Dokumente mit bis zu 20 Seiten übersetzt werden. Die Formatierung wie Titel, Tabellen, Listen, Fett und Kursiv werden beibehalten. Weitere Formatierungen gehen verloren."
+        },
+        "view-plain-text": {
+            "title": "Als Klartext anzeigen",
+            "content": "Hier kannst du den übersetzten Text als Klartext anzeigen. Das Bedeutet, dass die Formatierung verworfen wird."
+        },
+        "copy-to-clipboard": {
+            "title": "In die Zwischenablage kopieren",
+            "content": "Hier kannst du den übersetzten Text in die Zwischenablage kopieren."
+        },
+        "download-as-word": {
+            "title": "Als Word herunterladen",
+            "content": "Hier kannst du den übersetzten Text als Word-Datei herunterladen."
+        },
+        "finished": {
+            "title": "Das wars!",
+            "content": "Du kennst nun die Grundfunktionen von BS-Übersetzer. Du kannst diese Tour jederzeit neu starten, indem du oben rechts auf das Fragezeichen klickst."
+        },
+        "skip": "Überspringen",
+        "next": "Weiter",
+        "prev": "Zurück",
+        "finish": "Beenden",
+        "restart": "Tour neu starten"
+    },
+    "api_error": {
+        "fetch_failed": "Fetch fehlgeschlagen. Bitte versuchen Sie es erneut.",
+        "unexpected_error": "Ein unerwarteter Fehler ist aufgetreten. Möglicherweise ist der Server nicht verfügbar. Falls der Fehler weiterhin auftritt, verwenden Sie bitte die Feedback-Schaltfläche, um uns eine Nachricht zu senden.",
+        "translation": {
+            "errorTimeout": "Übersetzung dauerte zu lange. Versuchen Sie einen kürzeren Text.",
+            "aborted": "Übersetzung abgebrochen."
+        },
+        "conversion": {
+            "no_document": "Kein Dokument gefunden. Versuchen Sie, das Dokument erneut hochladen.",
+            "invalid_mime_type": "Ungültiger Dokumenttyp.",
+            "errorTimeout": "Konvertierung dauerte zu lange. Versuchen Sie eine kürzere Datei zu verwenden."
+        },
+        "transcribe": {
+            "errorTimeout": "Transkription dauerte zu lange. Versuchen Sie eine kürzere Aufnahme zu machen.",
+            "aborted": "Transkription abgebrochen."
+        }
     }
 }

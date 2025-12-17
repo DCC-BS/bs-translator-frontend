@@ -18,6 +18,8 @@ BS Translator is a modern web application for advanced text translation with fil
 - **Document Export**: Download translations as Word documents
 - **Multilingual Interface**: Available in English and German
 - **Drag & Drop Support**: Easy file upload with visual feedback
+- **Guided Onboarding Tour**: Built-in walkthrough with restart controls from the navigation bar
+- **Installable PWA**: App manifest and icons for adding the translator to devices
 
 ## Technology Stack
 
@@ -40,6 +42,8 @@ API_URL=http://localhost:8000
 LOG_LEVEL=debug
 GITHUB_TOKEN=your_github_token_for_feedback # Optional, for feedback control integration
 ```
+
+For Docker-based stacks, copy `docker/.env.backend.example` to `docker/.env.backend` and provide the required tokens (Hugging Face, Azure Entra IDs, HMAC secret) for the LLM, speech-to-text, and document parsing services.
 
 ### Install Dependencies
 
@@ -85,6 +89,13 @@ Check and fix code issues:
 bun run check
 ```
 
+- **Run end-to-end tests (Playwright)**:
+
+```bash
+bunx playwright install --with-deps # first time only
+bun run test:e2e
+```
+
 ## Production (Docker Compose)
 
 Run the full stack (nginx, frontend, backend, LLM) with Docker Compose:
@@ -97,6 +108,8 @@ docker compose -f docker-compose.yaml down
 
 Once started, access the application via `http://localhost:8090`.
 
+The production stack requires both `.env` (frontend runtime config) and `docker/.env.backend` (backend/LLM settings) to be present before running Docker Compose.
+
 
 ## Project Architecture
 
@@ -108,8 +121,15 @@ Once started, access the application via `http://localhost:8090`.
   - `services/`: API communication services
   - `utils/`: Utility functions for file conversion and text processing
 - `i18n/`: Internationalization configuration and locale files
-- `server/`: API endpoints and server middleware
-- `static/`: Static assets (icons, images, manifests)
+- `server/`: API endpoints and server middleware (including health probes)
+- `public/`: PWA icons and manifest assets served at the app root
+- `docker/`: Docker Compose service definitions, nginx config, and backend env template
+
+## Health Endpoints
+
+- `/api/health/liveness`: Event-loop liveness check.
+- `/api/health/startup`: Confirms the Nuxt server finished bootstrapping.
+- `/api/health/readiness`: Verifies connectivity to the upstream backend API and returns `503` when dependencies are unavailable.
 
 ## Key Components
 

@@ -9,7 +9,22 @@ const domainEnergy = local.domains.Energy;
 const glossaryTerm = local.ui.glossaryTerm;
 const glossaryDescription = local.ui.glossaryDescription;
 
-test("Text should be translated", async ({ page }) => {
+// Helper to skip tour by setting the completion cookie
+async function skipTour(context: BrowserContext) {
+    await context.addCookies([
+        {
+            name: "tourCompleted",
+            value: "true",
+            domain: "localhost",
+            path: "/",
+        },
+    ]);
+}
+
+test("Text should be translated", async ({ page, context }) => {
+    // Skip tour for this test
+    await skipTour(context);
+
     await page.goto("/");
 
     await page.getByText("Ich habe die Hinweise gelesen").click();
@@ -21,7 +36,10 @@ test("Text should be translated", async ({ page }) => {
     );
 });
 
-test("Switch to plain text view", async ({ page }) => {
+test("Switch to plain text view", async ({ page, context }) => {
+    // Skip tour for this test
+    await skipTour(context);
+
     await page.goto("/");
 
     await page.getByText("Ich habe die Hinweise gelesen").click();
@@ -38,7 +56,10 @@ test("Switch to plain text view", async ({ page }) => {
     );
 });
 
-test("Copy rich translated text", async ({ page }) => {
+test("Copy rich translated text", async ({ page, context }) => {
+    // Skip tour for this test
+    await skipTour(context);
+
     await page.goto("/");
 
     await page.getByText("Ich habe die Hinweise gelesen").click();
@@ -66,7 +87,10 @@ test("Copy rich translated text", async ({ page }) => {
     expect(clipboard).toMatch(/<p(.*?)>Das ist ein Test.<\/p>/);
 });
 
-test("Copy plain translated text", async ({ page }) => {
+test("Copy plain translated text", async ({ page, context }) => {
+    // Skip tour for this test
+    await skipTour(context);
+
     await page.goto("/");
 
     await page.getByText("Ich habe die Hinweise gelesen").click();
@@ -86,7 +110,10 @@ test("Copy plain translated text", async ({ page }) => {
     expect(clipboard).toBe("Das ist ein Test.");
 });
 
-test("Api call is correct when tone is set", async ({ page }) => {
+test("Api call is correct when tone is set", async ({ page, context }) => {
+    // Skip tour for this test
+    await skipTour(context);
+
     let requestBody: { config: { tone: string } } = { config: { tone: "" } };
 
     await page.route("**/api/translate/text", (route) => {
@@ -107,7 +134,10 @@ test("Api call is correct when tone is set", async ({ page }) => {
     expect(requestBody.config.tone).toBe("informal");
 });
 
-test("Api call is correct when domain is set", async ({ page }) => {
+test("Api call is correct when domain is set", async ({ page, context }) => {
+    // Skip tour for this test
+    await skipTour(context);
+
     let requestBody: { config: { domain: string } } = {
         config: { domain: "" },
     };
@@ -130,7 +160,10 @@ test("Api call is correct when domain is set", async ({ page }) => {
     expect(requestBody.config.domain).toBe("Energy");
 });
 
-test("Api call is correct when glossary is set", async ({ page }) => {
+test("Api call is correct when glossary is set", async ({ page, context }) => {
+    // Skip tour for this test
+    await skipTour(context);
+
     let requestBody: { config: { glossary: string } } = {
         config: { glossary: "" },
     };

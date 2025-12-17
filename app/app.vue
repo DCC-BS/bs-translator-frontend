@@ -2,6 +2,7 @@
 </script>
 
 <template>
+    <NuxtPwaManifest />
     <UApp>
         <NuxtLayout>
             <NuxtPage />

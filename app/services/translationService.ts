@@ -1,7 +1,7 @@
+import { type ApiClient, isApiError } from "@dcc-bs/communication.bs.js";
 import type { ILogger } from "@dcc-bs/logger.bs.js";
 import type { TranslationConfig } from "~/models/translationConfig";
 import type { TranslationInput } from "~/models/translationInput";
-import { apiStreamfetch, isApiError } from "~/utils/apiFetch";
 import {
     type ConversionImageTextEntry,
     conversionImageTextEntrySchema,
@@ -9,9 +9,12 @@ import {
 
 export class TranslationService {
     static readonly $injectKey = "TranslationService";
-    static readonly $inject = ["logger"];
+    static readonly $inject = ["logger", "apiClient"];
 
-    constructor(private readonly logger: ILogger) {}
+    constructor(
+        private readonly logger: ILogger,
+        private readonly apiClient: ApiClient,
+    ) {}
 
     /**
      * Translates text using streaming response
@@ -30,11 +33,14 @@ export class TranslationService {
             config,
         };
 
-        const response = await apiStreamfetch("/api/translate/text", {
-            method: "POST",
-            body: body,
-            signal,
-        });
+        const response = await this.apiClient.apiStreamFetch(
+            "/api/translate/text",
+            {
+                method: "POST",
+                body: body,
+                signal,
+            },
+        );
 
         if (isApiError(response)) {
             throw response;
@@ -68,11 +74,14 @@ export class TranslationService {
         form.append("image_file", image, "image.png");
         form.append("translation_config", JSON.stringify(config));
 
-        const response = await apiStreamfetch("/api/translate/image", {
-            method: "POST",
-            body: form,
-            signal,
-        });
+        const response = await this.apiClient.apiStreamFetch(
+            "/api/translate/image",
+            {
+                method: "POST",
+                body: form,
+                signal,
+            },
+        );
 
         if (isApiError(response)) {
             throw response;

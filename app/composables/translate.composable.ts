@@ -1,16 +1,15 @@
+import { isApiError } from "@dcc-bs/communication.bs.js";
 import { watchDebounced } from "@vueuse/core";
 import type { Domain } from "~/models/domain";
 import type { LanguageCode } from "~/models/languages";
 import type { Tone } from "~/models/tone";
 import type { TranslationConfig } from "~/models/translationConfig";
 import { TranslationService } from "~/services/translationService";
-import { isApiError } from "~/utils/apiFetch";
 
 export const useTranslate = () => {
     const translationService = useService(TranslationService);
     const { showError } = useUserFeedback();
     const { t } = useI18n();
-    const logger = useLogger();
 
     const tone = useCookie<Tone>("tone", { default: () => "default" });
     const domain = useCookie<Domain>("domain", { default: () => "None" });
@@ -41,8 +40,6 @@ export const useTranslate = () => {
             return;
         }
 
-        const logger = useLogger();
-
         translatedText.value = ""; // Clear previous translation
         isTranslating.value = true;
 
@@ -61,29 +58,10 @@ export const useTranslate = () => {
                     translatedText.value += chunk;
                 }
             } catch (error) {
-                logger.error("Translation error:", error);
-
                 if (!signal.aborted) {
-                    showError(
-                        t("translation.errorTitle"),
-                        t("translation.errorTimeout"),
-                    );
+                    showError(new Error(t("api_error.unexpected_error")));
                 }
             }
-        } catch (error) {
-            logger.error("Translation error:", error);
-
-            if (error instanceof TypeError) {
-                logger.error("cauuse", error.cause);
-                logger.error("message", error.message);
-                logger.error("stack", error.stack);
-                logger.error("name", error.name);
-            }
-
-            showError(
-                t("translation.errorTitle"),
-                t("translation.errorDescription"),
-            );
         } finally {
             isTranslating.value = false;
         }
@@ -107,14 +85,19 @@ export const useTranslate = () => {
                 translated += chunk;
             }
         } catch (error) {
-            if (!signal.aborted) {
-                logger.error("Translation error:", error);
+            if (signal.aborted) {
+                showError(new Error(t("api_error.translation.aborted")));
+            } else if (isApiError(error)) {
+                showError(
+                    new Error(t(`api_error.translation.${error.errorId}`)),
+                );
+            } else {
+                showError(
+                    error instanceof Error
+                        ? error
+                        : new Error(t("api_error.unexpected_error")),
+                );
             }
-
-            showError(
-                t("translation.errorTitle"),
-                t("translation.errorDescription"),
-            );
         } finally {
             isTranslating.value = false;
         }
@@ -126,9 +109,6 @@ export const useTranslate = () => {
         text: string,
         signal: AbortSignal,
     ): AsyncIterable<string> {
-        const logger = useLogger();
-        const toast = useToast();
-
         const config: TranslationConfig = {
             source_language: sourceLanguage.value,
             target_language: targetLanguage.value,
@@ -140,22 +120,12 @@ export const useTranslate = () => {
         try {
             yield* translationService.translate(text, config, signal);
         } catch (error: unknown) {
-            logger.error("Translation error:", { extra: error });
-
             if (isApiError(error)) {
-                toast.add({
-                    title: t("translation.errorTitle"),
-                    description: t(`translation.error.${error.errorId}`),
-                    color: "error",
-                    icon: "i-lucide-circle-alert",
-                });
+                showError(
+                    new Error(t(`api_error.translation.${error.errorId}`)),
+                );
             } else {
-                toast.add({
-                    title: t("translation.errorTitle"),
-                    description: t("translation.errorDescription"),
-                    color: "error",
-                    icon: "i-lucide-circle-alert",
-                });
+                showError(new Error(t("api_error.unexpected_error")));
             }
 
             return;
