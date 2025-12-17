@@ -59,7 +59,7 @@ export const useTranslate = () => {
                 }
             } catch (error) {
                 if (!signal.aborted) {
-                    showError(new Error(t("api_error.translation.aborted")));
+                    showError(new Error(t("api_error.unexpected_error")));
                 }
             }
         } finally {
