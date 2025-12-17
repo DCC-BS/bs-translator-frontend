@@ -18,7 +18,6 @@ const trapFocus = ref(false);
 // Tour control functions
 function startTour(): void {
     showTour.value = true;
-    setExampleText(exampleText);
     tour.value?.startTour();
 }
 
@@ -33,12 +32,12 @@ async function restartTour(): Promise<void> {
 
     tourCompleted.value = false;
     showTour.value = true;
-    setExampleText(exampleText);
     tour.value?.resetTour();
 }
 
 function onTourStart(): void {
     tourIsActive.value = true;
+    setExampleText(exampleText); // Only seed example text once the tour is actually active
     window.addEventListener("keydown", handleKeyboardNavigation);
 }
 
