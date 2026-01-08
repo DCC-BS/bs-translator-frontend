@@ -238,7 +238,8 @@
         "unexpected_error": "An unexpected error occurred. Maybe the server is down, if the error persists. Please use the feedback button to send us a message.",
         "translation": {
             "errorTimeout": "Translation request timed out. Try a shorter text.",
-            "aborted": "Translation aborted."
+            "aborted": "Translation aborted.",
+            "unexpected_error": "Unexpected error occurred. Maybe the server is down, if the error persists. Please use the feedback button to send us a message."
         },
         "conversion": {
             "no_document": "No document found. Try to upload the document again.",
