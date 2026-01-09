@@ -63,8 +63,8 @@ export function useClientId() {
                 localStorage.setItem(CLIENT_ID_KEY, newId);
             } catch (error) {
                 logger.warn(
-                    "Could not save new client ID to localStorage:",
                     error,
+                    "Could not save new client ID to localStorage",
                 );
             }
         }

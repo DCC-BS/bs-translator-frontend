@@ -1,5 +1,4 @@
 import { type ApiClient, isApiError } from "@dcc-bs/communication.bs.js";
-import type { ILogger } from "@dcc-bs/logger.bs.js";
 import type { TranslationConfig } from "~/models/translationConfig";
 import type { TranslationInput } from "~/models/translationInput";
 import {
@@ -12,7 +11,7 @@ export class TranslationService {
     static readonly $inject = ["logger", "apiClient"];
 
     constructor(
-        private readonly logger: ILogger,
+        private readonly logger: BaseLogger,
         private readonly apiClient: ApiClient,
     ) {}
 
@@ -105,8 +104,7 @@ export class TranslationService {
 
                 if (!result.success) {
                     this.logger.error(
-                        "Failed to parse translation image text entry:",
-                        { extra: result.error },
+                        `Failed to parse translation image text entry: ${result.error.message}`,
                     );
                 } else {
                     yield result.data;

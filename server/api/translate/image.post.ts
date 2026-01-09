@@ -1,19 +1,20 @@
-export default defineBackendHandler({
-    url: "/translation/image",
-    method: "POST",
-    bodyProvider: async (event) => {
-        const body = await readMultipartFormData(event);
-        return body;
-    },
-    fetcher: async (url, method, body, headers, event) => {
-        if (!body) {
+import type { MultiPartData } from "h3";
+
+/**
+ * POST handler for image translation.
+ * Accepts image via multipart form data and returns translation stream.
+ */
+export default backendHandlerBuilder<never, MultiPartData[] | undefined>()
+    .withMethod("POST")
+    .withBodyProvider(async (event) => await readMultipartFormData(event))
+    .withFetcher(async (options) => {
+        if (!options.body) {
             throw new Error("No body provided");
         }
 
         const form = new FormData();
-        for (const part of body) {
+        for (const part of options.body) {
             if (part.filename) {
-                // it's a file
                 form.append(
                     part.name as string,
                     new Blob([part.data as BlobPart], { type: part.type }),
@@ -27,27 +28,21 @@ export default defineBackendHandler({
             }
         }
 
-        delete headers["Content-Type"]; // Let the browser set the correct Content-Type with boundary
-
-        const abortController = new AbortController();
-        event.node.res.on("close", () => {
-            console.log("Response closed, aborting fetch");
-            abortController.abort();
-        });
-
-        const response = await fetch(url, {
-            method,
+        const response = await fetch(options.url, {
+            method: options.method,
             body: form,
-            headers: headers,
-            signal: abortController.signal,
+            headers: {
+                "X-Client-Id": getHeader(options.event, "x-client-id") ?? "",
+            },
+            signal: getAbortSignal(options.event),
         });
 
-        setResponseStatus(event, response.status);
+        setResponseStatus(options.event, response.status);
 
         if (!response.ok) {
             return await response.json();
         }
 
         return response;
-    },
-});
+    })
+    .build("/translation/image");

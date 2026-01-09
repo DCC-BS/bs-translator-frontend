@@ -356,8 +356,8 @@ async function copyTextToClipboard(): Promise<void> {
     const textToCopy =
         selectedTextBoxes.value.length > 0
             ? selectedTextBoxes.value
-                  .map((box) => box.translatedText)
-                  .join("\n\n") // Separate paragraphs with double newlines
+                .map((box) => box.translatedText)
+                .join("\n\n") // Separate paragraphs with double newlines
             : translatedBoxes.value.map((x) => x.translatedText).join("\n\n"); // Format all text as paragraphs
 
     if (textToCopy.trim()) {
@@ -365,7 +365,7 @@ async function copyTextToClipboard(): Promise<void> {
             await navigator.clipboard.writeText(textToCopy);
             // You could add a toast notification here
         } catch (error) {
-            logger.error("Failed to copy text:", error);
+            logger.error(error, "Failed to copy text");
         }
     }
 }
