@@ -109,6 +109,7 @@ export default defineNuxtConfig({
                 file: "de.json",
             },
         ],
+        langDir: "i18n/locales",
         defaultLocale: "de",
         strategy: "no_prefix",
     },
@@ -124,7 +125,7 @@ export default defineNuxtConfig({
     },
     pwa: {
         devOptions: {
-            enabled: true,
+            enabled: false,
         },
         registerType: "autoUpdate",
         workbox: {
