@@ -356,8 +356,8 @@ async function copyTextToClipboard(): Promise<void> {
     const textToCopy =
         selectedTextBoxes.value.length > 0
             ? selectedTextBoxes.value
-                .map((box) => box.translatedText)
-                .join("\n\n") // Separate paragraphs with double newlines
+                  .map((box) => box.translatedText)
+                  .join("\n\n") // Separate paragraphs with double newlines
             : translatedBoxes.value.map((x) => x.translatedText).join("\n\n"); // Format all text as paragraphs
 
     if (textToCopy.trim()) {
