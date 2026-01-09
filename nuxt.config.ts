@@ -117,7 +117,7 @@ export default defineNuxtConfig({
         apiUrl: process.env.API_URL,
         feedback: {
             repo: process.env.FEEDBACK_REPO,
-            owner: process.env.FEEDBACK_REPO_OWNER,
+            repoOwner: process.env.FEEDBACK_REPO_OWNER,
             project: process.env.FEEDBACK_PROJECT,
             githubToken: process.env.GITHUB_TOKEN,
         },
