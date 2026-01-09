@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export type ConvertionResult = {
+export type ConversionResult = {
     markdown: string;
     images: Record<number, string>;
 };

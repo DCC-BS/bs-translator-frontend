@@ -4,7 +4,7 @@ import type { TranslationInput } from "~/models/translationInput";
 import {
     type ConversionImageTextEntry,
     conversionImageTextEntrySchema,
-} from "~~/shared/models/convertionResult";
+} from "~~/shared/models/conversionResult";
 
 export class TranslationService {
     static readonly $injectKey = "TranslationService";

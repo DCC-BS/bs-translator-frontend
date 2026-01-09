@@ -1,6 +1,6 @@
 import { isApiError } from "@dcc-bs/communication.bs.js";
 import { useDropZone } from "@vueuse/core";
-import type { ConvertionResult } from "~~/shared/models/convertionResult";
+import type { ConversionResult } from "~~/shared/models/conversionResult";
 
 /**
  * Composable for handling file conversion and drop zone functionality
@@ -42,7 +42,7 @@ export function useFileConvert(
             formData.append("file", file, file.name);
             formData.append("source_language", sourceLanguage.value);
 
-            const result = await apiFetch<ConvertionResult>("/api/convert", {
+            const result = await apiFetch<ConversionResult>("/api/convert", {
                 method: "POST",
                 body: formData,
                 signal: abortController.value.signal,
@@ -94,7 +94,7 @@ export function useFileConvert(
             }
 
             onComplete(result.markdown);
-        } catch (err) {
+        } catch (_err) {
             showError(new Error(t("api_error.unexpected_error")));
         } finally {
             isConverting.value = false;

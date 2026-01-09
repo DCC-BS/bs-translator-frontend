@@ -1,4 +1,4 @@
-import type { ConvertionResult } from "~~/shared/models/convertionResult";
+import type { ConversionResult } from "~~/shared/models/conversionResult";
 
 /**
  * POST handler for document conversion.
@@ -7,7 +7,7 @@ import type { ConvertionResult } from "~~/shared/models/convertionResult";
 export default backendHandlerBuilder<
     never,
     { file: File; sourceLanguage: string },
-    ConvertionResult
+    ConversionResult
 >()
     .withMethod("POST")
     .withBodyProvider(async (event) => {
@@ -50,6 +50,6 @@ export default backendHandlerBuilder<
             setResponseStatus(options.event, response.status);
         }
 
-        return (await response.json()) as ConvertionResult;
+        return (await response.json()) as ConversionResult;
     })
     .build("/convert/doc");

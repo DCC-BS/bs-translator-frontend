@@ -2,7 +2,7 @@ import {
     createApiClient,
     createFetcherBuilder,
 } from "@dcc-bs/communication.bs.js";
-import { useClientId } from "~/composables/clientId.composable";
+import { useClientId } from "~/composables/useClientId";
 
 export default defineNuxtPlugin((_) => {
     const clientId = useClientId().getClientId();
