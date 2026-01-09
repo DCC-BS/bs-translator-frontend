@@ -3,11 +3,11 @@ import type { ConversionResult } from "~~/shared/models/conversionResult";
 /**
  * POST handler for document conversion.
  * Reads a file and source language from form data, sends to backend for conversion.
+ * Returns ConversionResult on success, or an API error object on failure.
  */
 export default backendHandlerBuilder<
     never,
-    { file: File; sourceLanguage: string },
-    ConversionResult
+    { file: File; sourceLanguage: string }
 >()
     .withMethod("POST")
     .withBodyProvider(async (event) => {
@@ -46,8 +46,17 @@ export default backendHandlerBuilder<
             signal: getAbortSignal(options.event),
         });
 
+        // Set the response status to match the backend response
+        setResponseStatus(options.event, response.status);
+
+        // Return error response as-is to allow consumers to check with isApiError()
+        // Guard against non-JSON error responses (e.g., HTML error pages, plain text)
         if (!response.ok) {
-            setResponseStatus(options.event, response.status);
+            const contentType = response.headers.get("content-type") ?? "";
+            if (contentType.includes("application/json")) {
+                return await response.json();
+            }
+            return await response.text();
         }
 
         return (await response.json()) as ConversionResult;

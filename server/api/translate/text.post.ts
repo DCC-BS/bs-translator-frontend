@@ -23,8 +23,14 @@ export default defineEventHandler(async (event) => {
 
                 setResponseStatus(options.event, response.status);
 
+                // Guard against non-JSON error responses (e.g., HTML error pages, plain text)
                 if (!response.ok) {
-                    return await response.json();
+                    const contentType =
+                        response.headers.get("content-type") ?? "";
+                    if (contentType.includes("application/json")) {
+                        return await response.json();
+                    }
+                    return await response.text();
                 }
 
                 return response;
