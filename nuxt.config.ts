@@ -13,6 +13,12 @@ export default defineNuxtConfig({
             },
         },
     },
+    extends: [
+        ["github:DCC-BS/nuxt-layers/logger", { install: true }],
+        ["github:DCC-BS/nuxt-layers/auth", { install: true }],
+        ["github:DCC-BS/nuxt-layers/backend_communication", { install: true }],
+        ["github:DCC-BS/nuxt-layers/health_check", { install: false }],
+    ],
     fonts: {
         providers: {
             bunny: false,
@@ -76,7 +82,6 @@ export default defineNuxtConfig({
         "@nuxt/ui",
         "@nuxtjs/i18n",
         "@dcc-bs/common-ui.bs.js",
-        "@dcc-bs/logger.bs.js",
         "@dcc-bs/feedback-control.bs.js",
         "@dcc-bs/dependency-injection.bs.js",
         "@dcc-bs/audio-recorder.bs.js",
@@ -116,16 +121,6 @@ export default defineNuxtConfig({
     runtimeConfig: {
         githubToken: process.env.GITHUB_TOKEN,
         apiUrl: process.env.API_URL,
-        public: {
-            logger_bs: {
-                loglevel: process.env.LOG_LEVEL || "debug",
-            },
-        },
-    },
-    $development: {
-        "logger.bs.js": {
-            loglevel: "debug",
-        },
     },
     pwa: {
         devOptions: {

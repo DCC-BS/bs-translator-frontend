@@ -1,14 +1,16 @@
-import type { ConvertionResult } from "~~/shared/models/convertionResult";
+import type { ConversionResult } from "~~/shared/models/conversionResult";
 
-export default defineBackendHandler<
+/**
+ * POST handler for document conversion.
+ * Reads a file and source language from form data, sends to backend for conversion.
+ * Returns ConversionResult on success, or an API error object on failure.
+ */
+export default backendHandlerBuilder<
     never,
-    { file: File; sourceLanguage: string },
-    ConvertionResult,
-    ConvertionResult
->({
-    url: "/convert/doc",
-    method: "POST",
-    bodyProvider: async (event) => {
+    { file: File; sourceLanguage: string }
+>()
+    .withMethod("POST")
+    .withBodyProvider(async (event) => {
         const inputFormData = await readFormData(event);
         const file = inputFormData.get("file");
         const sourceLanguage = inputFormData.get("source_language");
@@ -29,33 +31,34 @@ export default defineBackendHandler<
         }
 
         return { file, sourceLanguage };
-    },
-    fetcher: async (url, method, body, headers, event) => {
+    })
+    .withFetcher(async (options) => {
         const formData = new FormData();
+        formData.append("file", options.body.file, options.body.file.name);
+        formData.append("source_language", options.body.sourceLanguage);
 
-        formData.append("file", body.file, body.file.name);
-        formData.append("source_language", body.sourceLanguage);
-
-        // remove Content-Type
-        delete headers["Content-Type"];
-
-        const abortController = new AbortController();
-        event.node.res.on("close", () => {
-            console.log("Response closed, aborting fetch");
-            abortController.abort();
-        });
-
-        const response = await fetch(url, {
-            method,
+        const response = await fetch(options.url, {
+            method: options.method,
             body: formData,
-            headers,
-            signal: abortController.signal,
+            headers: {
+                "X-Client-Id": getHeader(options.event, "x-client-id") ?? "",
+            },
+            signal: getAbortSignal(options.event),
         });
 
+        // Set the response status to match the backend response
+        setResponseStatus(options.event, response.status);
+
+        // Return error response as-is to allow consumers to check with isApiError()
+        // Guard against non-JSON error responses (e.g., HTML error pages, plain text)
         if (!response.ok) {
-            setResponseStatus(event, response.status);
+            const contentType = response.headers.get("content-type") ?? "";
+            if (contentType.includes("application/json")) {
+                return await response.json();
+            }
+            return await response.text();
         }
 
-        return (await response.json()) as ConvertionResult;
-    },
-});
+        return (await response.json()) as ConversionResult;
+    })
+    .build("/convert/doc");

@@ -41,6 +41,7 @@ Create a `.env` file in the project root with the required environment variables
 API_URL=http://localhost:8000
 LOG_LEVEL=debug
 GITHUB_TOKEN=your_github_token_for_feedback # Optional, for feedback control integration
+LOGGER_LAYER_URI=github:DCC-BS/nuxt-layers/pino-logger # Optional, pino logger layer
 ```
 
 For Docker-based stacks, copy `docker/.env.backend.example` to `docker/.env.backend` and provide the required tokens (Hugging Face, Azure Entra IDs, HMAC secret) for the LLM, speech-to-text, and document parsing services.

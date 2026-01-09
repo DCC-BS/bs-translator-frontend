@@ -99,7 +99,7 @@ async function copyToClipboard(): Promise<void> {
             }
             return;
         } catch (err) {
-            logger.error("Copy failed:", err);
+            logger.error(err, "Copy failed");
             // Show error toast
             toast.add({
                 title: t("ui.copyFailed"),
@@ -142,7 +142,7 @@ async function downloadWord(): Promise<void> {
                 duration: 3000,
             });
         } catch (err) {
-            logger.error("Download failed:", err);
+            logger.error(err, "Download failed");
             // Show error toast
             toast.add({
                 title: t("ui.downloadFailed"),

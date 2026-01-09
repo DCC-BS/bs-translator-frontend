@@ -365,7 +365,7 @@ async function copyTextToClipboard(): Promise<void> {
             await navigator.clipboard.writeText(textToCopy);
             // You could add a toast notification here
         } catch (error) {
-            logger.error("Failed to copy text:", error);
+            logger.error(error, "Failed to copy text");
         }
     }
 }

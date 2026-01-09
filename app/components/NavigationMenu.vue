@@ -18,7 +18,7 @@ async function handleRestartTour(): Promise<void> {
     try {
         await restartTour();
     } catch (error) {
-        logger.error("Failed to restart onboarding tour", error);
+        logger.error(error, "Failed to restart onboarding tour");
     } finally {
         isRestarting.value = false;
     }

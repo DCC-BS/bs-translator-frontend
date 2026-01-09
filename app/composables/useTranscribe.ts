@@ -1,12 +1,21 @@
 import { isApiError } from "@dcc-bs/communication.bs.js";
 import type { LanguageCode } from "~/models/languages";
 
+/**
+ * Composable for handling audio transcription via streaming API
+ */
 export function useTranscribe() {
     const error = ref<string>();
     const { t } = useI18n();
     const { showError } = useUserFeedback();
     const { apiStreamFetch } = useApi();
 
+    /**
+     * Transcribes audio blob to text using streaming response
+     * @param blob Audio blob to transcribe
+     * @param language Language code for transcription
+     * @yields Transcribed text chunks
+     */
     async function* transcribe(blob: Blob, language: LanguageCode) {
         const formData = new FormData();
         formData.append("audio_file", blob, "audio.webm");

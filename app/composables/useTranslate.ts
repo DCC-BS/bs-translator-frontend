@@ -6,7 +6,10 @@ import type { Tone } from "~/models/tone";
 import type { TranslationConfig } from "~/models/translationConfig";
 import { TranslationService } from "~/services/translationService";
 
-export const useTranslate = () => {
+/**
+ * Composable for handling text translation with streaming support
+ */
+export function useTranslate() {
     const translationService = useService(TranslationService);
     const { showError } = useUserFeedback();
     const { t } = useI18n();
@@ -49,7 +52,7 @@ export const useTranslate = () => {
         const signal = abortController.value.signal;
 
         try {
-            const batches = _translateBatched(sourceText.value, signal);
+            const batches = translateBatched(sourceText.value, signal);
             try {
                 for await (const chunk of batches) {
                     if (signal.aborted) {
@@ -57,7 +60,7 @@ export const useTranslate = () => {
                     }
                     translatedText.value += chunk;
                 }
-            } catch (error) {
+            } catch (_error) {
                 if (!signal.aborted) {
                     showError(new Error(t("api_error.unexpected_error")));
                 }
@@ -67,6 +70,11 @@ export const useTranslate = () => {
         }
     }
 
+    /**
+     * Translates a specific text string and returns the result
+     * @param text Text to translate
+     * @returns Translated text
+     */
     async function translateText(text: string): Promise<string> {
         if (!abortController.value) {
             abortController.value = new AbortController();
@@ -76,7 +84,7 @@ export const useTranslate = () => {
         let translated = "";
 
         try {
-            const batches = _translateBatched(text, signal);
+            const batches = translateBatched(text, signal);
 
             for await (const chunk of batches) {
                 if (signal.aborted) {
@@ -105,7 +113,13 @@ export const useTranslate = () => {
         return translated;
     }
 
-    async function* _translateBatched(
+    /**
+     * Internal function to handle batched translation with streaming
+     * @param text Text to translate
+     * @param signal Abort signal for cancellation
+     * @yields Translated text chunks
+     */
+    async function* translateBatched(
         text: string,
         signal: AbortSignal,
     ): AsyncIterable<string> {
@@ -166,4 +180,4 @@ export const useTranslate = () => {
         translateText,
         abort,
     };
-};
+}

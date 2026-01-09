@@ -96,7 +96,7 @@ async function checkCameraAvailability(): Promise<boolean> {
             return false;
         }
     } catch (error) {
-        logger.error("Error checking camera availability:", error);
+        logger.error(error, "Error checking camera availability");
         cameraAvailable.value = false;
         cameraError.value = t("camera.failed");
         return false;
@@ -141,7 +141,7 @@ function checkFlashCapabilities(stream: MediaStream): void {
             logger.info("Flash/torch not supported on this device");
         }
     } catch (error) {
-        logger.error("Error checking flash capabilities:", error);
+        logger.error(error, "Error checking flash capabilities");
         flashSupported.value = false;
     }
 }
@@ -165,7 +165,7 @@ async function toggleTorch(): Promise<void> {
 
         torchEnabled.value = newTorchState;
     } catch (error) {
-        logger.error("Error toggling torch:", error);
+        logger.error(error, "Error toggling torch");
         // Reset torch state if there was an error
         torchEnabled.value = false;
     }
@@ -312,7 +312,7 @@ function startCamera(): void {
                         // Camera started successfully
                     })
                     .catch((err) => {
-                        logger.error("Error playing video stream:", err);
+                        logger.error(err, "Error playing video stream");
                     });
             } else {
                 // Clean up if video element is gone
@@ -320,7 +320,7 @@ function startCamera(): void {
             }
         })
         .catch((err) => {
-            logger.error("Error accessing camera:", err);
+            logger.error(err, "Error accessing camera");
             cameraError.value = t("camera.permissionsError");
         });
 }
