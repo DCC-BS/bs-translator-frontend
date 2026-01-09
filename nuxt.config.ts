@@ -18,6 +18,7 @@ export default defineNuxtConfig({
         ["github:DCC-BS/nuxt-layers/auth", { install: true }],
         ["github:DCC-BS/nuxt-layers/backend_communication", { install: true }],
         ["github:DCC-BS/nuxt-layers/health_check", { install: false }],
+        ["github:DCC-BS/nuxt-layers/feedback-control", { install: true }],
     ],
     fonts: {
         providers: {
@@ -82,19 +83,12 @@ export default defineNuxtConfig({
         "@nuxt/ui",
         "@nuxtjs/i18n",
         "@dcc-bs/common-ui.bs.js",
-        "@dcc-bs/feedback-control.bs.js",
         "@dcc-bs/dependency-injection.bs.js",
         "@dcc-bs/audio-recorder.bs.js",
         "@nuxtjs/mdc",
         "nuxt-tour",
         "@vite-pwa/nuxt",
     ],
-    "feedback-control.bs.js": {
-        repo: "Feedback",
-        owner: "DCC-BS",
-        project: "bs-translator",
-        githubToken: process.env.GITHUB_TOKEN,
-    },
     devtools: { enabled: false },
     css: ["~/assets/css/main.css"],
     typescript: {
@@ -121,6 +115,12 @@ export default defineNuxtConfig({
     runtimeConfig: {
         githubToken: process.env.GITHUB_TOKEN,
         apiUrl: process.env.API_URL,
+        feedback: {
+            repo: process.env.FEEDBACK_REPO,
+            owner: process.env.FEEDBACK_REPO_OWNER,
+            project: process.env.FEEDBACK_PROJECT,
+            githubToken: process.env.GITHUB_TOKEN,
+        },
     },
     pwa: {
         devOptions: {

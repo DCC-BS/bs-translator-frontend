@@ -11,7 +11,6 @@ import { TranslationService } from "~/services/translationService";
  */
 export function useTranslate() {
     const translationService = useService(TranslationService);
-    const { showError } = useUserFeedback();
     const { t } = useI18n();
 
     const tone = useCookie<Tone>("tone", { default: () => "default" });

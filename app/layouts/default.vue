@@ -1,20 +1,19 @@
-<script lang="ts" setup>
-
-
-</script>
-
 <template>
     <Changelogs />
     <Onboarding />
     <Disclaimer app-name="BS Übersetzer" />
-    <FeedbackControl />
     <UApp>
         <NavigationMenu />
         <div class="h-[600px] md:h-[calc(100vh-100px)] flex flex-col">
             <div class="grow">
                 <slot />
             </div>
-            <DataBsFooter />
+            <!-- Footer section with branding and feedback -->
+            <div class="flex items-center justify-between px-2 py-1">
+                <DataBsFooter />
+                <FeedbackControl inline />
+            </div>
         </div>
+
     </UApp>
 </template>
