@@ -244,7 +244,7 @@
         "conversion": {
             "no_document": "No document found. Try to upload the document again.",
             "invalid_mime_type": "Invalid document type.",
-            "errorTimeout": "Conversion timed out. Try a shorter file."
+            "docling_timeout": "Conversion timed out. Try a shorter file."
         },
         "transcribe": {
             "errorTimeout": "Transcription timed out. Try a shorter recording.",
