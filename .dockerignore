@@ -13,6 +13,7 @@ logs
 test-results
 # Dependencies
 ./node_modules
+.env
 
 # Build output
 ./.output
