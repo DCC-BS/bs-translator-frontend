@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { watchDebounced } from "@vueuse/core";
+import { TRANSLATION_DEBOUNCE_MS } from "~/utils/constants";
 
 const router = useRouter();
 
@@ -67,7 +68,7 @@ watchDebounced(
             handleTranslate();
         }
     },
-    { debounce: 1000 },
+    { debounce: TRANSLATION_DEBOUNCE_MS },
 );
 
 function triggerFileUpload(): void {
