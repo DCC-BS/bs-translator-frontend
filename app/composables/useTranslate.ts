@@ -30,7 +30,9 @@ export function useTranslate() {
 
     const sourceText = ref<string>("");
     const translatedText = ref<string>("");
+    const detectedSourceLanguage = ref<LanguageCode | undefined>(undefined);
     const isTranslating = ref<boolean>(false);
+    const isDetectingLanguage = ref<boolean>(false);
     const abortController = ref<AbortController | undefined>(undefined);
 
     onUnmounted(() => {
@@ -43,6 +45,7 @@ export function useTranslate() {
      */
     async function translate(): Promise<void> {
         if (sourceText.value.trim() === "") {
+            detectedSourceLanguage.value = undefined;
             return;
         }
 
@@ -55,6 +58,25 @@ export function useTranslate() {
         const signal = abortController.value.signal;
 
         try {
+            // Language detection if source language is set to auto
+            if (sourceLanguage.value === "auto") {
+                try {
+                    isDetectingLanguage.value = true;
+                    detectedSourceLanguage.value =
+                        await translationService.detectLanguage(
+                            sourceText.value,
+                            signal,
+                        );
+                } catch (error) {
+                    // Fail gracefully for detection, just log it
+                    console.error("Language detection failed:", error);
+                } finally {
+                    isDetectingLanguage.value = false;
+                }
+            } else {
+                detectedSourceLanguage.value = undefined;
+            }
+
             const batches = translateBatched(sourceText.value, signal);
             try {
                 for await (const chunk of batches) {
@@ -87,6 +109,21 @@ export function useTranslate() {
         let translated = "";
 
         try {
+            // Language detection if source language is set to auto
+            if (sourceLanguage.value === "auto") {
+                try {
+                    isDetectingLanguage.value = true;
+                    detectedSourceLanguage.value =
+                        await translationService.detectLanguage(text, signal);
+                } catch (error) {
+                    console.error("Language detection failed:", error);
+                } finally {
+                    isDetectingLanguage.value = false;
+                }
+            } else {
+                detectedSourceLanguage.value = undefined;
+            }
+
             const batches = translateBatched(text, signal);
 
             for await (const chunk of batches) {
@@ -178,7 +215,9 @@ export function useTranslate() {
         targetLanguage,
         sourceText,
         translatedText,
+        detectedSourceLanguage,
         isTranslating,
+        isDetectingLanguage,
         translate,
         translateText,
         abort,

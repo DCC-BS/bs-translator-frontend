@@ -1,6 +1,7 @@
 {
     "languages": {
         "auto": "Auto Detect",
+        "auto_detected": "{0} (detected)",
         "af": "Afrikaans",
         "ar": "Arabic",
         "bg": "Bulgarian",

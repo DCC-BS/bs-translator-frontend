@@ -32,22 +32,20 @@ export default backendHandlerBuilder<
 
         return { file, sourceLanguage };
     })
-    .withFetcher(async (options) => {
+    .withFetcher(async ({ url, method, body, headers, event }) => {
         const formData = new FormData();
-        formData.append("file", options.body.file, options.body.file.name);
-        formData.append("source_language", options.body.sourceLanguage);
+        formData.append("file", body.file, body.file.name);
+        formData.append("source_language", body.sourceLanguage);
 
-        const response = await fetch(options.url, {
-            method: options.method,
+        const response = await fetch(url, {
+            method: method,
             body: formData,
-            headers: {
-                "X-Client-Id": getHeader(options.event, "x-client-id") ?? "",
-            },
-            signal: getAbortSignal(options.event),
+            headers,
+            signal: getAbortSignal(event),
         });
 
         // Set the response status to match the backend response
-        setResponseStatus(options.event, response.status);
+        setResponseStatus(event, response.status);
 
         // Return error response as-is to allow consumers to check with isApiError()
         // Guard against non-JSON error responses (e.g., HTML error pages, plain text)

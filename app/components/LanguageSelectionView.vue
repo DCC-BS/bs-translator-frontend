@@ -3,6 +3,7 @@ import { type Language, languages } from "~/models/languages";
 
 const props = defineProps<{
     includeAutoDetect?: boolean;
+    detectedLanguageCode?: string;
 }>();
 
 const { t } = useI18n();
@@ -19,9 +20,14 @@ const items = computed(() => {
     const values = [...head, ...tail];
 
     if (props.includeAutoDetect) {
+        let name = t("languages.auto");
+        if (props.detectedLanguageCode) {
+            const detectedName = t(`languages.${props.detectedLanguageCode}`);
+            name = t("languages.auto_detected", [detectedName]);
+        }
         values.unshift({
             code: "auto",
-            name: t("languages.auto"),
+            name: name,
             icon: "i-lucide-scan-search",
         });
     }
@@ -45,12 +51,9 @@ watch(selectedLanguage, (newValue) => {
 });
 
 watch(
-    selectedCode,
+    [selectedCode, () => props.detectedLanguageCode],
     () => {
-        if (
-            selectedCode.value &&
-            selectedCode.value !== selectedLanguage.value.code
-        ) {
+        if (selectedCode.value) {
             const found = items.value.find(
                 (lang) => lang.code === selectedCode.value,
             );

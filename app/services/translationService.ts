@@ -114,4 +114,27 @@ export class TranslationService {
             reader.releaseLock();
         }
     }
+
+    /**
+     * Detects the language of a given text
+     * @param text - The text to detect the language of
+     * @param signal - Optional AbortSignal to cancel the detection
+     * @returns The detected language code
+     */
+    async detectLanguage(text: string, signal?: AbortSignal): Promise<string> {
+        const response = await this.apiClient.apiFetch<{
+            language_code: string;
+        }>("/api/detect-language", {
+            method: "POST",
+            body: { text: text },
+            signal,
+        });
+        console.log(response);
+
+        if (isApiError(response)) {
+            throw response;
+        }
+
+        return response.language_code;
+    }
 }
