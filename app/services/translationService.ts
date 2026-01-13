@@ -130,7 +130,6 @@ export class TranslationService {
             body: { text: text },
             signal,
         });
-        alert(JSON.stringify(response));
 
         if (isApiError(response)) {
             throw response;
