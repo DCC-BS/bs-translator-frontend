@@ -123,18 +123,19 @@ export class TranslationService {
      */
     async detectLanguage(text: string, signal?: AbortSignal): Promise<string> {
         const response = await this.apiClient.apiFetch<{
-            language_code: string;
+            language: string;
+            confidence: number;
         }>("/api/detect-language", {
             method: "POST",
             body: { text: text },
             signal,
         });
-        console.log(response);
+        alert(JSON.stringify(response));
 
         if (isApiError(response)) {
             throw response;
         }
 
-        return response.language_code;
+        return response.language;
     }
 }

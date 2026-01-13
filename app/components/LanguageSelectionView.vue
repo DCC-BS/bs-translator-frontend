@@ -36,41 +36,38 @@ const items = computed(() => {
 });
 
 const selectedCode = defineModel<string>();
-const selectedLanguage = ref<Language & { name: string }>(
-    items.value[0] ?? {
-        code: "auto",
-        name: t("languages.auto"),
-        icon: "i-lucide-scan-search",
-    },
-);
 
-watch(selectedLanguage, (newValue) => {
-    if (newValue) {
-        selectedCode.value = newValue.code;
-    }
-});
+/**
+ * Writable computed to handle the selection object for USelectMenu.
+ * This ensures that when the items array re-calculates (e.g. after detection),
+ * the displayed item is always the fresh object from the items array.
+ */
+const selectedLanguage = computed({
+    get: () => {
+        const found = items.value.find((lang) => lang.code === selectedCode.value);
+        if (found) return found;
 
-watch(
-    [selectedCode, () => props.detectedLanguageCode],
-    () => {
-        if (selectedCode.value) {
-            const found = items.value.find(
-                (lang) => lang.code === selectedCode.value,
-            );
-
-            if (found) {
-                selectedLanguage.value = found;
+        // Fallback to the first item, or a safe default if items is empty (unlikely)
+        return (
+            items.value[0] ?? {
+                code: "auto",
+                name: t("languages.auto"),
+                icon: "i-lucide-scan-search",
             }
+        );
+    },
+    set: (newValue) => {
+        if (newValue) {
+            selectedCode.value = newValue.code;
         }
     },
-    { immediate: true },
-);
+});
 </script>
 
 <template>
     <USelectMenu class="md:min-w-[250px]" v-model="selectedLanguage" :filter-fields="['name', 'code']" :items="items"
         variant="none">
-        <div class="flex items-center">
+        <div v-if="selectedLanguage" class="flex items-center">
             <UIcon :name="selectedLanguage.icon" class="mr-1 md:mr-2" size="sm" />
             <span class="text-sm">{{ selectedLanguage.name }}</span>
         </div>

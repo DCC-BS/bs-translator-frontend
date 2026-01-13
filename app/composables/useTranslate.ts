@@ -30,9 +30,18 @@ export function useTranslate() {
 
     const sourceText = ref<string>("");
     const translatedText = ref<string>("");
-    const detectedSourceLanguage = ref<LanguageCode | undefined>(undefined);
+
+    // Shared state for language detection across the app
+    const detectedSourceLanguage = useState<LanguageCode | undefined>(
+        "detectedSourceLanguage",
+        () => undefined,
+    );
+    const isDetectingLanguage = useState<boolean>(
+        "isDetectingLanguage",
+        () => false,
+    );
+
     const isTranslating = ref<boolean>(false);
-    const isDetectingLanguage = ref<boolean>(false);
     const abortController = ref<AbortController | undefined>(undefined);
 
     onUnmounted(() => {
@@ -58,23 +67,25 @@ export function useTranslate() {
         const signal = abortController.value.signal;
 
         try {
-            // Language detection if source language is set to auto
-            if (sourceLanguage.value === "auto") {
+            // Language detection is now handled by a separate watcher to ensure it's
+            // always up to date when the source text or language selection changes.
+            // We just ensure we have a detection result here if needed.
+            if (
+                sourceLanguage.value === "auto" &&
+                !detectedSourceLanguage.value
+            ) {
                 try {
                     isDetectingLanguage.value = true;
                     detectedSourceLanguage.value =
-                        await translationService.detectLanguage(
+                        (await translationService.detectLanguage(
                             sourceText.value,
                             signal,
-                        );
+                        )) as LanguageCode;
                 } catch (error) {
-                    // Fail gracefully for detection, just log it
                     console.error("Language detection failed:", error);
                 } finally {
                     isDetectingLanguage.value = false;
                 }
-            } else {
-                detectedSourceLanguage.value = undefined;
             }
 
             const batches = translateBatched(sourceText.value, signal);
@@ -109,19 +120,23 @@ export function useTranslate() {
         let translated = "";
 
         try {
-            // Language detection if source language is set to auto
-            if (sourceLanguage.value === "auto") {
+            // Language detection logic
+            if (
+                sourceLanguage.value === "auto" &&
+                !detectedSourceLanguage.value
+            ) {
                 try {
                     isDetectingLanguage.value = true;
                     detectedSourceLanguage.value =
-                        await translationService.detectLanguage(text, signal);
+                        (await translationService.detectLanguage(
+                            text,
+                            signal,
+                        )) as LanguageCode;
                 } catch (error) {
                     console.error("Language detection failed:", error);
                 } finally {
                     isDetectingLanguage.value = false;
                 }
-            } else {
-                detectedSourceLanguage.value = undefined;
             }
 
             const batches = translateBatched(text, signal);
@@ -164,7 +179,10 @@ export function useTranslate() {
         signal: AbortSignal,
     ): AsyncIterable<string> {
         const config: TranslationConfig = {
-            source_language: sourceLanguage.value,
+            source_language:
+                sourceLanguage.value === "auto"
+                    ? detectedSourceLanguage.value
+                    : sourceLanguage.value,
             target_language: targetLanguage.value,
             domain: domain.value,
             tone: tone.value,
@@ -195,6 +213,34 @@ export function useTranslate() {
             isTranslating.value = false;
         }
     }
+
+    /**
+     * Watcher for automatic language detection.
+     * Triggers whenever source text changes and source language is set to 'auto'.
+     */
+    watchDebounced(
+        [sourceText, sourceLanguage],
+        async ([newText, newLang]) => {
+            if (newLang === "auto" && newText && newText.trim() !== "") {
+                try {
+                    isDetectingLanguage.value = true;
+                    detectedSourceLanguage.value =
+                        (await translationService.detectLanguage(
+                            newText,
+                        )) as LanguageCode;
+                } catch (error) {
+                    console.error("Auto-detection failed:", error);
+                } finally {
+                    isDetectingLanguage.value = false;
+                }
+            } else if (newLang !== "auto") {
+                detectedSourceLanguage.value = undefined;
+            } else if (!newText || newText.trim() === "") {
+                detectedSourceLanguage.value = undefined;
+            }
+        },
+        { debounce: TRANSLATION_DEBOUNCE_MS },
+    );
 
     watchDebounced(
         [targetLanguage, sourceLanguage, tone, domain, glossary],
