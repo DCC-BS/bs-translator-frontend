@@ -52,19 +52,21 @@ export function useTranslate() {
      * Detects the language of the given text.
      * @param text - Text to detect the language of
      * @param signal - AbortSignal for cancellation
-     * @returns The detected language code or undefined if detection fails
+     * @returns The detected language code or "auto" string if detection fails
      */
     async function detectLanguage(
         text: string,
         signal: AbortSignal,
-    ): Promise<LanguageCode | undefined> {
+    ): Promise<LanguageCode | "auto"> {
+        // If source language is not set to auto, always return "auto"
         if (sourceLanguage.value !== "auto") {
-            return undefined;
+            return "auto";
         }
 
+        // If text is empty, clear detected language and return "auto"
         if (text.trim() === "") {
             clearDetectedLanguage();
-            return undefined;
+            return "auto";
         }
 
         isDetectingLanguage.value = true;
@@ -76,17 +78,17 @@ export function useTranslate() {
             );
 
             if (signal.aborted) {
-                return undefined;
+                return "auto";
             }
 
             detectedSourceLanguage.value = result.language as LanguageCode;
             return result.language as LanguageCode;
         } catch (error) {
-            // Only log if not aborted
+            // Only log errors if not aborted
             if (!signal.aborted) {
                 console.error("Language detection failed:", error);
             }
-            return undefined;
+            return "auto";
         } finally {
             if (!signal.aborted) {
                 isDetectingLanguage.value = false;
