@@ -1,4 +1,4 @@
-import type { H3Event } from "h3";
+import { getHeader, type H3Event } from "h3";
 
 /**
  * POST handler for text translation.
@@ -12,11 +12,18 @@ export default defineEventHandler(async (event) => {
             .withFetcher(async ({ url, method, body, headers, event }) => {
                 const signal = getAbortSignal(event);
 
+                // Extract X-Client-Id from incoming request and forward to backend
+                const clientId = getHeader(event, "x-client-id") ?? "";
+                const forwardHeaders = new Headers(headers);
+                if (clientId) {
+                    forwardHeaders.set("X-Client-Id", clientId);
+                }
+
                 try {
                     const response = await fetch(url, {
                         method: method,
                         body: JSON.stringify(body),
-                        headers,
+                        headers: forwardHeaders,
                         signal,
                     });
 

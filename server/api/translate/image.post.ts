@@ -1,4 +1,4 @@
-import type { MultiPartData } from "h3";
+import { getHeader, type MultiPartData } from "h3";
 
 /**
  * POST handler for image translation.
@@ -28,13 +28,20 @@ export default backendHandlerBuilder<never, MultiPartData[] | undefined>()
             }
         }
 
+        // Extract X-Client-Id from incoming request and forward to backend
+        const clientId = getHeader(event, "x-client-id") ?? "";
+        const forwardHeaders = new Headers(headers);
+        if (clientId) {
+            forwardHeaders.set("X-Client-Id", clientId);
+        }
+
         const signal = getAbortSignal(event);
 
         try {
             const response = await fetch(url, {
                 method: method,
                 body: form,
-                headers,
+                headers: forwardHeaders,
                 signal,
             });
 

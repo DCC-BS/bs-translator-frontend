@@ -1,4 +1,4 @@
-import type { H3Event } from "h3";
+import { getHeader, type H3Event } from "h3";
 
 /**
  * POST handler for audio transcription.
@@ -18,13 +18,20 @@ export default defineEventHandler(async (event) => {
                 form.append("audio_file", body.get("audio_file") as Blob);
                 form.append("language", body.get("language") as string);
 
+                // Extract X-Client-Id from incoming request and forward to backend
+                const clientId = getHeader(event, "x-client-id") ?? "";
+                const forwardHeaders = new Headers(headers);
+                if (clientId) {
+                    forwardHeaders.set("X-Client-Id", clientId);
+                }
+
                 const signal = getAbortSignal(event);
 
                 try {
                     const response = await fetch(url, {
                         method: method,
                         body: form,
-                        headers,
+                        headers: forwardHeaders,
                         signal,
                     });
 

@@ -152,6 +152,11 @@ export function useTranslate() {
      * @returns Translated text
      */
     async function translateText(text: string): Promise<string> {
+        // Return empty string if input is empty or only whitespace
+        if (text.trim() === "") {
+            return "";
+        }
+
         if (!abortController.value) {
             abortController.value = new AbortController();
         }
@@ -253,7 +258,10 @@ export function useTranslate() {
     watchDebounced(
         [targetLanguage, sourceLanguage, tone, domain, glossary],
         () => {
-            translate();
+            // Only translate if source text is not empty
+            if (sourceText.value.trim() !== "") {
+                translate();
+            }
         },
         {
             debounce: TRANSLATION_DEBOUNCE_MS,

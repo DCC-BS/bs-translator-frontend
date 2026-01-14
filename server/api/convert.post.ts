@@ -1,3 +1,4 @@
+import { getHeader } from "h3";
 import type { ConversionResult } from "~~/shared/models/conversionResult";
 
 /**
@@ -37,13 +38,20 @@ export default backendHandlerBuilder<
         formData.append("file", body.file, body.file.name);
         formData.append("source_language", body.sourceLanguage);
 
+        // Extract X-Client-Id from incoming request and forward to backend
+        const clientId = getHeader(event, "x-client-id") ?? "";
+        const forwardHeaders = new Headers(headers);
+        if (clientId) {
+            forwardHeaders.set("X-Client-Id", clientId);
+        }
+
         const signal = getAbortSignal(event);
 
         try {
             const response = await fetch(url, {
                 method: method,
                 body: formData,
-                headers,
+                headers: forwardHeaders,
                 signal,
             });
 

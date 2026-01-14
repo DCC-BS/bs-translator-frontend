@@ -56,7 +56,7 @@ function swapLanguages(): void {
 }
 
 async function handleTranslate(): Promise<void> {
-    if (!sourceText.value || !targetLanguage.value) return;
+    if (sourceText.value.trim() === "" || !targetLanguage.value) return;
 
     abort(); // Cancel any ongoing translation
 
@@ -66,7 +66,7 @@ async function handleTranslate(): Promise<void> {
 watchDebounced(
     sourceText,
     () => {
-        if (sourceText.value && targetLanguage.value) {
+        if (sourceText.value.trim() !== "" && targetLanguage.value) {
             handleTranslate();
         }
     },
