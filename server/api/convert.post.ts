@@ -41,6 +41,7 @@ export default backendHandlerBuilder<
         // Extract X-Client-Id from incoming request and forward to backend
         const clientId = getHeader(event, "x-client-id") ?? "";
         const forwardHeaders = new Headers(headers);
+        forwardHeaders.delete("Content-Type");
         if (clientId) {
             forwardHeaders.set("X-Client-Id", clientId);
         }

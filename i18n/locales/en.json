@@ -235,6 +235,10 @@
         "finish": "Finish",
         "restart": "Restart Tour"
     },
+    "tooltips": {
+        "online-status": "Online status",
+        "restart-tour": "Start onboarding tour"
+    },
     "api_error": {
         "fetch_failed": "Fetch failed. Please try again.",
         "unexpected_error": "An unexpected error occurred. Maybe the server is down, if the error persists. Please use the feedback button to send us a message.",
