@@ -19,7 +19,8 @@ export function useTranscribe() {
     async function* transcribe(blob: Blob, language: LanguageCode) {
         const formData = new FormData();
         formData.append("audio_file", blob, "audio.webm");
-        formData.append("language", language);
+        // Ensure language is never undefined, default to "auto"
+        formData.append("language", language || "auto");
 
         const response = await apiStreamFetch("/api/transcribe/audio", {
             method: "POST",
