@@ -204,9 +204,10 @@ export function useTranslate() {
         signal: AbortSignal,
     ): AsyncIterable<string> {
         const config: TranslationConfig = {
+            // Fall back to "auto" if detection failed, letting the backend handle it
             source_language:
                 sourceLanguage.value === "auto"
-                    ? detectedSourceLanguage.value
+                    ? (detectedSourceLanguage.value ?? "auto")
                     : sourceLanguage.value,
             target_language: targetLanguage.value,
             domain: domain.value,
