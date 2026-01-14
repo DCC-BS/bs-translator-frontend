@@ -21,6 +21,8 @@ export default defineConfig({
         video: "retain-on-failure",
         channel: "chromium",
         permissions: ["microphone", "clipboard-read", "clipboard-write"],
+        // Use a fresh browser context without cached service workers
+        serviceWorkers: "block",
         launchOptions: {
             args: [
                 "--use-fake-ui-for-media-stream",
