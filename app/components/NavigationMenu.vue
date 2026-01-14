@@ -27,8 +27,11 @@ async function handleRestartTour(): Promise<void> {
 
 <template>
   <NavigationBar>
-    <template #right>
-      <UTooltip :text="t('tour.restart')" placement="bottom">
+    <template #rightPostItems>
+      <UTooltip :text="t('tooltips.online-status')" placement="bottom">
+        <OnlineStatus />
+      </UTooltip>
+      <UTooltip :text="t('tooltips.restart-tour')" placement="bottom">
         <UButton data-tour="start-tour" data-testid="tourRestartButton" :aria-label="t('tour.restart')" variant="ghost"
           color="neutral" icon="i-lucide-help-circle" :disabled="!canRestartTour || isRestarting"
           @click="handleRestartTour">
