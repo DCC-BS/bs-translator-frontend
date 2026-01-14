@@ -1,4 +1,4 @@
-import type { MultiPartData } from "h3";
+import { getHeader, type MultiPartData } from "h3";
 
 /**
  * POST handler for image translation.
@@ -7,13 +7,13 @@ import type { MultiPartData } from "h3";
 export default backendHandlerBuilder<never, MultiPartData[] | undefined>()
     .withMethod("POST")
     .withBodyProvider(async (event) => await readMultipartFormData(event))
-    .withFetcher(async (options) => {
-        if (!options.body) {
+    .withFetcher(async ({ url, method, body, headers, event }) => {
+        if (!body) {
             throw new Error("No body provided");
         }
 
         const form = new FormData();
-        for (const part of options.body) {
+        for (const part of body) {
             if (part.filename) {
                 form.append(
                     part.name as string,
@@ -28,21 +28,36 @@ export default backendHandlerBuilder<never, MultiPartData[] | undefined>()
             }
         }
 
-        const response = await fetch(options.url, {
-            method: options.method,
-            body: form,
-            headers: {
-                "X-Client-Id": getHeader(options.event, "x-client-id") ?? "",
-            },
-            signal: getAbortSignal(options.event),
-        });
-
-        setResponseStatus(options.event, response.status);
-
-        if (!response.ok) {
-            return await response.json();
+        // Extract X-Client-Id from incoming request and forward to backend
+        const clientId = getHeader(event, "x-client-id") ?? "";
+        const forwardHeaders = new Headers(headers);
+        if (clientId) {
+            forwardHeaders.set("X-Client-Id", clientId);
         }
 
-        return response;
+        const signal = getAbortSignal(event);
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                body: form,
+                headers: forwardHeaders,
+                signal,
+            });
+
+            setResponseStatus(event, response.status);
+
+            if (!response.ok) {
+                return await response.json();
+            }
+
+            return response;
+        } catch (error) {
+            // Silently handle abort errors - client cancelled the request
+            if (signal.aborted) {
+                return new Response(null, { status: 499 });
+            }
+            throw error;
+        }
     })
     .build("/translation/image");

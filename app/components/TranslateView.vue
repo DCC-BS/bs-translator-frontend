@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { watchDebounced } from "@vueuse/core";
+import { TRANSLATION_DEBOUNCE_MS } from "~/utils/constants";
 
 const router = useRouter();
 
@@ -12,6 +13,8 @@ const {
     targetLanguage,
     sourceText,
     translatedText,
+    detectedSourceLanguage,
+    isDetectingLanguage,
     isTranslating,
     translate,
     abort,
@@ -53,7 +56,7 @@ function swapLanguages(): void {
 }
 
 async function handleTranslate(): Promise<void> {
-    if (!sourceText.value || !targetLanguage.value) return;
+    if (sourceText.value.trim() === "" || !targetLanguage.value) return;
 
     abort(); // Cancel any ongoing translation
 
@@ -63,11 +66,11 @@ async function handleTranslate(): Promise<void> {
 watchDebounced(
     sourceText,
     () => {
-        if (sourceText.value && targetLanguage.value) {
+        if (sourceText.value.trim() !== "" && targetLanguage.value) {
             handleTranslate();
         }
     },
-    { debounce: 1000 },
+    { debounce: TRANSLATION_DEBOUNCE_MS },
 );
 
 function triggerFileUpload(): void {
@@ -109,14 +112,16 @@ function onCapturePhoto() {
                     <!-- Language selection area -->
                     <div class="hidden xl:inline">
                         <LanguageSelectionBar v-model:source-language="sourceLanguage"
-                            v-model:target-language="targetLanguage" @swap-languages="swapLanguages" />
+                            v-model:target-language="targetLanguage" :detected-source-language="detectedSourceLanguage"
+                            :is-detecting-language="isDetectingLanguage" @swap-languages="swapLanguages" />
                     </div>
 
                     <OptionsToolBar v-model:tone="tone" v-model:domain="domain" v-model:glossary="glossary" />
                 </div>
                 <div class="flex justify-center xl:hidden">
                     <LanguageSelectionBar v-model:source-language="sourceLanguage"
-                        v-model:target-language="targetLanguage" @swap-languages="swapLanguages" />
+                        v-model:target-language="targetLanguage" :detected-source-language="detectedSourceLanguage"
+                        :is-detecting-language="isDetectingLanguage" @swap-languages="swapLanguages" />
                 </div>
             </template>
 

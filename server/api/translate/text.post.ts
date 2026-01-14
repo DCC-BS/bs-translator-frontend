@@ -1,4 +1,4 @@
-import type { H3Event } from "h3";
+import { getHeader, type H3Event } from "h3";
 
 /**
  * POST handler for text translation.
@@ -9,31 +9,44 @@ export default defineEventHandler(async (event) => {
         const handler = backendHandlerBuilder()
             .withMethod("POST")
             .withBodyProvider(async (event) => await readBody(event))
-            .withFetcher(async (options) => {
-                const response = await fetch(options.url, {
-                    method: options.method,
-                    body: JSON.stringify(options.body),
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Client-Id":
-                            getHeader(options.event, "x-client-id") ?? "",
-                    },
-                    signal: getAbortSignal(options.event),
-                });
+            .withFetcher(async ({ url, method, body, headers, event }) => {
+                const signal = getAbortSignal(event);
 
-                setResponseStatus(options.event, response.status);
-
-                // Guard against non-JSON error responses (e.g., HTML error pages, plain text)
-                if (!response.ok) {
-                    const contentType =
-                        response.headers.get("content-type") ?? "";
-                    if (contentType.includes("application/json")) {
-                        return await response.json();
-                    }
-                    return await response.text();
+                // Extract X-Client-Id from incoming request and forward to backend
+                const clientId = getHeader(event, "x-client-id") ?? "";
+                const forwardHeaders = new Headers(headers);
+                if (clientId) {
+                    forwardHeaders.set("X-Client-Id", clientId);
                 }
 
-                return response;
+                try {
+                    const response = await fetch(url, {
+                        method: method,
+                        body: JSON.stringify(body),
+                        headers: forwardHeaders,
+                        signal,
+                    });
+
+                    setResponseStatus(event, response.status);
+
+                    // Guard against non-JSON error responses (e.g., HTML error pages, plain text)
+                    if (!response.ok) {
+                        const contentType =
+                            response.headers.get("content-type") ?? "";
+                        if (contentType.includes("application/json")) {
+                            return await response.json();
+                        }
+                        return await response.text();
+                    }
+
+                    return response;
+                } catch (error) {
+                    // Silently handle abort errors - client cancelled the request
+                    if (signal.aborted) {
+                        return new Response(null, { status: 499 });
+                    }
+                    throw error;
+                }
             })
             .build("/translation/text");
 

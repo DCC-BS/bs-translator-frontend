@@ -1,6 +1,8 @@
 {
     "languages": {
         "auto": "Automatisch erkennen",
+        "auto_detected": "{0} (erkannt)",
+        "auto_detecting": "Sprache wird erkannt...",
         "af": "Afrikaans",
         "ar": "Arabisch",
         "bg": "Bulgarisch",

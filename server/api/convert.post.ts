@@ -1,3 +1,4 @@
+import { getHeader } from "h3";
 import type { ConversionResult } from "~~/shared/models/conversionResult";
 
 /**
@@ -32,33 +33,48 @@ export default backendHandlerBuilder<
 
         return { file, sourceLanguage };
     })
-    .withFetcher(async (options) => {
+    .withFetcher(async ({ url, method, body, headers, event }) => {
         const formData = new FormData();
-        formData.append("file", options.body.file, options.body.file.name);
-        formData.append("source_language", options.body.sourceLanguage);
+        formData.append("file", body.file, body.file.name);
+        formData.append("source_language", body.sourceLanguage);
 
-        const response = await fetch(options.url, {
-            method: options.method,
-            body: formData,
-            headers: {
-                "X-Client-Id": getHeader(options.event, "x-client-id") ?? "",
-            },
-            signal: getAbortSignal(options.event),
-        });
-
-        // Set the response status to match the backend response
-        setResponseStatus(options.event, response.status);
-
-        // Return error response as-is to allow consumers to check with isApiError()
-        // Guard against non-JSON error responses (e.g., HTML error pages, plain text)
-        if (!response.ok) {
-            const contentType = response.headers.get("content-type") ?? "";
-            if (contentType.includes("application/json")) {
-                return await response.json();
-            }
-            return await response.text();
+        // Extract X-Client-Id from incoming request and forward to backend
+        const clientId = getHeader(event, "x-client-id") ?? "";
+        const forwardHeaders = new Headers(headers);
+        if (clientId) {
+            forwardHeaders.set("X-Client-Id", clientId);
         }
 
-        return (await response.json()) as ConversionResult;
+        const signal = getAbortSignal(event);
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                body: formData,
+                headers: forwardHeaders,
+                signal,
+            });
+
+            // Set the response status to match the backend response
+            setResponseStatus(event, response.status);
+
+            // Return error response as-is to allow consumers to check with isApiError()
+            // Guard against non-JSON error responses (e.g., HTML error pages, plain text)
+            if (!response.ok) {
+                const contentType = response.headers.get("content-type") ?? "";
+                if (contentType.includes("application/json")) {
+                    return await response.json();
+                }
+                return await response.text();
+            }
+
+            return (await response.json()) as ConversionResult;
+        } catch (error) {
+            // Silently handle abort errors - client cancelled the request
+            if (signal.aborted) {
+                return new Response(null, { status: 499 });
+            }
+            throw error;
+        }
     })
     .build("/convert/doc");

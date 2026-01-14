@@ -1,4 +1,4 @@
-import type { H3Event } from "h3";
+import { getHeader, type H3Event } from "h3";
 
 /**
  * POST handler for audio transcription.
@@ -9,35 +9,46 @@ export default defineEventHandler(async (event) => {
         const handler = backendHandlerBuilder<never, FormData>()
             .withMethod("POST")
             .withBodyProvider(async (event) => await readFormData(event))
-            .withFetcher(async (options) => {
-                if (!options.body) {
+            .withFetcher(async ({ url, method, body, headers, event }) => {
+                if (!body) {
                     throw new Error("No body provided");
                 }
 
                 const form = new FormData();
-                form.append(
-                    "audio_file",
-                    options.body.get("audio_file") as Blob,
-                );
-                form.append("language", options.body.get("language") as string);
+                form.append("audio_file", body.get("audio_file") as Blob);
+                form.append("language", body.get("language") as string);
 
-                const response = await fetch(options.url, {
-                    method: options.method,
-                    body: form,
-                    headers: {
-                        "X-Client-Id":
-                            getHeader(options.event, "x-client-id") ?? "",
-                    },
-                    signal: getAbortSignal(options.event),
-                });
-
-                setResponseStatus(options.event, response.status);
-
-                if (!response.ok) {
-                    return await response.json();
+                // Extract X-Client-Id from incoming request and forward to backend
+                const clientId = getHeader(event, "x-client-id") ?? "";
+                const forwardHeaders = new Headers(headers);
+                if (clientId) {
+                    forwardHeaders.set("X-Client-Id", clientId);
                 }
 
-                return response;
+                const signal = getAbortSignal(event);
+
+                try {
+                    const response = await fetch(url, {
+                        method: method,
+                        body: form,
+                        headers: forwardHeaders,
+                        signal,
+                    });
+
+                    setResponseStatus(event, response.status);
+
+                    if (!response.ok) {
+                        return await response.json();
+                    }
+
+                    return response;
+                } catch (error) {
+                    // Silently handle abort errors - client cancelled the request
+                    if (signal.aborted) {
+                        return new Response(null, { status: 499 });
+                    }
+                    throw error;
+                }
             })
             .build("/transcription/audio");
 

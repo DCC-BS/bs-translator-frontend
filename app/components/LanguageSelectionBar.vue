@@ -2,19 +2,32 @@
 const sourceLanguage = defineModel<string>("sourceLanguage");
 const targetLanguage = defineModel<string>("targetLanguage");
 
+const props = defineProps<{
+    detectedSourceLanguage?: string;
+    isDetectingLanguage?: boolean;
+}>();
+
 const emit = defineEmits<(e: "swap-languages") => void>();
 
 const { t } = useI18n();
 
 function swapLanguages(): void {
-    if (
-        sourceLanguage.value === targetLanguage.value ||
-        sourceLanguage.value === "auto"
-    ) {
+    if (sourceLanguage.value === targetLanguage.value) {
         return; // No need to swap if both languages are the same
     }
 
-    swapRef(sourceLanguage, targetLanguage);
+    if (sourceLanguage.value === "auto") {
+        if (props.detectedSourceLanguage) {
+            const oldTarget = targetLanguage.value;
+            targetLanguage.value = props.detectedSourceLanguage;
+            sourceLanguage.value = oldTarget;
+        } else {
+            return; // Cannot swap auto without detection
+        }
+    } else {
+        swapRef(sourceLanguage, targetLanguage);
+    }
+
     emit("swap-languages");
 }
 </script>
@@ -23,11 +36,13 @@ function swapLanguages(): void {
     <!-- Language selection area -->
     <div class="flex items-start sm:items-center" data-tour="language-selector">
         <div class="flex-1 flex justify-end">
-            <LanguageSelectionView v-model="sourceLanguage" include-auto-detect />
+            <LanguageSelectionView v-model="sourceLanguage" :detected-language-code="detectedSourceLanguage"
+                :is-detecting-language="isDetectingLanguage" include-auto-detect />
         </div>
 
-        <UButton :active="sourceLanguage !== 'auto'" variant="soft" color="primary" icon="i-lucide-arrow-left-right"
-            size="md" class="invisible w-0 sm:w-fit sm:visible rounded-lg p-2 transition-transform hover:scale-110"
+        <UButton :active="sourceLanguage !== 'auto' || !!detectedSourceLanguage" variant="soft" color="primary"
+            icon="i-lucide-arrow-left-right" size="md"
+            class="invisible w-0 sm:w-fit sm:visible rounded-lg p-2 transition-transform hover:scale-110"
             @click="swapLanguages">
         </UButton>
 

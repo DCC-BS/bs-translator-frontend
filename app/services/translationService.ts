@@ -1,4 +1,5 @@
 import { type ApiClient, isApiError } from "@dcc-bs/communication.bs.js";
+import type { LanguageCode } from "~/models/languages";
 import type { TranslationConfig } from "~/models/translationConfig";
 import type { TranslationInput } from "~/models/translationInput";
 import {
@@ -113,5 +114,31 @@ export class TranslationService {
         } finally {
             reader.releaseLock();
         }
+    }
+
+    /**
+     * Detects the language of a given text
+     * @param text - The text to detect the language of
+     * @param signal - Optional AbortSignal to cancel the detection
+     * @returns The detected language code and confidence score
+     */
+    async detectLanguage(
+        text: string,
+        signal?: AbortSignal,
+    ): Promise<{ language: LanguageCode; confidence: number }> {
+        const response = await this.apiClient.apiFetch<{
+            language: LanguageCode;
+            confidence: number;
+        }>("/api/detect-language", {
+            method: "POST",
+            body: { text: text },
+            signal,
+        });
+
+        if (isApiError(response)) {
+            throw response;
+        }
+
+        return response;
     }
 }
