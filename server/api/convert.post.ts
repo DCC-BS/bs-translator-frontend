@@ -37,26 +37,36 @@ export default backendHandlerBuilder<
         formData.append("file", body.file, body.file.name);
         formData.append("source_language", body.sourceLanguage);
 
-        const response = await fetch(url, {
-            method: method,
-            body: formData,
-            headers,
-            signal: getAbortSignal(event),
-        });
+        const signal = getAbortSignal(event);
 
-        // Set the response status to match the backend response
-        setResponseStatus(event, response.status);
+        try {
+            const response = await fetch(url, {
+                method: method,
+                body: formData,
+                headers,
+                signal,
+            });
 
-        // Return error response as-is to allow consumers to check with isApiError()
-        // Guard against non-JSON error responses (e.g., HTML error pages, plain text)
-        if (!response.ok) {
-            const contentType = response.headers.get("content-type") ?? "";
-            if (contentType.includes("application/json")) {
-                return await response.json();
+            // Set the response status to match the backend response
+            setResponseStatus(event, response.status);
+
+            // Return error response as-is to allow consumers to check with isApiError()
+            // Guard against non-JSON error responses (e.g., HTML error pages, plain text)
+            if (!response.ok) {
+                const contentType = response.headers.get("content-type") ?? "";
+                if (contentType.includes("application/json")) {
+                    return await response.json();
+                }
+                return await response.text();
             }
-            return await response.text();
-        }
 
-        return (await response.json()) as ConversionResult;
+            return (await response.json()) as ConversionResult;
+        } catch (error) {
+            // Silently handle abort errors - client cancelled the request
+            if (signal.aborted) {
+                return new Response(null, { status: 499 });
+            }
+            throw error;
+        }
     })
     .build("/convert/doc");

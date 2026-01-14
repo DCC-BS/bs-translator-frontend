@@ -4,6 +4,7 @@ const targetLanguage = defineModel<string>("targetLanguage");
 
 const props = defineProps<{
     detectedSourceLanguage?: string;
+    isDetectingLanguage?: boolean;
 }>();
 
 const emit = defineEmits<(e: "swap-languages") => void>();
@@ -36,7 +37,7 @@ function swapLanguages(): void {
     <div class="flex items-start sm:items-center" data-tour="language-selector">
         <div class="flex-1 flex justify-end">
             <LanguageSelectionView v-model="sourceLanguage" :detected-language-code="detectedSourceLanguage"
-                include-auto-detect />
+                :is-detecting-language="isDetectingLanguage" include-auto-detect />
         </div>
 
         <UButton :active="sourceLanguage !== 'auto' || !!detectedSourceLanguage" variant="soft" color="primary"

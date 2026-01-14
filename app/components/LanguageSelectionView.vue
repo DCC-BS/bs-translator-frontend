@@ -4,9 +4,38 @@ import { type Language, languages } from "~/models/languages";
 const props = defineProps<{
     includeAutoDetect?: boolean;
     detectedLanguageCode?: string;
+    isDetectingLanguage?: boolean;
 }>();
 
 const { t } = useI18n();
+
+const autoOption = computed(() => {
+    const detectedName = props.detectedLanguageCode
+        ? t(`languages.${props.detectedLanguageCode}`)
+        : undefined;
+
+    if (props.isDetectingLanguage) {
+        return {
+            code: "auto",
+            name: t("languages.auto_detecting"),
+            icon: "i-lucide-loader-2",
+        };
+    }
+
+    if (detectedName) {
+        return {
+            code: "auto",
+            name: t("languages.auto_detected", [detectedName]),
+            icon: "i-lucide-scan-search",
+        };
+    }
+
+    return {
+        code: "auto",
+        name: t("languages.auto"),
+        icon: "i-lucide-scan-search",
+    };
+});
 
 const items = computed(() => {
     const x = languages.map((lang) => ({
@@ -20,16 +49,7 @@ const items = computed(() => {
     const values = [...head, ...tail];
 
     if (props.includeAutoDetect) {
-        let name = t("languages.auto");
-        if (props.detectedLanguageCode) {
-            const detectedName = t(`languages.${props.detectedLanguageCode}`);
-            name = t("languages.auto_detected", [detectedName]);
-        }
-        values.unshift({
-            code: "auto",
-            name: name,
-            icon: "i-lucide-scan-search",
-        });
+        values.unshift(autoOption.value);
     }
 
     return values;
@@ -65,10 +85,12 @@ const selectedLanguage = computed({
 </script>
 
 <template>
-    <USelectMenu class="md:min-w-[250px]" v-model="selectedLanguage" :filter-fields="['name', 'code']" :items="items"
-        variant="none">
+    <USelectMenu class="md:min-w-[250px]" v-model="selectedCode" value-key="code" :filter-fields="['name', 'code']"
+        :items="items" variant="none">
         <div v-if="selectedLanguage" class="flex items-center">
-            <UIcon :name="selectedLanguage.icon" class="mr-1 md:mr-2" size="sm" />
+            <UIcon :name="selectedLanguage.icon"
+                :class="{ 'animate-spin': props.isDetectingLanguage && selectedLanguage.code === 'auto' }"
+                class="mr-1 md:mr-2" size="sm" />
             <span class="text-sm">{{ selectedLanguage.name }}</span>
         </div>
         <template #item="{ item }">

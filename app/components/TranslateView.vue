@@ -14,8 +14,8 @@ const {
     sourceText,
     translatedText,
     detectedSourceLanguage,
-    isTranslating,
     isDetectingLanguage,
+    isTranslating,
     translate,
     abort,
 } = useTranslate();
@@ -113,7 +113,7 @@ function onCapturePhoto() {
                     <div class="hidden xl:inline">
                         <LanguageSelectionBar v-model:source-language="sourceLanguage"
                             v-model:target-language="targetLanguage" :detected-source-language="detectedSourceLanguage"
-                            @swap-languages="swapLanguages" />
+                            :is-detecting-language="isDetectingLanguage" @swap-languages="swapLanguages" />
                     </div>
 
                     <OptionsToolBar v-model:tone="tone" v-model:domain="domain" v-model:glossary="glossary" />
@@ -121,7 +121,7 @@ function onCapturePhoto() {
                 <div class="flex justify-center xl:hidden">
                     <LanguageSelectionBar v-model:source-language="sourceLanguage"
                         v-model:target-language="targetLanguage" :detected-source-language="detectedSourceLanguage"
-                        @swap-languages="swapLanguages" />
+                        :is-detecting-language="isDetectingLanguage" @swap-languages="swapLanguages" />
                 </div>
             </template>
 

@@ -10,30 +10,40 @@ export default defineEventHandler(async (event) => {
             .withMethod("POST")
             .withBodyProvider(async (event) => await readBody(event))
             .withFetcher(async (options) => {
-                const response = await fetch(options.url, {
-                    method: options.method,
-                    body: JSON.stringify(options.body),
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Client-Id":
-                            getHeader(options.event, "x-client-id") ?? "",
-                    },
-                    signal: getAbortSignal(options.event),
-                });
+                const signal = getAbortSignal(options.event);
 
-                setResponseStatus(options.event, response.status);
+                try {
+                    const response = await fetch(options.url, {
+                        method: options.method,
+                        body: JSON.stringify(options.body),
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-Client-Id":
+                                getHeader(options.event, "x-client-id") ?? "",
+                        },
+                        signal,
+                    });
 
-                // Guard against non-JSON error responses (e.g., HTML error pages, plain text)
-                if (!response.ok) {
-                    const contentType =
-                        response.headers.get("content-type") ?? "";
-                    if (contentType.includes("application/json")) {
-                        return await response.json();
+                    setResponseStatus(options.event, response.status);
+
+                    // Guard against non-JSON error responses (e.g., HTML error pages, plain text)
+                    if (!response.ok) {
+                        const contentType =
+                            response.headers.get("content-type") ?? "";
+                        if (contentType.includes("application/json")) {
+                            return await response.json();
+                        }
+                        return await response.text();
                     }
-                    return await response.text();
-                }
 
-                return response;
+                    return response;
+                } catch (error) {
+                    // Silently handle abort errors - client cancelled the request
+                    if (signal.aborted) {
+                        return new Response(null, { status: 499 });
+                    }
+                    throw error;
+                }
             })
             .build("/translation/text");
 

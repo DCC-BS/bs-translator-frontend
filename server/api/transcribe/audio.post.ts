@@ -21,23 +21,33 @@ export default defineEventHandler(async (event) => {
                 );
                 form.append("language", options.body.get("language") as string);
 
-                const response = await fetch(options.url, {
-                    method: options.method,
-                    body: form,
-                    headers: {
-                        "X-Client-Id":
-                            getHeader(options.event, "x-client-id") ?? "",
-                    },
-                    signal: getAbortSignal(options.event),
-                });
+                const signal = getAbortSignal(options.event);
 
-                setResponseStatus(options.event, response.status);
+                try {
+                    const response = await fetch(options.url, {
+                        method: options.method,
+                        body: form,
+                        headers: {
+                            "X-Client-Id":
+                                getHeader(options.event, "x-client-id") ?? "",
+                        },
+                        signal,
+                    });
 
-                if (!response.ok) {
-                    return await response.json();
+                    setResponseStatus(options.event, response.status);
+
+                    if (!response.ok) {
+                        return await response.json();
+                    }
+
+                    return response;
+                } catch (error) {
+                    // Silently handle abort errors - client cancelled the request
+                    if (signal.aborted) {
+                        return new Response(null, { status: 499 });
+                    }
+                    throw error;
                 }
-
-                return response;
             })
             .build("/transcription/audio");
 

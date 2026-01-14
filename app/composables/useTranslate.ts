@@ -44,63 +44,56 @@ export function useTranslate() {
     const isTranslating = ref<boolean>(false);
     const abortController = ref<AbortController | undefined>(undefined);
 
-    // Track in-flight detection request to prevent duplicate API calls
-    let pendingDetectionPromise: Promise<LanguageCode | undefined> | undefined;
-    let lastDetectedText: string | undefined;
-
     onUnmounted(() => {
         abortController.value?.abort();
     });
 
     /**
-     * Detects the language of the given text with request deduplication.
-     * If a detection is already in progress for the same text, returns the pending promise.
+     * Detects the language of the given text.
      * @param text - Text to detect the language of
-     * @param signal - Optional AbortSignal for cancellation
+     * @param signal - AbortSignal for cancellation
      * @returns The detected language code or undefined if detection fails
      */
     async function detectLanguage(
         text: string,
-        signal?: AbortSignal,
+        signal: AbortSignal,
     ): Promise<LanguageCode | undefined> {
         // Skip if source language is not set to auto
         if (sourceLanguage.value !== "auto") {
             return undefined;
         }
 
-        // Return cached result if text hasn't changed
-        if (lastDetectedText === text && detectedSourceLanguage.value) {
-            return detectedSourceLanguage.value;
+        // Skip if text is empty
+        if (text.trim() === "") {
+            clearDetectedLanguage();
+            return undefined;
         }
 
-        // Reuse pending request if detecting the same text
-        if (pendingDetectionPromise && lastDetectedText === text) {
-            return pendingDetectionPromise;
-        }
-
-        // Start new detection
-        lastDetectedText = text;
         isDetectingLanguage.value = true;
 
-        pendingDetectionPromise = translationService
-            .detectLanguage(text, signal)
-            .then((language) => {
-                detectedSourceLanguage.value = language as LanguageCode;
-                return language as LanguageCode;
-            })
-            .catch((error) => {
-                // Only log if not aborted
-                if (!signal?.aborted) {
-                    console.error("Language detection failed:", error);
-                }
-                return undefined;
-            })
-            .finally(() => {
-                isDetectingLanguage.value = false;
-                pendingDetectionPromise = undefined;
-            });
+        try {
+            const result = await translationService.detectLanguage(
+                text,
+                signal,
+            );
 
-        return pendingDetectionPromise;
+            if (signal.aborted) {
+                return undefined;
+            }
+
+            detectedSourceLanguage.value = result.language as LanguageCode;
+            return result.language as LanguageCode;
+        } catch (error) {
+            // Only log if not aborted
+            if (!signal.aborted) {
+                console.error("Language detection failed:", error);
+            }
+            return undefined;
+        } finally {
+            if (!signal.aborted) {
+                isDetectingLanguage.value = false;
+            }
+        }
     }
 
     /**
@@ -109,7 +102,7 @@ export function useTranslate() {
      */
     function clearDetectedLanguage(): void {
         detectedSourceLanguage.value = undefined;
-        lastDetectedText = undefined;
+        isDetectingLanguage.value = false;
     }
 
     /**
@@ -132,7 +125,7 @@ export function useTranslate() {
         const signal = abortController.value.signal;
 
         try {
-            // Detect language if needed (with deduplication)
+            // Detect language if source is set to auto
             await detectLanguage(sourceText.value, signal);
 
             const batches = translateBatched(sourceText.value, signal);
@@ -168,7 +161,7 @@ export function useTranslate() {
         let translated = "";
 
         try {
-            // Detect language if needed (with deduplication)
+            // Detect language if source is set to auto
             await detectLanguage(text, signal);
 
             const batches = translateBatched(text, signal);
@@ -224,6 +217,11 @@ export function useTranslate() {
         try {
             yield* translationService.translate(text, config, signal);
         } catch (error: unknown) {
+            // Silently ignore abort errors
+            if (signal.aborted) {
+                return;
+            }
+
             if (isApiError(error)) {
                 showError(
                     new Error(t(`api_error.translation.${error.errorId}`)),
