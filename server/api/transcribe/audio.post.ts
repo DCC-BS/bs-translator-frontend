@@ -9,32 +9,26 @@ export default defineEventHandler(async (event) => {
         const handler = backendHandlerBuilder<never, FormData>()
             .withMethod("POST")
             .withBodyProvider(async (event) => await readFormData(event))
-            .withFetcher(async (options) => {
-                if (!options.body) {
+            .withFetcher(async ({ url, method, body, headers, event }) => {
+                if (!body) {
                     throw new Error("No body provided");
                 }
 
                 const form = new FormData();
-                form.append(
-                    "audio_file",
-                    options.body.get("audio_file") as Blob,
-                );
-                form.append("language", options.body.get("language") as string);
+                form.append("audio_file", body.get("audio_file") as Blob);
+                form.append("language", body.get("language") as string);
 
-                const signal = getAbortSignal(options.event);
+                const signal = getAbortSignal(event);
 
                 try {
-                    const response = await fetch(options.url, {
-                        method: options.method,
+                    const response = await fetch(url, {
+                        method: method,
                         body: form,
-                        headers: {
-                            "X-Client-Id":
-                                getHeader(options.event, "x-client-id") ?? "",
-                        },
+                        headers,
                         signal,
                     });
 
-                    setResponseStatus(options.event, response.status);
+                    setResponseStatus(event, response.status);
 
                     if (!response.ok) {
                         return await response.json();

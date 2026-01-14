@@ -121,11 +121,6 @@ export default defineNuxtConfig({
             project: process.env.FEEDBACK_PROJECT,
             githubToken: process.env.GITHUB_TOKEN,
         },
-        public: {
-            logger: {
-                logAllRequests: true,
-            },
-        },
     },
     pwa: {
         devOptions: {

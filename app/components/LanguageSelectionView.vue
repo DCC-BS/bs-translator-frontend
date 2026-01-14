@@ -57,30 +57,24 @@ const items = computed(() => {
 
 const selectedCode = defineModel<string>();
 
+
 /**
- * Writable computed to handle the selection object for USelectMenu.
+ * Computed property to get the full language object for the selected code.
  * This ensures that when the items array re-calculates (e.g. after detection),
  * the displayed item is always the fresh object from the items array.
  */
-const selectedLanguage = computed({
-    get: () => {
-        const found = items.value.find((lang) => lang.code === selectedCode.value);
-        if (found) return found;
+const selectedLanguage = computed(() => {
+    const found = items.value.find((lang) => lang.code === selectedCode.value);
+    if (found) return found;
 
-        // Fallback to the first item, or a safe default if items is empty (unlikely)
-        return (
-            items.value[0] ?? {
-                code: "auto",
-                name: t("languages.auto"),
-                icon: "i-lucide-scan-search",
-            }
-        );
-    },
-    set: (newValue) => {
-        if (newValue) {
-            selectedCode.value = newValue.code;
+    // Fallback to the first item, or a safe default if items is empty (unlikely)
+    return (
+        items.value[0] ?? {
+            code: "auto",
+            name: t("languages.auto"),
+            icon: "i-lucide-scan-search",
         }
-    },
+    );
 });
 </script>
 

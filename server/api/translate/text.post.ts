@@ -9,22 +9,18 @@ export default defineEventHandler(async (event) => {
         const handler = backendHandlerBuilder()
             .withMethod("POST")
             .withBodyProvider(async (event) => await readBody(event))
-            .withFetcher(async (options) => {
-                const signal = getAbortSignal(options.event);
+            .withFetcher(async ({ url, method, body, headers, event }) => {
+                const signal = getAbortSignal(event);
 
                 try {
-                    const response = await fetch(options.url, {
-                        method: options.method,
-                        body: JSON.stringify(options.body),
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-Client-Id":
-                                getHeader(options.event, "x-client-id") ?? "",
-                        },
+                    const response = await fetch(url, {
+                        method: method,
+                        body: JSON.stringify(body),
+                        headers,
                         signal,
                     });
 
-                    setResponseStatus(options.event, response.status);
+                    setResponseStatus(event, response.status);
 
                     // Guard against non-JSON error responses (e.g., HTML error pages, plain text)
                     if (!response.ok) {

@@ -7,13 +7,13 @@ import type { MultiPartData } from "h3";
 export default backendHandlerBuilder<never, MultiPartData[] | undefined>()
     .withMethod("POST")
     .withBodyProvider(async (event) => await readMultipartFormData(event))
-    .withFetcher(async (options) => {
-        if (!options.body) {
+    .withFetcher(async ({ url, method, body, headers, event }) => {
+        if (!body) {
             throw new Error("No body provided");
         }
 
         const form = new FormData();
-        for (const part of options.body) {
+        for (const part of body) {
             if (part.filename) {
                 form.append(
                     part.name as string,
@@ -28,20 +28,17 @@ export default backendHandlerBuilder<never, MultiPartData[] | undefined>()
             }
         }
 
-        const signal = getAbortSignal(options.event);
+        const signal = getAbortSignal(event);
 
         try {
-            const response = await fetch(options.url, {
-                method: options.method,
+            const response = await fetch(url, {
+                method: method,
                 body: form,
-                headers: {
-                    "X-Client-Id":
-                        getHeader(options.event, "x-client-id") ?? "",
-                },
+                headers,
                 signal,
             });
 
-            setResponseStatus(options.event, response.status);
+            setResponseStatus(event, response.status);
 
             if (!response.ok) {
                 return await response.json();
