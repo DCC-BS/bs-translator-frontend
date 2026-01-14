@@ -7,7 +7,8 @@ on:
   pull_request:
     branches:
       - main
-
+env:
+  LOGGER_LAYER_URI: github:DCC-BS/nuxt-layers/pino-logger
 jobs:
   build:
     runs-on: ubuntu-latest

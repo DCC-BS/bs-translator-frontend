@@ -99,7 +99,7 @@ test("Copy plain translated text", async ({ page, context }) => {
     await page.getByText("Ich habe die Hinweise gelesen").click();
     await page.getByTestId("sourceTextInput").click();
     await page.getByTestId("sourceTextInput").fill("Das ist ein Test.");
-    await page.waitForTimeout(2000); // wait for translation to finish
+    await page.waitForTimeout(4000); // wait for translation to finish
 
     await page.getByTestId("toggleMarkdownButton").click();
 
@@ -184,7 +184,7 @@ test("Api call is correct when glossary is set", async ({ page, context }) => {
     await page.getByPlaceholder(glossaryTerm).fill("X");
     await page.getByPlaceholder(glossaryDescription).fill("Y");
     await page.getByTestId("sourceTextInput").fill("Das ist ein Test.");
-    await page.waitForTimeout(2000); // wait for translation to finish
+    await page.waitForTimeout(4000); // wait for translation to finish
 
     expect(requestBody).not.toBeNull();
     expect(requestBody.config.glossary).toEqual("X: Y");
@@ -194,7 +194,7 @@ test("Api call is correct when glossary is set", async ({ page, context }) => {
     await page.getByPlaceholder(glossaryTerm).last().fill("XX");
     await page.getByPlaceholder(glossaryDescription).last().fill("YY");
     await page.keyboard.press("Escape"); // close glossary popup
-    await page.waitForTimeout(2000); // wait for translation to finish
+    await page.waitForTimeout(4000); // wait for translation to finish
 
     expect(requestBody).not.toBeNull();
     expect(requestBody.config.glossary).toEqual("X: Y; XX: YY");
@@ -235,9 +235,10 @@ test("Language detection is called only once per translation", async ({
     await page.getByText("Ich habe die Hinweise gelesen").click();
 
     // Ensure source language is set to auto detect (should be default)
-    const sourceLanguageSelector = page.locator(
-        '[data-tour="language-selector"]',
-    );
+    // Use .first() to target specifically the source language selector (there are two selectors on the page)
+    const sourceLanguageSelector = page
+        .locator('[data-tour="language-selector"]')
+        .first();
     await expect(sourceLanguageSelector).toContainText(autoDetectText);
 
     // Enter text to translate
@@ -292,8 +293,9 @@ test("Language detection shows detected language in selector", async ({
     await page.waitForTimeout(4000);
 
     // Verify the detected language (German) is shown in the selector
-    const sourceLanguageSelector = page.locator(
-        '[data-tour="language-selector"]',
-    );
+    // Use .first() to target specifically the source language selector (there are two selectors on the page)
+    const sourceLanguageSelector = page
+        .locator('[data-tour="language-selector"]')
+        .first();
     await expect(sourceLanguageSelector).toContainText("German (detected)");
 });
