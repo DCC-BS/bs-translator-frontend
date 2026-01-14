@@ -145,8 +145,11 @@ The production stack requires both `.env` (frontend runtime config) and `docker/
 
 The frontend communicates with a Python FastAPI backend through:
 
-- `/api/translate` - Streaming translation endpoint
+- `/api/translate/text` - Streaming text translation endpoint
+- `/api/translate/image` - Image translation endpoint
+- `/api/detect-language` - Automatic language detection endpoint
 - `/api/convert` - File conversion endpoint
+- `/api/transcribe/audio` - Audio transcription endpoint
 
 ## Supported Languages
 

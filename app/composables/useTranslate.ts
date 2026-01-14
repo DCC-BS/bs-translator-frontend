@@ -58,12 +58,10 @@ export function useTranslate() {
         text: string,
         signal: AbortSignal,
     ): Promise<LanguageCode | undefined> {
-        // Skip if source language is not set to auto
         if (sourceLanguage.value !== "auto") {
             return undefined;
         }
 
-        // Skip if text is empty
         if (text.trim() === "") {
             clearDetectedLanguage();
             return undefined;
@@ -116,7 +114,7 @@ export function useTranslate() {
             return;
         }
 
-        translatedText.value = ""; // Clear previous translation
+        translatedText.value = "";
         isTranslating.value = true;
 
         abortController.value?.abort();
@@ -125,7 +123,6 @@ export function useTranslate() {
         const signal = abortController.value.signal;
 
         try {
-            // Detect language if source is set to auto
             await detectLanguage(sourceText.value, signal);
 
             const batches = translateBatched(sourceText.value, signal);
@@ -161,7 +158,6 @@ export function useTranslate() {
         let translated = "";
 
         try {
-            // Detect language if source is set to auto
             await detectLanguage(text, signal);
 
             const batches = translateBatched(text, signal);
@@ -204,7 +200,6 @@ export function useTranslate() {
         signal: AbortSignal,
     ): AsyncIterable<string> {
         const config: TranslationConfig = {
-            // Fall back to "auto" if detection failed, letting the backend handle it
             source_language:
                 sourceLanguage.value === "auto"
                     ? (detectedSourceLanguage.value ?? "auto")
