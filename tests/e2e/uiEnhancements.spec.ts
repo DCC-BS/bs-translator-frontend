@@ -179,11 +179,11 @@ test("Tour restart button is present in navigation", async ({
     const restartButton = page.getByTestId("tourRestartButton");
     await expect(restartButton).toBeVisible();
 
-    // Check tooltip
+    // Check tooltip - uses tooltips.restart-tour key in NavigationMenu
     await restartButton.hover();
     await page.waitForTimeout(500);
     const restartTooltip = page.locator('[role="tooltip"]', {
-        hasText: local.tour.restart,
+        hasText: local.tooltips["restart-tour"],
     });
     await expect(restartTooltip).toBeVisible();
 });
