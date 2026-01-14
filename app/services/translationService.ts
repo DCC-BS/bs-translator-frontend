@@ -1,7 +1,7 @@
 import { type ApiClient, isApiError } from "@dcc-bs/communication.bs.js";
+import type { LanguageCode } from "~/models/languages";
 import type { TranslationConfig } from "~/models/translationConfig";
 import type { TranslationInput } from "~/models/translationInput";
-import type { LanguageCode } from "~/models/languages";
 import {
     type ConversionImageTextEntry,
     conversionImageTextEntrySchema,

@@ -1,14 +1,14 @@
 import { isApiError } from "@dcc-bs/communication.bs.js";
 import { watchDebounced } from "@vueuse/core";
-import {
-    TRANSLATION_DEBOUNCE_MS,
-    TRANSLATION_MAX_WAIT_MS,
-} from "~/utils/constants";
 import type { Domain } from "~/models/domain";
 import type { LanguageCode } from "~/models/languages";
 import type { Tone } from "~/models/tone";
 import type { TranslationConfig } from "~/models/translationConfig";
 import { TranslationService } from "~/services/translationService";
+import {
+    TRANSLATION_DEBOUNCE_MS,
+    TRANSLATION_MAX_WAIT_MS,
+} from "~/utils/constants";
 
 /**
  * Composable for handling text translation with streaming support
