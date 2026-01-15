@@ -9,24 +9,24 @@ const isRestarting = ref(false);
  * Restarts the onboarding tour via the shared tour controller.
  */
 async function handleRestartTour(): Promise<void> {
-    if (isRestarting.value || !canRestartTour.value) {
-        return;
-    }
+  if (isRestarting.value || !canRestartTour.value) {
+    return;
+  }
 
-    isRestarting.value = true;
+  isRestarting.value = true;
 
-    try {
-        await restartTour();
-    } catch (error) {
-        logger.error(error, "Failed to restart onboarding tour");
-    } finally {
-        isRestarting.value = false;
-    }
+  try {
+    await restartTour();
+  } catch (error) {
+    logger.error(error, "Failed to restart onboarding tour");
+  } finally {
+    isRestarting.value = false;
+  }
 }
 </script>
 
 <template>
-  <NavigationBar>
+  <NavigationBar data-tour="main-content">
     <template #rightPostItems>
       <UTooltip :text="t('tooltips.online-status')" placement="bottom">
         <OnlineStatus />

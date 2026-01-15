@@ -81,6 +81,7 @@ function handleKeyboardNavigation(event: KeyboardEvent): void {
 
 const steps = [
     {
+        target: '[data-tour="main-content"]',
         title: t("tour.welcome.title"),
         body: t("tour.welcome.content"),
     },
@@ -181,7 +182,7 @@ const finishButton: ButtonProp = {
         @skip="() => { onTourComplete() }" :highlight="true" :jumpOptions="{ duration: 10 }" :skip-button="skipBtn"
         :next-button="nextBtn" :prev-button="prevButton" :finish-button="finishButton" :trap-focus="trapFocus" />
 
-    <div class="absolute bg-gray-500 z-50 inset-0 opacity-30" v-if="tourIsActive"></div>
+    <div class="fixed bg-gray-500 z-50 inset-0 opacity-30" v-if="tourIsActive"></div>
 </template>
 
 <style scoped>
