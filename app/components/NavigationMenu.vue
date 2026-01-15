@@ -26,7 +26,7 @@ async function handleRestartTour(): Promise<void> {
 </script>
 
 <template>
-  <NavigationBar>
+  <NavigationBar data-tour="main-content">
     <template #rightPostItems>
       <UTooltip :text="t('tooltips.online-status')" placement="bottom">
         <OnlineStatus />

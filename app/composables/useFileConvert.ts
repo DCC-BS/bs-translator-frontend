@@ -40,7 +40,8 @@ export function useFileConvert(
 
             const formData = new FormData();
             formData.append("file", file, file.name);
-            formData.append("source_language", sourceLanguage.value);
+            // Ensure sourceLanguage is never undefined, default to "auto"
+            formData.append("source_language", sourceLanguage.value || "auto");
 
             const result = await apiFetch<ConversionResult>("/api/convert", {
                 method: "POST",

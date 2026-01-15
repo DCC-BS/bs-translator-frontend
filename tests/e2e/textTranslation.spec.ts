@@ -117,21 +117,25 @@ test("Api call is correct when tone is set", async ({ page, context }) => {
     // Skip tour for this test
     await skipTour(context);
 
-    let requestBody: { config: { tone: string } } = { config: { tone: "" } };
-
-    await page.route("**/api/translate/text", (route) => {
-        const request = route.request();
-        requestBody = request.postDataJSON();
-        route.continue();
-    });
     await page.goto("/");
 
     await page.getByText("Ich habe die Hinweise gelesen").click();
     await page.getByTestId("sourceTextInput").click();
     await page.getByTestId("tone-button").click();
     await page.getByText(toneInformal).click();
+
+    // Wait for the specific request that happens after filling the text
+    const responsePromise = page.waitForResponse(
+        (response) =>
+            response.url().includes("/api/translate/text") &&
+            response.request().method() === "POST",
+    );
+
     await page.getByTestId("sourceTextInput").fill("Das ist ein Test.");
-    await page.waitForTimeout(2000); // wait for translation to finish
+
+    // Wait for the response and extract request body
+    const response = await responsePromise;
+    const requestBody = await response.request().postDataJSON();
 
     expect(requestBody).not.toBeNull();
     expect(requestBody.config.tone).toBe("informal");
@@ -141,23 +145,25 @@ test("Api call is correct when domain is set", async ({ page, context }) => {
     // Skip tour for this test
     await skipTour(context);
 
-    let requestBody: { config: { domain: string } } = {
-        config: { domain: "" },
-    };
-
-    await page.route("**/api/translate/text", (route) => {
-        const request = route.request();
-        requestBody = request.postDataJSON();
-        route.continue();
-    });
     await page.goto("/");
 
     await page.getByText("Ich habe die Hinweise gelesen").click();
     await page.getByTestId("sourceTextInput").click();
     await page.getByTestId("domain-button").click();
     await page.getByText(domainEnergy).click();
+
+    // Wait for the specific request that happens after filling the text
+    const responsePromise = page.waitForResponse(
+        (response) =>
+            response.url().includes("/api/translate/text") &&
+            response.request().method() === "POST",
+    );
+
     await page.getByTestId("sourceTextInput").fill("Das ist ein Test.");
-    await page.waitForTimeout(2000); // wait for translation to finish
+
+    // Wait for the response and extract request body
+    const response = await responsePromise;
+    const requestBody = await response.request().postDataJSON();
 
     expect(requestBody).not.toBeNull();
     expect(requestBody.config.domain).toBe("Energy");
@@ -167,15 +173,6 @@ test("Api call is correct when glossary is set", async ({ page, context }) => {
     // Skip tour for this test
     await skipTour(context);
 
-    let requestBody: { config: { glossary: string } } = {
-        config: { glossary: "" },
-    };
-
-    await page.route("**/api/translate/text", (route) => {
-        const request = route.request();
-        requestBody = request.postDataJSON();
-        route.continue();
-    });
     await page.goto("/");
 
     await page.getByText("Ich habe die Hinweise gelesen").click();
@@ -183,21 +180,43 @@ test("Api call is correct when glossary is set", async ({ page, context }) => {
 
     await page.getByPlaceholder(glossaryTerm).fill("X");
     await page.getByPlaceholder(glossaryDescription).fill("Y");
-    await page.getByTestId("sourceTextInput").fill("Das ist ein Test.");
-    await page.waitForTimeout(4000); // wait for translation to finish
 
-    expect(requestBody).not.toBeNull();
-    expect(requestBody.config.glossary).toEqual("X: Y");
+    // Wait for the first request that happens after filling the text
+    const firstResponsePromise = page.waitForResponse(
+        (response) =>
+            response.url().includes("/api/translate/text") &&
+            response.request().method() === "POST",
+    );
+
+    await page.getByTestId("sourceTextInput").fill("Das ist ein Test.");
+
+    // Wait for the first response and extract request body
+    const firstResponse = await firstResponsePromise;
+    const firstRequestBody = await firstResponse.request().postDataJSON();
+
+    expect(firstRequestBody).not.toBeNull();
+    expect(firstRequestBody.config.glossary).toEqual("X: Y");
 
     await page.getByTestId("glossary-button").click();
 
     await page.getByPlaceholder(glossaryTerm).last().fill("XX");
     await page.getByPlaceholder(glossaryDescription).last().fill("YY");
-    await page.keyboard.press("Escape"); // close glossary popup
-    await page.waitForTimeout(4000); // wait for translation to finish
 
-    expect(requestBody).not.toBeNull();
-    expect(requestBody.config.glossary).toEqual("X: Y; XX: YY");
+    // Wait for the second request that happens after closing the popup
+    const secondResponsePromise = page.waitForResponse(
+        (response) =>
+            response.url().includes("/api/translate/text") &&
+            response.request().method() === "POST",
+    );
+
+    await page.keyboard.press("Escape"); // close glossary popup
+
+    // Wait for the second response and extract request body
+    const secondResponse = await secondResponsePromise;
+    const secondRequestBody = await secondResponse.request().postDataJSON();
+
+    expect(secondRequestBody).not.toBeNull();
+    expect(secondRequestBody.config.glossary).toEqual("X: Y; XX: YY");
 });
 
 test("Language detection is called only once per translation", async ({

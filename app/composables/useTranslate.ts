@@ -206,11 +206,14 @@ export function useTranslate() {
         text: string,
         signal: AbortSignal,
     ): AsyncIterable<string> {
+        // Ensure source_language is never undefined, default to "auto"
+        const resolvedSourceLanguage =
+            sourceLanguage.value === "auto"
+                ? (detectedSourceLanguage.value ?? "auto")
+                : sourceLanguage.value || "auto";
+
         const config: TranslationConfig = {
-            source_language:
-                sourceLanguage.value === "auto"
-                    ? (detectedSourceLanguage.value ?? "auto")
-                    : sourceLanguage.value,
+            source_language: resolvedSourceLanguage,
             target_language: targetLanguage.value,
             domain: domain.value,
             tone: tone.value,

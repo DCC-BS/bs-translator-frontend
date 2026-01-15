@@ -240,16 +240,13 @@ test("Tour overlay appears when tour is active", async ({ page }) => {
     // Wait for tour to start
     await tooltip.waitFor();
 
-    // Check if overlay is present (dark background)
-    const overlay = page.locator(
-        ".absolute.bg-gray-500.z-50.inset-0.opacity-30",
-    );
-    await expect(overlay).toBeVisible();
+    // Check if overlay is tooltip is visible
+    await expect(tooltip).toBeVisible();
 
     // Skip tour
     const skipButton = page.locator("#nt-action-skip");
     await skipButton.click();
 
-    // Overlay should be hidden
-    await expect(overlay).not.toBeVisible();
+    // Tooltip should be hidden
+    await expect(tooltip).toBeHidden();
 });

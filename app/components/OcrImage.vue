@@ -292,10 +292,12 @@ async function loadImage(): Promise<void> {
 
 // OCR and translation functions
 async function preprocess(): Promise<void> {
+    // Ensure source_language is never undefined, default to "auto"
+    const resolvedSourceLanguage = sourceLanguage.value || "auto";
     const entries = translationService.translateImage(
         props.image,
         {
-            source_language: sourceLanguage.value,
+            source_language: resolvedSourceLanguage,
             target_language: targetLanguage.value,
         },
         abortController.value.signal,
