@@ -28,7 +28,7 @@
         "@vue/compiler-sfc": "^3.5.26",
         "@vueuse/core": "^14.1.0",
         "dexie": "^4.2.1",
-        "konva": "10.0.12",
+        "konva": "10.1.0",
         "motion-v": "^1.8.1",
         "nuxt": "^4.2.2",
         "nuxt-tour": "^0.0.40",
