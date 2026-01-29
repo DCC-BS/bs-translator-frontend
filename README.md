@@ -4,6 +4,14 @@ BS Translator is a modern web application for advanced text translation with fil
 
 ![GitHub License](https://img.shields.io/github/license/DCC-BS/bs-translator-frontend) [![Checked with Biome](https://img.shields.io/badge/Checked_with-Biome-60a5fa?style=flat&logo=biome)](https://biomejs.dev)
 
+---
+
+<p align="center">
+  <a href="https://dcc-bs.github.io/documentation/">DCC Documentation & Guidelines</a> | <a href="https://www.bs.ch/daten/databs/dcc">DCC Website</a>
+</p>
+
+---
+
 ![Screenshot of BS Translator](./_imgs/BsTranslator.png)
 
 ## Features
