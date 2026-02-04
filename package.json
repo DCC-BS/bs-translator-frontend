@@ -20,7 +20,7 @@
         "@dcc-bs/communication.bs.js": "^0.1.1",
         "@dcc-bs/dependency-injection.bs.js": "^0.0.16",
         "@mohtasham/md-to-docx": "git+https://github.com/DCC-BS/md-to-docx.js#v3.0.0",
-        "@nuxt/ui": "4.3.0",
+        "@nuxt/ui": "4.4.0",
         "@nuxtjs/i18n": "^10.2.1",
         "@nuxtjs/mdc": "0.19.2",
         "@playwright/test": "^1.57.0",
