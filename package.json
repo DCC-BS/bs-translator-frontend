@@ -24,7 +24,7 @@
         "@nuxtjs/i18n": "^10.2.1",
         "@nuxtjs/mdc": "0.20.0",
         "@playwright/test": "^1.57.0",
-        "@vite-pwa/nuxt": "1.1.0",
+        "@vite-pwa/nuxt": "1.1.1",
         "@vue/compiler-sfc": "^3.5.26",
         "@vueuse/core": "^14.1.0",
         "dexie": "^4.2.1",
