@@ -12,7 +12,9 @@ services:
     container_name: llm
     expose:
       - "8000"
-    env_file: ".env.backend"
+    environment:
+      - HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN}
+      - HUGGING_FACE_CACHE_DIR=${HUGGING_FACE_CACHE_DIR}
     runtime: nvidia
     deploy:
       resources:
@@ -23,7 +25,7 @@ services:
               capabilities: [gpu]
     ipc: host
     volumes:
-      - ~/.cache/huggingface:/root/.cache/huggingface
+      - ${HUGGING_FACE_CACHE_DIR}:/root/.cache/huggingface
     command: >
       Qwen/Qwen3-32B-AWQ
       --port 8000
@@ -41,7 +43,8 @@ services:
     image: quay.io/ktbs/fd-itbs/faster-whisper:v1.4.1
     ports:
       - "50001:50001"
-    env_file: ".env.backend"
+    environment:
+      - HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN}
     deploy:
       resources:
         reservations:
@@ -72,15 +75,24 @@ services:
   translator-backend:
     image: ghcr.io/dcc-bs/bs-translator-backend:latest
     expose:
-     - "8000"
-    env_file:
-     - .env.backend
+      - "8000"
+    environment:
+      - OPENAI_API_BASE_URL=${OPENAI_API_BASE_URL}
+      - LLM_KEY=${LLM_KEY}
+      - LLM_MODEL=${LLM_MODEL}
+      - LLM_HEALTH_CHECK_URL=${LLM_HEALTH_CHECK_URL}
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID:-}
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID:-}
+      - AZURE_FRONTEND_CLIENT_ID=${AZURE_FRONTEND_CLIENT_ID:-}
+      - SCOPE_DESCRIPTION=${SCOPE_DESCRIPTION:-}
+      - HMAC_SECRET=${HMAC_SECRET}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - PORT=${BACKEND_PORT}
   translator-frontend:
     container_name: translator-frontend
     build:
-      context: .
+      context: ..
       dockerfile: ../Dockerfile
-    env_file: "../.env"
     environment:
       - NUXT_API_URL=http://translator-backend:8000
       - PORT=3000

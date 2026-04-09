@@ -1,3 +1,5 @@
+import { varlockVitePlugin } from "@varlock/vite-integration";
+
 export default defineNuxtConfig({
     compatibilityDate: "2024-11-01",
     routeRules: {
@@ -18,25 +20,24 @@ export default defineNuxtConfig({
         ["github:DCC-BS/nuxt-layers/auth", { install: true }],
         ["github:DCC-BS/nuxt-layers/backend_communication", { install: true }],
         ["github:DCC-BS/nuxt-layers/health_check", { install: false }],
-        ["github:DCC-BS/nuxt-layers/feedback-control", { install: true }],
+        process.env.USE_FEEDBACK === "true"
+            ? ["github:DCC-BS/nuxt-layers/feedback-control", { install: true }]
+            : undefined,
     ],
     fonts: {
         providers: {
             bunny: false,
         },
     },
-    // Build optimization for memory usage
     build: {
         analyze: false,
     },
-    // Vite configuration for memory optimization
     vite: {
+        plugins: [varlockVitePlugin({ ssrInjectMode: "resolved-env" })],
         build: {
-            // Reduce memory usage during build
             rollupOptions: {
                 maxParallelFileOps: 2,
             },
-            // Optimize chunk size
             chunkSizeWarningLimit: 1000,
         },
         resolve: {
@@ -45,7 +46,6 @@ export default defineNuxtConfig({
             },
         },
     },
-    // Define app head configuration
     app: {
         head: {
             titleTemplate: "BS Übersetzer",
@@ -95,7 +95,6 @@ export default defineNuxtConfig({
         typeCheck: true,
         strict: true,
     },
-    // localization
     i18n: {
         locales: [
             {
@@ -113,13 +112,18 @@ export default defineNuxtConfig({
         strategy: "no_prefix",
     },
     runtimeConfig: {
-        githubToken: process.env.GITHUB_TOKEN,
-        apiUrl: process.env.API_URL,
         feedback: {
-            repo: process.env.FEEDBACK_REPO,
-            repoOwner: process.env.FEEDBACK_REPO_OWNER,
-            project: process.env.FEEDBACK_PROJECT,
-            githubToken: process.env.GITHUB_TOKEN,
+            repo: "Feedback",
+            repoOwner: "DCC-BS",
+            project: "BS-Uebersetzer",
+            githubToken: process.env.NUXT_FEEDBACK_GITHUB_TOKEN,
+        },
+        public: {
+            useFeedback: process.env.USE_FEEDBACK ?? false,
+            useDummyData: process.env.DUMMY,
+            logger: {
+                loglevel: process.env.LOG_LEVEL || "debug",
+            },
         },
     },
     pwa: {
@@ -141,14 +145,14 @@ export default defineNuxtConfig({
                         cacheName: "favicon-cache",
                         expiration: {
                             maxEntries: 1,
-                            maxAgeSeconds: 7 * 24 * 60 * 60, // 1 week
+                            maxAgeSeconds: 7 * 24 * 60 * 60,
                         },
                     },
                 },
             ],
         },
         client: {
-            periodicSyncForUpdates: 60 * 10, // 10 minutes
+            periodicSyncForUpdates: 60 * 10,
         },
 
         manifest: {

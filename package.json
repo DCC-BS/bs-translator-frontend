@@ -5,6 +5,8 @@
     "scripts": {
         "dev": "nuxt dev",
         "dev:stub": "STUB_API=true nuxt dev",
+        "dummy": "DUMMY=true nuxt dev",
+        "debug": "nuxt dev --inspect",
         "build": "nuxt build",
         "start": "nuxt start",
         "generate": "nuxt generate",
@@ -12,7 +14,10 @@
         "check": "biome check --write",
         "test:e2e": "playwright test",
         "test:e2e:ui": "playwright test --ui",
-        "e2e:codegen": "playwright codegen http://localhost:3000"
+        "e2e:codegen": "playwright codegen http://localhost:3000",
+        "docker:up": "bash scripts/docker-up.sh",
+        "docker:down": "bash scripts/docker-down.sh",
+        "env:check": "pass-cli login && bunx varlock load"
     },
     "dependencies": {
         "@dcc-bs/audio-recorder.bs.js": "^2.0.1",
@@ -24,6 +29,8 @@
         "@nuxtjs/i18n": "^10.2.1",
         "@nuxtjs/mdc": "0.20.2",
         "@playwright/test": "^1.57.0",
+        "@varlock/proton-pass-plugin": "^0.0.3",
+        "@varlock/vite-integration": "^0.2.7",
         "@vite-pwa/nuxt": "1.1.1",
         "@vue/compiler-sfc": "^3.5.26",
         "@vueuse/core": "^14.1.0",
@@ -35,6 +42,7 @@
         "pino": "^10.1.1",
         "tailwindcss": "^4.1.18",
         "uuid": "^13.0.0",
+        "varlock": "^0.7.0",
         "vue": "^3.5.26",
         "vue-konva": "^3.3.0",
         "vue-router": "^5.0.0",
