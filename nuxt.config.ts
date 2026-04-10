@@ -33,6 +33,15 @@ export default defineNuxtConfig({
         analyze: false,
     },
     vite: {
+        optimizeDeps: {
+            include: [
+                "pino", // CJS
+                "@dcc-bs/communication.bs.js",
+                "vue-konva",
+                "uuid",
+                "zod",
+            ],
+        },
         plugins: [varlockVitePlugin({ ssrInjectMode: "resolved-env" })],
         build: {
             rollupOptions: {

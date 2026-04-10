@@ -116,8 +116,8 @@ function focusLastEntry(retryCount = 0): void {
     const id = glossary.value[lastIndex]?.id;
     const fallbackInput = id
         ? (document.querySelector(
-              `#term-${id} input`,
-          ) as HTMLInputElement | null)
+            `#term-${id} input`,
+        ) as HTMLInputElement | null)
         : null;
 
     const input = (refInput as HTMLInputElement | null) ?? fallbackInput;
@@ -175,15 +175,15 @@ function fromString(glossaryStr: string): GlossaryEntry[] {
 <template>
     <div class="p-2">
         <div class="w-full">
-            <UInput v-model="filter" :placeholder="$t('ui.glossaryFilter')" size="sm" clearable class="w-full" />
+            <UInput v-model="filter" :placeholder="t('ui.glossaryFilter')" size="sm" clearable class="w-full" />
         </div>
         <div class="h-[95%]">
             <div class="grid grid-cols-12 items-center px-1 py-2">
                 <div class="col-span-5 text-sm font-semibold">
-                    {{ $t('ui.glossaryTerm') }}
+                    {{ t('ui.glossaryTerm') }}
                 </div>
                 <div class="col-span-6 text-sm font-semibold">
-                    {{ $t('ui.glossaryDescription') }}
+                    {{ t('ui.glossaryDescription') }}
                 </div>
                 <div class="col-span-1" />
             </div>
@@ -193,11 +193,11 @@ function fromString(glossaryStr: string): GlossaryEntry[] {
                 <div class="col-span-5">
                     <UInput :id="`term-${row.entry.id}`"
                         :ref="(el: unknown) => { if (el) termInputRefs[row.index] = el as any; }"
-                        v-model="row.entry.term" :placeholder="$t('ui.glossaryTerm')" variant="ghost"
+                        v-model="row.entry.term" :placeholder="t('ui.glossaryTerm')" variant="ghost"
                         :ui="{ root: 'm-0 p-0', base: 'rounded-none' }" @blur="onBlur" />
                 </div>
                 <div class="col-span-6">
-                    <UInput v-model="row.entry.description" :placeholder="$t('ui.glossaryDescription')" variant="ghost"
+                    <UInput v-model="row.entry.description" :placeholder="t('ui.glossaryDescription')" variant="ghost"
                         :ui="{ root: 'm-0 p-0', base: 'rounded-none' }" @blur="onBlur" />
                 </div>
                 <div class="col-span-1 flex justify-end">

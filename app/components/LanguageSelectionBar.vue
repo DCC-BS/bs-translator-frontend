@@ -2,12 +2,22 @@
 const sourceLanguage = defineModel<string>("sourceLanguage");
 const targetLanguage = defineModel<string>("targetLanguage");
 
-const props = defineProps<{
+interface InputProps {
     detectedSourceLanguage?: string;
     isDetectingLanguage?: boolean;
-}>();
+    canSwitch?: boolean;
+    includeAutoDetect?: boolean
+};
+
+const props = withDefaults(defineProps<InputProps>(), {
+    detectedSourceLanguage: "auto",
+    isDetectingLanguage: false,
+    canSwitch: true,
+    includeAutoDetect: true
+});
 
 const emit = defineEmits<(e: "swap-languages") => void>();
+const showSwitchButton = computed(() => props.canSwitch ?? true);
 
 const { t } = useI18n();
 
@@ -37,11 +47,11 @@ function swapLanguages(): void {
     <div class="flex items-start sm:items-center" data-tour="language-selector">
         <div class="flex-1 flex justify-end">
             <LanguageSelectionView v-model="sourceLanguage" :detected-language-code="detectedSourceLanguage"
-                :is-detecting-language="isDetectingLanguage" include-auto-detect />
+                :is-detecting-language="isDetectingLanguage" :include-auto-detect="props.includeAutoDetect" />
         </div>
 
-        <UButton :active="sourceLanguage !== 'auto' || !!detectedSourceLanguage" variant="soft" color="primary"
-            icon="i-lucide-arrow-left-right" size="md"
+        <UButton v-if="showSwitchButton" :active="sourceLanguage !== 'auto' || !!detectedSourceLanguage" variant="soft"
+            color="primary" icon="i-lucide-arrow-left-right" size="md"
             class="invisible w-0 sm:w-fit sm:visible rounded-lg p-2 transition-transform hover:scale-110"
             @click="swapLanguages">
         </UButton>
