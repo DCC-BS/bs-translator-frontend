@@ -1,10 +1,9 @@
-<script lang="ts" setup>import { ChatView } from "#components";
+<script lang="ts" setup>
+import { ChatView } from "#components";
 import ChatInputView from "~/components/ChatInputView.vue";
 import type { ChatStatus } from "ai";
 
 definePageMeta({ layout: "conversation" });
-
-type RoleType = "user" | "assistant" | "system";
 
 const { sourceLanguage, targetLanguage, translateText } = useTranslate();
 
@@ -18,27 +17,25 @@ const status = ref<ChatStatus>("ready");
 
 onMounted(() => {
     appendUserMessage("this is a test", "a");
-    appendUserMessage("And this is an answer", "b")
-
+    appendUserMessage("And this is an answer", "b");
 });
 
 function appendUserMessage(text: string, user: "a" | "b") {
     chatViewA.value?.appendMessage({
         role: user === "a" ? "leftUser" : "rightUser",
         text: text,
-        state: "done"
+        state: "done",
     });
 
     chatViewB.value?.appendMessage({
         role: user === "a" ? "rightUser" : "leftUser",
         text: text,
-        state: "done"
+        state: "done",
     });
-
 }
 
 async function onSubmitA(text: string) {
-    if(!chatViewA.value || !chatViewB.value) {
+    if (!chatViewA.value || !chatViewB.value) {
         return;
     }
 
@@ -47,21 +44,22 @@ async function onSubmitA(text: string) {
     chatViewA.value.appendMessage({
         role: "leftUser",
         text: text,
-        state: "done"
+        state: "done",
     });
 
     const { updateText, updateState } = chatViewB.value.appendMessage({
         role: "rightUser",
         text: "",
-        state: "streaming"
+        state: "streaming",
     });
 
     sourceLanguage.value = languageA.value;
-    targetLanguage.value = languageA.value;
+    targetLanguage.value = langaugeB.value;
 
     let translatedText = "";
 
     await translateText(text, (chunk) => {
+        console.log(chunk);
         translatedText += chunk;
         updateText(translatedText);
     });
@@ -71,36 +69,36 @@ async function onSubmitA(text: string) {
 }
 
 function onSubmitB(text: string) {
-    if(!chatViewA.value || !chatViewB.value) {
+    if (!chatViewA.value || !chatViewB.value) {
         return;
     }
 
     chatViewB.value.appendMessage({
         role: "leftUser",
         text: text,
-        state: "done"
+        state: "done",
     });
 
     const { updateText, updateState } = chatViewA.value.appendMessage({
         role: "rightUser",
         text: "",
-        state: "streaming"
+        state: "streaming",
     });
 
-     sourceLanguage.value = langaugeB.value;
-     targetLanguage.value = langaugeB.value;
+    sourceLanguage.value = langaugeB.value;
+    targetLanguage.value = languageA.value;
 
     let translatedText = "";
 
     translateText(text, (chunk) => {
+        console.log(chunk);
+
         translatedText += chunk;
         updateText(translatedText);
     }).then(() => {
         updateState("done");
     });
 }
-
-
 </script>
 
 <template>
@@ -117,14 +115,26 @@ function onSubmitB(text: string) {
 
         <div class="input-bar">
             <div>
-                <ChatInputView align="start" @submit="onSubmitA" :status="status" />
+                <ChatInputView
+                    align="start"
+                    @submit="onSubmitA"
+                    :status="status"
+                />
             </div>
 
-            <LanguageSelectionBar :sourceLanguage="languageA" :targetLanguage="langaugeB" :includeAutoDetect="false"
-                :canSwitch="false" />
+            <LanguageSelectionBar
+                :sourceLanguage="languageA"
+                :targetLanguage="langaugeB"
+                :includeAutoDetect="false"
+                :canSwitch="false"
+            />
 
             <div>
-                <ChatInputView align="end" @submit="onSubmitB" :status="status" />
+                <ChatInputView
+                    align="end"
+                    @submit="onSubmitB"
+                    :status="status"
+                />
             </div>
         </div>
     </div>
