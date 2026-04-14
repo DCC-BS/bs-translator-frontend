@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { ChatView } from "#components";
-import ChatInputView from "~/components/ChatInputView.vue";
 import type { ChatStatus } from "ai";
 
 definePageMeta({ layout: "conversation" });
@@ -102,12 +101,13 @@ function onSubmitB(text: string) {
 </script>
 
 <template>
-    <div class="hidden md:flex flex-col p-2 h-screen gap-2">
-        <div class="grid grid-cols-[1fr_auto_1fr] gap-2 grow min-h-0">
+    <div class="flex flex-col p-2 h-screen gap-2">
+        <div class="grid md:grid-cols-[1fr_auto_1fr] gap-2 grow min-h-0">
             <div class="min-h-0 overflow-y-auto">
                 <ChatView ref="chatViewA" :status="status" />
             </div>
-            <USeparator orientation="vertical" />
+            <USeparator class="hidden md:block" orientation="vertical" />
+            <USeparator class="block md:hidden" orientation="horizontal" />
             <div class="min-h-0 overflow-y-auto">
                 <ChatView ref="chatViewB" :status="status" />
             </div>
@@ -119,12 +119,14 @@ function onSubmitB(text: string) {
                     align="start"
                     @submit="onSubmitA"
                     :status="status"
+                    :language="languageA"
                 />
             </div>
 
             <LanguageSelectionBar
-                :sourceLanguage="languageA"
-                :targetLanguage="langaugeB"
+                class="grow md:grow-0"
+                v-model:sourceLanguage="languageA"
+                v-model:targetLanguage="langaugeB"
                 :includeAutoDetect="false"
                 :canSwitch="false"
             />
@@ -134,6 +136,7 @@ function onSubmitB(text: string) {
                     align="end"
                     @submit="onSubmitB"
                     :status="status"
+                    :language="langaugeB"
                 />
             </div>
         </div>
@@ -141,13 +144,23 @@ function onSubmitB(text: string) {
     <!-- <div class="md:hidden h-screen p-2">
         <div class="h-full grid grid-rows-[1fr_auto_1fr] content-stretch gap-2">
             <div class="rotate-180 flex flex-col">
-                <ChatView ref="chatViewA" class="grow" />
-                <ChatInputView align="end" />
+                <ChatView ref="chatViewA" class="grow" :status="status" />
+                <ChatInputView
+                    align="end"
+                    @submit="onSubmitA"
+                    :status="status"
+                    :language="languageA"
+                />
             </div>
             <USeparator color="primary" />
             <div class="flex flex-col">
-                <ChatView ref="chatViewB" class="grow" />
-                <ChatInputView align="end" />
+                <ChatView ref="chatViewB" class="grow" :status="status" />
+                <ChatInputView
+                    align="end"
+                    @submit="onSubmitB"
+                    :status="status"
+                    :language="langaugeB"
+                />
             </div>
         </div>
     </div> -->

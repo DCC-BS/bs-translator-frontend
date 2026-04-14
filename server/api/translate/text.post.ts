@@ -29,8 +29,7 @@ export default backendHandlerBuilder()
 
             // Guard against non-JSON error responses (e.g., HTML error pages, plain text)
             if (!response.ok) {
-                const contentType =
-                    response.headers.get("content-type") ?? "";
+                const contentType = response.headers.get("content-type") ?? "";
                 if (contentType.includes("application/json")) {
                     return await response.json();
                 }
@@ -46,7 +45,8 @@ export default backendHandlerBuilder()
             throw error;
         }
     })
-    .withDummyFetcher(dummyFetcher).build("/translation/text");
+    .withDummyFetcher(dummyFetcher)
+    .build("/translation/text");
 
 /**
  * Dummy fetcher used when the backend is not available (e.g., during development or testing).
@@ -57,7 +57,12 @@ function dummyFetcher(options: { body: unknown }): Response {
 
     // Dummy text to stream word by word
     let dummyText = "";
-    if (body && typeof body === "object" && "text" in body && typeof body.text === "string") {
+    if (
+        body &&
+        typeof body === "object" &&
+        "text" in body &&
+        typeof body.text === "string"
+    ) {
         // Echo back a translated version of the input text
         dummyText = `This is a dummy translation response for: "${body.text}"`;
     } else {

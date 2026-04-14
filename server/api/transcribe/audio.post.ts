@@ -1,4 +1,4 @@
-import { getHeader, type H3Event } from "h3";
+import type { H3Event } from "h3";
 
 /**
  * POST handler for audio transcription.
@@ -6,9 +6,9 @@ import { getHeader, type H3Event } from "h3";
  */
 export default defineEventHandler(async (event) => {
     if (import.meta.env.STUB_API !== "true") {
-        const handler = backendHandlerBuilder<never, FormData>()
+        const handler = apiHandler
             .withMethod("POST")
-            .withBodyProvider(async (event) => await readFormData(event))
+            .withBodyProvider(readFormData)
             .withFetcher(async ({ url, method, body, headers, event }) => {
                 if (!body) {
                     throw new Error("No body provided");
@@ -17,6 +17,12 @@ export default defineEventHandler(async (event) => {
                 const form = new FormData();
                 form.append("audio_file", body.get("audio_file") as Blob);
                 form.append("language", body.get("language") as string);
+
+                const logger = getEventLogger(event);
+
+                logger.debug(
+                    `Forwarding transcription request to backend with language: ${form.get("language")}`,
+                );
 
                 // Extract X-Client-Id from incoming request and forward to backend
                 const clientId = getHeader(event, "x-client-id");

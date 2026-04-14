@@ -17,6 +17,8 @@ export function useTranscribe() {
      * @yields Transcribed text chunks
      */
     async function* transcribe(blob: Blob, language: LanguageCode) {
+        console.debug("Starting transcription with language:", language);
+
         const formData = new FormData();
         formData.append("audio_file", blob, "audio.webm");
         // Ensure language is never undefined, default to "auto"
