@@ -186,8 +186,6 @@ const finishButton: ButtonProp = {
 </template>
 
 <style scoped>
-@import "../assets/css/main.css";
-
 :deep(#nt-tooltip) {
     max-width: 450px;
 }
