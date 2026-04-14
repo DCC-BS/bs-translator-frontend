@@ -239,6 +239,15 @@
         "online-status": "Online status",
         "restart-tour": "Start onboarding tour"
     },
+    "conversation": {
+        "personA": "Person A",
+        "personB": "Person B",
+        "tapToSpeak": "Tap to speak",
+        "translating": "Translating...",
+        "switchToB": "Switch to Person B",
+        "switchToA": "Switch to Person A",
+        "selectLanguageB": "Select Person B's language"
+    },
     "api_error": {
         "fetch_failed": "Fetch failed. Please try again.",
         "unexpected_error": "An unexpected error occurred. Maybe the server is down, if the error persists. Please use the feedback button to send us a message.",

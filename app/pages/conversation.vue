@@ -1,176 +1,148 @@
 <script lang="ts" setup>
-import { ChatView } from "#components";
+import ChatView from "~/components/conversation/ChatView.vue";
 import type { ChatStatus } from "ai";
+import type { LanguageCode } from "~/models/languages";
+import { TranslationService } from "~/services/translationService";
+import ToolBar from "~/components/conversation/ToolBar.vue";
 
 definePageMeta({ layout: "conversation" });
 
 const { sourceLanguage, targetLanguage, translateText } = useTranslate();
+const translationService = useService(TranslationService);
+const { t } = useI18n();
 
-const chatViewA = shallowRef<InstanceType<typeof ChatView>>();
-const chatViewB = shallowRef<InstanceType<typeof ChatView>>();
+const chatView = shallowRef<InstanceType<typeof ChatView>>();
 
-const languageA = ref("de");
-const langaugeB = ref("en-gb");
+const languageA = ref<LanguageCode>("de");
+const languageB = ref<LanguageCode>("en-gb");
+const detectedLanguageA = ref<LanguageCode | undefined>(undefined);
 
 const status = ref<ChatStatus>("ready");
 
-onMounted(() => {
-    appendUserMessage("this is a test", "a");
-    appendUserMessage("And this is an answer", "b");
+type ConversationPhase =
+    | "recordingA"
+    | "translatingA"
+    | "switchPrompt"
+    | "recordingB"
+    | "translatingB"
+    | "switchBack";
+const phase = ref<ConversationPhase>("recordingA");
+
+const isDetecting = ref(false);
+
+const personALabel = computed(() => {
+    if (detectedLanguageA.value) {
+        return t(`languages.${detectedLanguageA.value}`);
+    }
+    return t("conversation.personA");
 });
 
-function appendUserMessage(text: string, user: "a" | "b") {
-    chatViewA.value?.appendMessage({
-        role: user === "a" ? "leftUser" : "rightUser",
-        text: text,
-        state: "done",
-    });
+const personBLabel = computed(() => {
+    return t(`languages.${languageB.value}`);
+});
 
-    chatViewB.value?.appendMessage({
-        role: user === "a" ? "rightUser" : "leftUser",
-        text: text,
-        state: "done",
-    });
-}
-
-async function onSubmitA(text: string) {
-    if (!chatViewA.value || !chatViewB.value) {
-        return;
-    }
-
-    // status.value = "submitted";
-
-    chatViewA.value.appendMessage({
+async function onTranscribedA(text: string) {
+    chatView.value?.appendMessage({
         role: "leftUser",
         text: text,
         state: "done",
     });
 
-    const { updateText, updateState } = chatViewB.value.appendMessage({
+    phase.value = "translatingA";
+    isDetecting.value = true;
+
+    const abortCtrl = new AbortController();
+
+    const { updateText, updateState } = chatView.value!.appendMessage({
         role: "rightUser",
         text: "",
         state: "streaming",
     });
 
-    sourceLanguage.value = languageA.value;
-    targetLanguage.value = langaugeB.value;
-
-    let translatedText = "";
-
-    await translateText(text, (chunk) => {
-        console.log(chunk);
-        translatedText += chunk;
-        updateText(translatedText);
-    });
-
-    updateState("done");
-    // status.value = "ready";
-}
-
-function onSubmitB(text: string) {
-    if (!chatViewA.value || !chatViewB.value) {
-        return;
+    try {
+        const result = await translationService.detectLanguage(
+            text,
+            abortCtrl.signal,
+        );
+        if (!abortCtrl.signal.aborted && result.language) {
+            detectedLanguageA.value = result.language as LanguageCode;
+            languageA.value = result.language as LanguageCode;
+        }
+    } catch {
+        // fallback: keep default languageA
+    } finally {
+        isDetecting.value = false;
     }
 
-    chatViewB.value.appendMessage({
-        role: "leftUser",
-        text: text,
-        state: "done",
-    });
+    sourceLanguage.value = detectedLanguageA.value ?? languageA.value;
+    targetLanguage.value = languageB.value;
 
-    const { updateText, updateState } = chatViewA.value.appendMessage({
-        role: "rightUser",
-        text: "",
-        state: "streaming",
-    });
-
-    sourceLanguage.value = langaugeB.value;
-    targetLanguage.value = languageA.value;
-
-    let translatedText = "";
-
-    translateText(text, (chunk) => {
-        console.log(chunk);
-
-        translatedText += chunk;
-        updateText(translatedText);
-    }).then(() => {
+    let translated = "";
+    try {
+        translated = await translateText(text, (chunk) => {
+            translated += chunk;
+            updateText(translated);
+        });
+    } finally {
         updateState("done");
-    });
+    }
+
+    phase.value = "switchPrompt";
 }
+
+async function onTranscribedB(text: string) {
+    chatView.value?.appendMessage({
+        role: "rightUser",
+        text: text,
+        state: "done",
+    });
+
+    phase.value = "translatingB";
+
+    sourceLanguage.value = languageB.value;
+    targetLanguage.value = detectedLanguageA.value ?? languageA.value;
+
+    const { updateText, updateState } = chatView.value!.appendMessage({
+        role: "leftUser",
+        text: "",
+        state: "streaming",
+    });
+
+    let translated = "";
+    try {
+        translated = await translateText(text, (chunk) => {
+            translated += chunk;
+            updateText(translated);
+        });
+    } finally {
+        updateState("done");
+    }
+
+    phase.value = "switchBack";
+}
+
+function switchToB() {
+    phase.value = "recordingB";
+}
+
+function switchToA() {
+    phase.value = "recordingA";
+}
+
+const micLanguage = computed(() => {
+    if (phase.value === "recordingB" || phase.value === "translatingB") {
+        return languageB.value;
+    }
+    return "auto";
+});
 </script>
 
 <template>
-    <div class="flex flex-col p-2 h-screen gap-2">
-        <div class="grid md:grid-cols-[1fr_auto_1fr] gap-2 grow min-h-0">
-            <div class="min-h-0 overflow-y-auto">
-                <ChatView ref="chatViewA" :status="status" />
-            </div>
-            <USeparator class="hidden md:block" orientation="vertical" />
-            <USeparator class="block md:hidden" orientation="horizontal" />
-            <div class="min-h-0 overflow-y-auto">
-                <ChatView ref="chatViewB" :status="status" />
-            </div>
-        </div>
+    <div class="grid grid-rows-[1fr_auto] h-dvh">
+        <div></div>
 
-        <div class="input-bar">
-            <div>
-                <ChatInputView
-                    align="start"
-                    @submit="onSubmitA"
-                    :status="status"
-                    :language="languageA"
-                />
-            </div>
-
-            <LanguageSelectionBar
-                class="grow md:grow-0"
-                v-model:sourceLanguage="languageA"
-                v-model:targetLanguage="langaugeB"
-                :includeAutoDetect="false"
-                :canSwitch="false"
-            />
-
-            <div>
-                <ChatInputView
-                    align="end"
-                    @submit="onSubmitB"
-                    :status="status"
-                    :language="langaugeB"
-                />
-            </div>
+        <div class="mx-auto">
+            <ToolBar />
         </div>
     </div>
-    <!-- <div class="md:hidden h-screen p-2">
-        <div class="h-full grid grid-rows-[1fr_auto_1fr] content-stretch gap-2">
-            <div class="rotate-180 flex flex-col">
-                <ChatView ref="chatViewA" class="grow" :status="status" />
-                <ChatInputView
-                    align="end"
-                    @submit="onSubmitA"
-                    :status="status"
-                    :language="languageA"
-                />
-            </div>
-            <USeparator color="primary" />
-            <div class="flex flex-col">
-                <ChatView ref="chatViewB" class="grow" :status="status" />
-                <ChatInputView
-                    align="end"
-                    @submit="onSubmitB"
-                    :status="status"
-                    :language="langaugeB"
-                />
-            </div>
-        </div>
-    </div> -->
 </template>
-
-<style scoped>
-.input-bar {
-    display: grid;
-    gap: 2rem;
-    grid-template-columns: 1fr auto 1fr;
-    justify-content: space-between;
-}
-</style>

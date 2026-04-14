@@ -239,6 +239,15 @@
         "online-status": "Online-Status",
         "restart-tour": "Tutorial starten"
     },
+    "conversation": {
+        "personA": "Person A",
+        "personB": "Person B",
+        "tapToSpeak": "Tippen zum Sprechen",
+        "translating": "Übersetze...",
+        "switchToB": "Zu Person B wechseln",
+        "switchToA": "Zu Person A wechseln",
+        "selectLanguageB": "Sprache von Person B wählen"
+    },
     "api_error": {
         "fetch_failed": "Fetch fehlgeschlagen. Bitte versuchen Sie es erneut.",
         "unexpected_error": "Ein unerwarteter Fehler ist aufgetreten. Möglicherweise ist der Server nicht verfügbar. Falls der Fehler weiterhin auftritt, verwenden Sie bitte die Feedback-Schaltfläche, um uns eine Nachricht zu senden.",
