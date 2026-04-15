@@ -1,94 +1,94 @@
-import type { H3Event } from "h3";
-
 /**
  * POST handler for audio transcription.
  * Accepts audio file via form data and returns transcription stream.
  */
-export default defineEventHandler(async (event) => {
-    if (import.meta.env.STUB_API !== "true") {
-        const handler = apiHandler
-            .withMethod("POST")
-            .withBodyProvider(readFormData)
-            .withFetcher(async ({ url, method, body, headers, event }) => {
-                if (!body) {
-                    throw new Error("No body provided");
-                }
-
-                const form = new FormData();
-                form.append("audio_file", body.get("audio_file") as Blob);
-                form.append("language", body.get("language") as string);
-
-                const logger = getEventLogger(event);
-
-                logger.debug(
-                    `Forwarding transcription request to backend with language: ${form.get("language")}`,
-                );
-
-                // Extract X-Client-Id from incoming request and forward to backend
-                const clientId = getHeader(event, "x-client-id");
-                const forwardHeaders = new Headers(headers);
-                forwardHeaders.delete("Content-Type");
-                if (clientId) {
-                    forwardHeaders.set("X-Client-Id", clientId);
-                }
-
-                const signal = getAbortSignal(event);
-
-                try {
-                    const response = await fetch(url, {
-                        method: method,
-                        body: form,
-                        headers: forwardHeaders,
-                        signal,
-                    });
-
-                    setResponseStatus(event, response.status);
-
-                    if (!response.ok) {
-                        return await response.json();
-                    }
-
-                    return response;
-                } catch (error) {
-                    // Silently handle abort errors - client cancelled the request
-                    if (signal.aborted) {
-                        return new Response(null, { status: 499 });
-                    }
-                    throw error;
-                }
-            })
-            .build("/transcription/audio");
-
-        return await handler(event);
-    }
-
-    const form = await readFormData(event);
-    if (!form.get("audio_file")) {
-        throw new Error("No file provided");
-    }
-
-    sendDummyStream(event);
-});
-
-/**
- * Sends a dummy streaming response for testing purposes.
- */
-function sendDummyStream(event: H3Event): void {
-    setResponseHeader(event, "Content-Type", "text/event-stream");
-    setResponseHeader(event, "Cache-Control", "no-cache");
-
-    const chunks = ["This ", "is ", "a ", "dummy ", "streaming ", "response"];
-    let index = 0;
-
-    function pushChunk(): void {
-        if (index < chunks.length) {
-            event.node.res.write(chunks[index]);
-            index++;
-            setTimeout(pushChunk, 100);
-        } else {
-            event.node.res.end();
+export default backendHandlerBuilder()
+    .withMethod("POST")
+    .withBodyProvider(readFormData)
+    .withFetcher(async ({ url, method, body, headers, event }) => {
+        if (!body) {
+            throw new Error("No body provided");
         }
-    }
 
-    pushChunk();
+        const form = new FormData();
+        form.append("audio_file", body.get("audio_file") as Blob);
+        form.append("language", body.get("language") as string);
+
+        const logger = getEventLogger(event);
+
+        logger.debug(
+            `Forwarding transcription request to backend with language: ${form.get("language")}`,
+        );
+
+        const clientId = getHeader(event, "x-client-id");
+        const forwardHeaders = new Headers(headers);
+        forwardHeaders.delete("Content-Type");
+        if (clientId) {
+            forwardHeaders.set("X-Client-Id", clientId);
+        }
+
+        const signal = getAbortSignal(event);
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                body: form,
+                headers: forwardHeaders,
+                signal,
+            });
+
+            setResponseStatus(event, response.status);
+
+            if (!response.ok) {
+                return await response.json();
+            }
+
+            return response;
+        } catch (error) {
+            if (signal.aborted) {
+                return new Response(null, { status: 499 });
+            }
+            throw error;
+        }
+    })
+    .withDummyFetcher(dummyAudioFetcher)
+    .build("/transcription/audio");
+
+function dummyAudioFetcher(): Response {
+    const dummyText =
+        "This is a dummy audio transcription response that returns one word at a time to demonstrate the functionality of server-sent events in this Nuxt application.";
+
+    const words = dummyText.split(" ");
+
+    const stream = new ReadableStream({
+        async start(controller) {
+            try {
+                for (let i = 0; i < words.length; i++) {
+                    const word = words[i];
+                    const isLastWord = i === words.length - 1;
+
+                    controller.enqueue(new TextEncoder().encode(word));
+
+                    if (!isLastWord) {
+                        controller.enqueue(new TextEncoder().encode(" "));
+                    }
+
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+                }
+
+                controller.close();
+            } catch (error) {
+                controller.error(error);
+            }
+        },
+    });
+
+    return new Response(stream, {
+        headers: {
+            "Content-Type": "text/plain; charset=utf-8",
+            "Transfer-Encoding": "chunked",
+            "Cache-Control": "no-cache",
+            Connection: "keep-alive",
+        },
+    });
 }

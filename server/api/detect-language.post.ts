@@ -4,4 +4,5 @@
  */
 export default apiHandler
     .withMethod("POST")
+    .withDummyFetcher({ language: "de", confidence: 0.95 })
     .build("/translation/detect-language");

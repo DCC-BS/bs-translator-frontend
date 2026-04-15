@@ -60,4 +60,44 @@ export default backendHandlerBuilder<never, MultiPartData[] | undefined>()
             throw error;
         }
     })
+    .withDummyFetcher(dummyImageFetcher)
     .build("/translation/image");
+
+function dummyImageFetcher(): Response {
+    const dummyText =
+        "This is a dummy image translation response that returns one word at a time to demonstrate the functionality of server-sent events in this Nuxt application.";
+
+    const words = dummyText.split(" ");
+
+    const stream = new ReadableStream({
+        async start(controller) {
+            try {
+                for (let i = 0; i < words.length; i++) {
+                    const word = words[i];
+                    const isLastWord = i === words.length - 1;
+
+                    controller.enqueue(new TextEncoder().encode(word));
+
+                    if (!isLastWord) {
+                        controller.enqueue(new TextEncoder().encode(" "));
+                    }
+
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+                }
+
+                controller.close();
+            } catch (error) {
+                controller.error(error);
+            }
+        },
+    });
+
+    return new Response(stream, {
+        headers: {
+            "Content-Type": "text/plain; charset=utf-8",
+            "Transfer-Encoding": "chunked",
+            "Cache-Control": "no-cache",
+            Connection: "keep-alive",
+        },
+    });
+}

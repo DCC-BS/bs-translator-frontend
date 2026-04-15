@@ -191,14 +191,17 @@ const finishButton: ButtonProp = {
 }
 
 :deep(#nt-action-next) {
-    @apply bg-primary text-white;
+    background-color: var(--color-primary);
+    color: white;
 }
 
 :deep(#nt-action-prev) {
-    @apply bg-primary text-white;
+    background-color: var(--color-primary);
+    color: white;
 }
 
 :deep(#nt-action-finish) {
-    @apply bg-success text-white;
+    background-color: var(--color-success);
+    color: white;
 }
 </style>

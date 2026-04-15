@@ -94,6 +94,7 @@ export default defineNuxtConfig({
         "@dcc-bs/common-ui.bs.js",
         "@dcc-bs/dependency-injection.bs.js",
         "@dcc-bs/audio-recorder.bs.js",
+        "@dcc-bs/event-system.bs.js",
         "@nuxtjs/mdc",
         "nuxt-tour",
         "@vite-pwa/nuxt",

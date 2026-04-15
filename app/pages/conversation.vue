@@ -1,17 +1,11 @@
 <script lang="ts" setup>
-import ChatView from "~/components/conversation/ChatView.vue";
 import type { ChatStatus } from "ai";
 import type { LanguageCode } from "~/models/languages";
-import { TranslationService } from "~/services/translationService";
 import ToolBar from "~/components/conversation/ToolBar.vue";
 
 definePageMeta({ layout: "conversation" });
 
-const { sourceLanguage, targetLanguage, translateText } = useTranslate();
-const translationService = useService(TranslationService);
 const { t } = useI18n();
-
-const chatView = shallowRef<InstanceType<typeof ChatView>>();
 
 const languageA = ref<LanguageCode>("de");
 const languageB = ref<LanguageCode>("en-gb");

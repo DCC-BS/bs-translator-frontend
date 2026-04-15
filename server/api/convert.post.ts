@@ -78,4 +78,9 @@ export default backendHandlerBuilder<
             throw error;
         }
     })
+    .withDummyFetcher({
+        markdown:
+            "# Dummy Document\n\nThis is a dummy conversion result.\n\n## Section 1\n\nLorem ipsum dolor sit amet.",
+        images: {},
+    })
     .build("/convert/doc");

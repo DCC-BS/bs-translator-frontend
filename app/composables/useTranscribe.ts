@@ -16,7 +16,7 @@ export function useTranscribe() {
      * @param language Language code for transcription
      * @yields Transcribed text chunks
      */
-    async function* transcribe(blob: Blob, language: LanguageCode) {
+    async function* transcribe(blob: Blob, language?: LanguageCode) {
         console.debug("Starting transcription with language:", language);
 
         const formData = new FormData();

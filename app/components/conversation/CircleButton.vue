@@ -1,24 +1,24 @@
 <script lang="ts" setup>
-const props = defineProps<{
-    onClick?: (e: MouseEvent) => void;
+defineProps<{
+    disabled?: boolean;
     color?:
-        | "error"
-        | "primary"
-        | "secondary"
-        | "success"
-        | "info"
-        | "warning"
-        | "neutral";
+    | "error"
+    | "primary"
+    | "secondary"
+    | "success"
+    | "info"
+    | "warning"
+    | "neutral";
+}>();
+
+const emit = defineEmits<{
+    click: [event: MouseEvent];
 }>();
 </script>
 
 <template>
-    <UButton
-        size="xl"
-        :color="color"
-        class="rounded-full w-16 h-16 flex items-center justify-center"
-        @click="onClick"
-    >
+    <UButton size="xl" :color="color" :disabled="disabled"
+        class="rounded-full w-16 h-16 flex items-center justify-center" @click="emit('click', $event)">
         <slot />
     </UButton>
 </template>
