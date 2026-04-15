@@ -28,7 +28,7 @@ const {
     isRecording: isAudioRecording,
     isProcessing: isAudioProcessing,
 } = useAudioRecording({
-    storeToDbInterval: 0.5,
+    storeToDbInterval: 1,
     logger: (msg) => logger.debug("[AudioRecording]", msg),
     onRecordingStarted: (stream: MediaStream) => {
         initializeVisualization(stream);

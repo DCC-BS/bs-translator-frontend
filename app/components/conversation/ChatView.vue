@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { UIMessage, ChatStatus, UIDataTypes, UITools } from "ai";
+import type { UIMessage, UIDataTypes, UITools } from "ai";
 import type { ButtonProps } from "@nuxt/ui";
 import type { UserConversation } from "~/models/conversation";
 
@@ -9,11 +9,11 @@ const props = defineProps<{
 
 type MessageAction = Omit<ButtonProps, "onClick"> & {
     onClick?:
-        | ((
-              e: MouseEvent,
-              message: UIMessage<unknown, UIDataTypes, UITools>,
-          ) => void)
-        | undefined;
+    | ((
+        e: MouseEvent,
+        message: UIMessage<unknown, UIDataTypes, UITools>,
+    ) => void)
+    | undefined;
 };
 
 const { showToast } = useUserFeedback();
@@ -48,31 +48,23 @@ const actions = ref<MessageAction[]>([
 
 <template>
     <div class="h-full min-h-0">
-        <UChatMessages
-            class="h-full"
-            should-auto-scroll
-            shouldScrollToBottom
-            :user="{
-                side: 'right',
-                variant: 'soft',
-                icon: 'i-lucide-circle-user',
-                actions: actions,
-                ui: { content: 'bg-primary-200' },
-            }"
-            :assistant="{
-                side: 'left',
-                variant: 'soft',
-                icon: 'i-lucide-languages',
-                actions: actions,
-                ui: {
-                    content: 'bg-secondary-200',
-                },
-            }"
-            :messages="messages"
-            :auto-scroll="{
-                color: 'primary',
-            }"
-        >
+        <UChatMessages class="h-full" should-auto-scroll shouldScrollToBottom :user="{
+            side: 'right',
+            variant: 'soft',
+            icon: 'i-lucide-circle-user',
+            actions: actions,
+            ui: { content: 'bg-primary-200' },
+        }" :assistant="{
+            side: 'left',
+            variant: 'soft',
+            icon: 'i-lucide-languages',
+            actions: actions,
+            ui: {
+                content: 'bg-secondary-200',
+            },
+        }" :messages="messages" :auto-scroll="{
+            color: 'primary',
+        }">
         </UChatMessages>
     </div>
 </template>
