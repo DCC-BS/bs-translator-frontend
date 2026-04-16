@@ -98,6 +98,7 @@ export default defineNuxtConfig({
         "@nuxtjs/mdc",
         "nuxt-tour",
         "@vite-pwa/nuxt",
+        "motion-v/nuxt",
     ],
     devtools: { enabled: false },
     css: ["~/assets/css/main.css"],

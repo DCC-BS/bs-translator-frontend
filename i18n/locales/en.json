@@ -255,7 +255,10 @@
         "selectOrTalk": "Select your language or start talking",
         "ready": "I'm ready",
         "undo": "Undo last message",
-        "recordMore": "Record more to add..."
+        "recordMore": "Record more to add...",
+        "selectLanguage": "Select Language",
+        "searchLanguage": "Search language...",
+        "noLanguageFound": "No language found"
     },
     "api_error": {
         "fetch_failed": "Fetch failed. Please try again.",

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { AnimatePresence, motion } from "motion-v";
 import type { Language } from "~/models/languages";
 import ToolBar from "~/components/conversation/ToolBar.vue";
 import {
@@ -22,6 +23,7 @@ const logger = useLogger();
 
 const phase = ref<Phase>("setup-a");
 const isUserA = ref(true);
+const switchDirection = ref(1);
 
 const userALanguage = ref<Language>(getLanguage("auto"));
 const userBLanguage = ref<Language>(getLanguage("auto"));
@@ -67,6 +69,16 @@ const currentLanguageCode = computed({
 const transitionPersonName = computed(() =>
     isUserA.value ? t("conversation.personA") : t("conversation.personB"),
 );
+
+const transitionEnter = computed(() => ({
+    x: switchDirection.value * 100,
+    opacity: 0,
+}));
+
+const transitionExit = computed(() => ({
+    x: switchDirection.value * -100,
+    opacity: 0,
+}));
 
 watch(
     [userALanguage, userBLanguage],
@@ -127,6 +139,7 @@ function onDetectedLanguage(code: string) {
 }
 
 function onSwitch() {
+    switchDirection.value = isUserA.value ? 1 : -1;
     isUserA.value = !isUserA.value;
     startTransition();
 }
@@ -140,6 +153,7 @@ function onConfirmMessage() {
     const text = pendingText.value;
     pendingText.value = null;
     addMessage(text);
+    switchDirection.value = isUserA.value ? 1 : -1;
     isUserA.value = !isUserA.value;
     startTransition();
 }
@@ -245,66 +259,256 @@ async function processQueue(
 
 <template>
     <div class="bg-gray-400 h-dvh">
-        <div class="h-full max-w-[900px] min-w-[calc(min(100vw,900px))] mx-auto shadow-md">
-            <!-- Setup Phase: User A selects language -->
-            <div v-if="phase === 'setup-a'" class="h-full" :class="chatBg">
-                <LanguageSetup :language="userALanguage" :other-language="userBLanguage"
-                    :title="t('conversation.selectYourLanguage')" :subtitle="t('conversation.orStartTalking')"
-                    :show-other-language="true" :other-language-label="t('conversation.otherPersonLanguage')"
-                    :continue-label="t('conversation.continue')" @update:language="(l: Language) => (userALanguage = l)"
-                    @update:other-language="(l: Language) => (userBLanguage = l)" @continue="onSetupAContinue"
-                    @transcription="onSetupATranscription" @detected-language="onSetupADetectedLanguage" />
-            </div>
+        <div
+            class="h-full max-w-[900px] min-w-[calc(min(100vw,900px))] mx-auto shadow-md overflow-hidden relative"
+        >
+            <AnimatePresence mode="wait">
+                <!-- Setup Phase: User A selects language -->
+                <motion.div
+                    v-if="phase === 'setup-a'"
+                    key="setup"
+                    :initial="{ opacity: 0, y: 30 }"
+                    :animate="{ opacity: 1, y: 0 }"
+                    :exit="{ opacity: 0, y: -20 }"
+                    :transition="{ duration: 0.3, ease: 'easeInOut' }"
+                    class="h-full"
+                    :class="chatBg"
+                >
+                    <LanguageSetup
+                        :language="userALanguage"
+                        :other-language="userBLanguage"
+                        :title="t('conversation.selectYourLanguage')"
+                        :subtitle="t('conversation.orStartTalking')"
+                        :show-other-language="true"
+                        :other-language-label="
+                            t('conversation.otherPersonLanguage')
+                        "
+                        :continue-label="t('conversation.continue')"
+                        @update:language="
+                            (l: Language) => (userALanguage = l)
+                        "
+                        @update:other-language="
+                            (l: Language) => (userBLanguage = l)
+                        "
+                        @continue="onSetupAContinue"
+                        @transcription="onSetupATranscription"
+                        @detected-language="onSetupADetectedLanguage"
+                    />
+                </motion.div>
 
-            <!-- Transition Phase: Auto handoff between users -->
-            <div v-else-if="phase === 'transition'" class="flex flex-col items-center justify-center h-full p-6 gap-6"
-                :class="chatBg">
-                <UIcon :name="otherLanguage.icon" size="4xl" class="mb-2" />
-                <h1 class="text-2xl font-bold text-center">
-                    {{
-                        t("conversation.handToPerson", [
-                            transitionPersonName,
-                        ])
-                    }}
-                </h1>
-                <div class="flex items-center gap-1 mt-4">
-                    <div v-for="i in 3" :key="i" class="w-2 h-2 rounded-full bg-current opacity-50 animate-bounce"
-                        :style="{ animationDelay: `${(i - 1) * 0.15}s` }" />
-                </div>
-            </div>
+                <!-- Transition Phase: Auto handoff between users -->
+                <motion.div
+                    v-else-if="phase === 'transition'"
+                    key="transition"
+                    :initial="transitionEnter"
+                    :animate="{ x: 0, opacity: 1 }"
+                    :exit="transitionExit"
+                    :transition="{ duration: 0.35, ease: 'easeInOut' }"
+                    class="absolute inset-0 flex flex-col items-center justify-center p-6 gap-6"
+                    :class="chatBg"
+                >
+                    <motion.div
+                        :initial="{ scale: 0.5, opacity: 0 }"
+                        :animate="{
+                            scale: 1,
+                            opacity: 1,
+                            transition: { delay: 0.1, type: 'spring', stiffness: 200 },
+                        }"
+                    >
+                        <UIcon
+                            :name="otherLanguage.icon"
+                            size="4xl"
+                            class="mb-2"
+                        />
+                    </motion.div>
 
-            <!-- Conversation Phase -->
-            <div v-else class="grid grid-rows-[1fr_auto] h-full" :class="chatBg">
-                <div class="p-2 overflow-y-auto">
-                    <ChatView class="p-2" :user-message="currentUserMessages" :current-language="currentLanguage"
-                        :other-language="otherLanguage" />
-                </div>
+                    <motion.h1
+                        class="text-2xl font-bold text-center"
+                        :initial="{ opacity: 0, y: 10 }"
+                        :animate="{
+                            opacity: 1,
+                            y: 0,
+                            transition: { delay: 0.15, duration: 0.3 },
+                        }"
+                    >
+                        {{
+                            t("conversation.handToPerson", [
+                                transitionPersonName,
+                            ])
+                        }}
+                    </motion.h1>
 
-                <div class="flex flex-col items-center mx-auto bg-black/10 w-full">
-                    <LanguageSelectionView v-model="currentLanguageCode" :include-auto-detect="false"
-                        :detected-language-code="currentLanguage.code" />
+                    <div class="flex items-center gap-1.5 mt-4">
+                        <motion.div
+                            v-for="i in 3"
+                            :key="i"
+                            class="w-2 h-2 rounded-full bg-current opacity-50"
+                            :animate="{
+                                y: [0, -8, 0],
+                                transition: {
+                                    duration: 0.6,
+                                    repeat: Infinity,
+                                    delay: (i - 1) * 0.15,
+                                    ease: 'easeInOut',
+                                },
+                            }"
+                        />
+                    </div>
+                </motion.div>
 
-                    <!-- Pending message confirmation (toolbar hidden) -->
-                    <div v-if="pendingText" class="w-full px-4 pb-4 flex flex-col gap-3">
-                        <div class="rounded-xl bg-white/20 p-3 text-base text-center break-words">
-                            {{ pendingText }}
-                        </div>
-                        <div class="flex justify-center gap-4">
-                            <UButton size="xl" color="info" variant="ghost" icon="i-lucide-rotate-ccw"
-                                @click="onRetryMessage" />
-                            <UButton size="xl" color="info" variant="ghost" icon="i-lucide-list-plus"
-                                @click="onAddNewMessage" />
-                            <UButton size="xl" color="primary" variant="ghost" icon="i-lucide-check"
-                                @click="onConfirmMessage" />
-                        </div>
+                <!-- Conversation Phase -->
+                <motion.div
+                    v-else
+                    key="conversation"
+                    :initial="{ opacity: 0 }"
+                    :animate="{ opacity: 1 }"
+                    :exit="{ opacity: 0 }"
+                    :transition="{ duration: 0.25, ease: 'easeInOut' }"
+                    class="grid grid-rows-[1fr_auto] h-full"
+                    :class="chatBg"
+                >
+                    <div class="p-2 overflow-y-auto">
+                        <ChatView
+                            class="p-2"
+                            :user-message="currentUserMessages"
+                            :current-language="currentLanguage"
+                            :other-language="otherLanguage"
+                        />
                     </div>
 
-                    <!-- Toolbar (hidden while confirming) -->
-                    <ToolBar v-else :current-language="currentLanguage" :others-language="otherLanguage"
-                        @switch-click="onSwitch" @transcription="onConversationTranscription" @undo="onUndo"
-                        @detected-language="onDetectedLanguage" />
-                </div>
-            </div>
+                    <div
+                        class="flex flex-col items-center mx-auto bg-black/10 w-full"
+                    >
+                        <MobileLanguageSelect
+                            v-model="currentLanguageCode"
+                            :include-auto-detect="false"
+                            :detected-language-code="currentLanguage.code"
+                        />
+
+                        <AnimatePresence mode="wait">
+                            <!-- Pending message confirmation (toolbar hidden) -->
+                            <motion.div
+                                v-if="pendingText"
+                                key="pending"
+                                :initial="{ opacity: 0, y: 20, scale: 0.95 }"
+                                :animate="{
+                                    opacity: 1,
+                                    y: 0,
+                                    scale: 1,
+                                    transition: {
+                                        type: 'spring',
+                                        stiffness: 300,
+                                        damping: 25,
+                                    },
+                                }"
+                                :exit="{
+                                    opacity: 0,
+                                    y: 10,
+                                    scale: 0.95,
+                                    transition: { duration: 0.15 },
+                                }"
+                                class="w-full px-4 pb-4 flex flex-col gap-3"
+                            >
+                                <div
+                                    class="rounded-xl bg-white/20 p-3 text-base text-center break-words"
+                                >
+                                    {{ pendingText }}
+                                </div>
+                                <div class="flex justify-center gap-4">
+                                    <motion.div
+                                        :initial="{
+                                            opacity: 0,
+                                            scale: 0,
+                                        }"
+                                        :animate="{
+                                            opacity: 1,
+                                            scale: 1,
+                                            transition: {
+                                                delay: 0.1,
+                                                type: 'spring',
+                                                stiffness: 400,
+                                            },
+                                        }"
+                                    >
+                                        <UButton
+                                            size="xl"
+                                            color="info"
+                                            variant="ghost"
+                                            icon="i-lucide-rotate-ccw"
+                                            @click="onRetryMessage"
+                                        />
+                                    </motion.div>
+                                    <motion.div
+                                        :initial="{
+                                            opacity: 0,
+                                            scale: 0,
+                                        }"
+                                        :animate="{
+                                            opacity: 1,
+                                            scale: 1,
+                                            transition: {
+                                                delay: 0.2,
+                                                type: 'spring',
+                                                stiffness: 400,
+                                            },
+                                        }"
+                                    >
+                                        <UButton
+                                            size="xl"
+                                            color="info"
+                                            variant="ghost"
+                                            icon="i-lucide-list-plus"
+                                            @click="onAddNewMessage"
+                                        />
+                                    </motion.div>
+                                    <motion.div
+                                        :initial="{
+                                            opacity: 0,
+                                            scale: 0,
+                                        }"
+                                        :animate="{
+                                            opacity: 1,
+                                            scale: 1,
+                                            transition: {
+                                                delay: 0.3,
+                                                type: 'spring',
+                                                stiffness: 400,
+                                            },
+                                        }"
+                                    >
+                                        <UButton
+                                            size="xl"
+                                            color="primary"
+                                            variant="ghost"
+                                            icon="i-lucide-check"
+                                            @click="onConfirmMessage"
+                                        />
+                                    </motion.div>
+                                </div>
+                            </motion.div>
+
+                            <!-- Toolbar (hidden while confirming) -->
+                            <motion.div
+                                v-else
+                                key="toolbar"
+                                :initial="{ opacity: 0 }"
+                                :animate="{ opacity: 1, transition: { duration: 0.2 } }"
+                                :exit="{ opacity: 0, transition: { duration: 0.1 } }"
+                                class="w-full"
+                            >
+                                <ToolBar
+                                    :current-language="currentLanguage"
+                                    :others-language="otherLanguage"
+                                    @switch-click="onSwitch"
+                                    @transcription="onConversationTranscription"
+                                    @undo="onUndo"
+                                    @detected-language="onDetectedLanguage"
+                                />
+                            </motion.div>
+                        </AnimatePresence>
+                    </div>
+                </motion.div>
+            </AnimatePresence>
         </div>
     </div>
 </template>
