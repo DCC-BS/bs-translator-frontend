@@ -254,7 +254,8 @@
         "handToPerson": "Hand the phone to {0}",
         "selectOrTalk": "Select your language or start talking",
         "ready": "I'm ready",
-        "undo": "Undo last message"
+        "undo": "Undo last message",
+        "recordMore": "Record more to add..."
     },
     "api_error": {
         "fetch_failed": "Fetch failed. Please try again.",

@@ -144,7 +144,14 @@ function onConfirmMessage() {
     startTransition();
 }
 
-function onDiscardMessage() {
+function onAddNewMessage() {
+    if (!pendingText.value) return;
+    const text = pendingText.value;
+    pendingText.value = null;
+    addMessage(text);
+}
+
+function onRetryMessage() {
     pendingText.value = null;
 }
 
@@ -273,23 +280,26 @@ async function processQueue(
                         :other-language="otherLanguage" />
                 </div>
 
-                <div class="flex flex-col items-center mx-auto bg-black/20 w-full">
+                <div class="flex flex-col items-center mx-auto bg-black/10 w-full">
                     <LanguageSelectionView v-model="currentLanguageCode" :include-auto-detect="false"
                         :detected-language-code="currentLanguage.code" />
 
-                    <!-- Pending message confirmation -->
-                    <div v-if="pendingText" class="w-full p-4 flex flex-col gap-3">
+                    <!-- Pending message confirmation (toolbar hidden) -->
+                    <div v-if="pendingText" class="w-full px-4 pb-4 flex flex-col gap-3">
                         <div class="rounded-xl bg-white/20 p-3 text-base text-center break-words">
                             {{ pendingText }}
                         </div>
                         <div class="flex justify-center gap-4">
-                            <UButton size="xl" color="error" variant="soft" icon="i-lucide-rotate-ccw"
-                                @click="onDiscardMessage" />
-                            <UButton size="xl" color="primary" icon="i-lucide-check" @click="onConfirmMessage" />
+                            <UButton size="xl" color="info" variant="ghost" icon="i-lucide-rotate-ccw"
+                                @click="onRetryMessage" />
+                            <UButton size="xl" color="info" variant="ghost" icon="i-lucide-list-plus"
+                                @click="onAddNewMessage" />
+                            <UButton size="xl" color="primary" variant="ghost" icon="i-lucide-check"
+                                @click="onConfirmMessage" />
                         </div>
                     </div>
 
-                    <!-- Normal toolbar -->
+                    <!-- Toolbar (hidden while confirming) -->
                     <ToolBar v-else :current-language="currentLanguage" :others-language="otherLanguage"
                         @switch-click="onSwitch" @transcription="onConversationTranscription" @undo="onUndo"
                         @detected-language="onDetectedLanguage" />

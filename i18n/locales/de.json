@@ -254,7 +254,8 @@
         "handToPerson": "Gib das Handy an {0}",
         "selectOrTalk": "Wähle deine Sprache oder sprich",
         "ready": "Ich bin bereit",
-        "undo": "Letzte Nachricht rückgängig machen"
+        "undo": "Letzte Nachricht rückgängig machen",
+        "recordMore": "Weitere Aufnahme hinzufügen..."
     },
     "api_error": {
         "fetch_failed": "Fetch fehlgeschlagen. Bitte versuchen Sie es erneut.",

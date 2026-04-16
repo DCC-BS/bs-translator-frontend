@@ -49,8 +49,8 @@ const iconName = computed(() => {
     return isAudioProcessing.value || isProcessing.value
         ? "i-lucide-loader-2"
         : isAudioRecording.value
-            ? "i-lucide-square"
-            : "i-lucide-mic";
+          ? "i-lucide-square"
+          : "i-lucide-mic";
 });
 
 let audioContext: AudioContext | null = null;
@@ -143,7 +143,6 @@ async function handleTranscription(blob: Blob) {
         emit("transcribed", transcribedText);
     }
 }
-
 
 async function runTranscription() {
     transcribeAbortController.value?.abort();
