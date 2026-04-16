@@ -116,8 +116,8 @@ function focusLastEntry(retryCount = 0): void {
     const id = glossary.value[lastIndex]?.id;
     const fallbackInput = id
         ? (document.querySelector(
-            `#term-${id} input`,
-        ) as HTMLInputElement | null)
+              `#term-${id} input`,
+          ) as HTMLInputElement | null)
         : null;
 
     const input = (refInput as HTMLInputElement | null) ?? fallbackInput;

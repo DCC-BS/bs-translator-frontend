@@ -6,14 +6,14 @@ interface InputProps {
     detectedSourceLanguage?: string;
     isDetectingLanguage?: boolean;
     canSwitch?: boolean;
-    includeAutoDetect?: boolean
-};
+    includeAutoDetect?: boolean;
+}
 
 const props = withDefaults(defineProps<InputProps>(), {
     detectedSourceLanguage: "auto",
     isDetectingLanguage: false,
     canSwitch: true,
-    includeAutoDetect: true
+    includeAutoDetect: true,
 });
 
 const emit = defineEmits<(e: "swap-languages") => void>();

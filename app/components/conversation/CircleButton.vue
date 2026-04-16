@@ -2,13 +2,13 @@
 defineProps<{
     disabled?: boolean;
     color?:
-    | "error"
-    | "primary"
-    | "secondary"
-    | "success"
-    | "info"
-    | "warning"
-    | "neutral";
+        | "error"
+        | "primary"
+        | "secondary"
+        | "success"
+        | "info"
+        | "warning"
+        | "neutral";
 }>();
 
 const emit = defineEmits<{

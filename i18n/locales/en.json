@@ -246,7 +246,15 @@
         "translating": "Translating...",
         "switchToB": "Switch to Person B",
         "switchToA": "Switch to Person A",
-        "selectLanguageB": "Select Person B's language"
+        "selectLanguageB": "Select Person B's language",
+        "selectYourLanguage": "Select your language",
+        "orStartTalking": "or start talking to auto-detect",
+        "otherPersonLanguage": "Other person's language (optional)",
+        "continue": "Continue",
+        "handToPerson": "Hand the phone to {0}",
+        "selectOrTalk": "Select your language or start talking",
+        "ready": "I'm ready",
+        "undo": "Undo last message"
     },
     "api_error": {
         "fetch_failed": "Fetch failed. Please try again.",

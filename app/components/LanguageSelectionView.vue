@@ -10,9 +10,10 @@ const props = defineProps<{
 const { t } = useI18n();
 
 const autoOption = computed(() => {
-    const detectedName = props.detectedLanguageCode && props.detectedLanguageCode !== "auto"
-        ? t(`languages.${props.detectedLanguageCode}`)
-        : undefined;
+    const detectedName =
+        props.detectedLanguageCode && props.detectedLanguageCode !== "auto"
+            ? t(`languages.${props.detectedLanguageCode}`)
+            : undefined;
 
     if (props.isDetectingLanguage) {
         return {

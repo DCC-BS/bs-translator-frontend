@@ -48,13 +48,16 @@ const {
 const iconName = computed(() => {
     return isAudioProcessing.value || isProcessing.value
         ? "i-lucide-loader-2"
-        : isAudioRecording.value ? "i-lucide-square" : "i-lucide-mic";
+        : isAudioRecording.value
+            ? "i-lucide-square"
+            : "i-lucide-mic";
 });
 
 let audioContext: AudioContext | null = null;
 let analyser: AnalyserNode | null = null;
 let frequencyData: Uint8Array<ArrayBuffer> | null = null;
 let visualizationInterval: ReturnType<typeof setInterval> | null = null;
+let transcribeQueue: AsyncGenerator<string, unknown, unknown>[] = [];
 
 onUnmounted(() => {
     cleanupVisualization();
@@ -121,19 +124,18 @@ async function handleTranscription(blob: Blob) {
                 break;
             }
         }
-
-        if (currentLanguage.value.code === "auto") {
-            const detectedLanguage = await translationService.detectLanguage(transcribedText);
-            currentLanguage.value = getLanguage(detectedLanguage.language);
-        }
     } catch (error) {
-        if (typeof error === "object" && error !== null && "name" in error && error.name === "AbortError") {
+        if (
+            typeof error === "object" &&
+            error !== null &&
+            "name" in error &&
+            error.name === "AbortError"
+        ) {
             logger.info("Transcription aborted by user");
         } else {
             logger.error("Transcription error:", String(error));
         }
-    }
-    finally {
+    } finally {
         isProcessing.value = false;
     }
 
@@ -142,7 +144,6 @@ async function handleTranscription(blob: Blob) {
     }
 }
 
-let transcribeQueue: AsyncGenerator<string, unknown, unknown>[] = [];
 
 async function runTranscription() {
     transcribeAbortController.value?.abort();
@@ -211,13 +212,8 @@ onUnmounted(() => {
                 <UIcon name="i-lucide-loader-2" class="w-5 h-5 animate-spin text-muted" />
             </div>
         </template>
-        <UChip size="2xl" inset color="secondary">
-            <template #content>
-                <UIcon :name="currentLanguage.icon ?? 'i-lucide-mic'" />
-            </template>
-            <CircleButton @click="toggleRecording" color="error" :disabled="isProcessing || isAudioProcessing">
-                <UIcon :name="iconName" size="24" :class="{ 'animate-spin': isProcessing || isAudioProcessing }" />
-            </CircleButton>
-        </UChip>
+        <CircleButton @click="toggleRecording" color="error" :disabled="isProcessing || isAudioProcessing">
+            <UIcon :name="iconName" size="24" :class="{ 'animate-spin': isProcessing || isAudioProcessing }" />
+        </CircleButton>
     </UPopover>
 </template>

@@ -151,7 +151,10 @@ export function useTranslate() {
      * @param text - Text to translate
      * @returns Translated text
      */
-    async function translateText(text: string, onChunk?: (chunk: string) => void): Promise<string> {
+    async function translateText(
+        text: string,
+        onChunk?: (chunk: string) => void,
+    ): Promise<string> {
         // Return empty string if input is empty or only whitespace
         if (text.trim() === "") {
             return "";
