@@ -47,24 +47,22 @@ const actions = ref<MessageAction[]>([
 </script>
 
 <template>
-    <div class="h-full min-h-0">
-        <UChatMessages class="h-full" should-auto-scroll shouldScrollToBottom :user="{
-            side: 'right',
-            variant: 'soft',
-            icon: 'i-lucide-circle-user',
-            actions: actions,
-            ui: { content: 'bg-primary-200' },
-        }" :assistant="{
-            side: 'left',
-            variant: 'soft',
-            icon: 'i-lucide-languages',
-            actions: actions,
-            ui: {
-                content: 'bg-secondary-200',
-            },
-        }" :messages="messages" :auto-scroll="{
-            color: 'primary',
-        }">
-        </UChatMessages>
-    </div>
+    <UChatMessages class="h-full" should-auto-scroll shouldScrollToBottom :user="{
+        side: 'right',
+        variant: 'soft',
+        icon: 'i-lucide-circle-user',
+        actions: actions,
+        ui: { content: 'bg-primary-200' },
+    }" :assistant="{
+        side: 'left',
+        variant: 'soft',
+        icon: 'i-lucide-languages',
+        actions: actions,
+        ui: {
+            content: 'bg-secondary-200',
+        },
+    }" :messages="messages" :auto-scroll="{
+        color: 'primary',
+    }">
+    </UChatMessages>
 </template>

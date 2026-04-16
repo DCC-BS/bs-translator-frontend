@@ -3,11 +3,20 @@ import CircleButton from "./CircleButton.vue";
 import { languageMap, languages, type Language } from "~/models/languages";
 import MicButtonClient from "./MicButton.client.vue";
 
-const languageIcon = ref(getLanguage("en-gb").icon);
-const currentLanguage = ref<Language>();
+interface InputProps {
+    currentLanguage: Language;
+    othersLanguage: Language;
+}
+
+const props = defineProps<InputProps>();
+
+const emit = defineEmits<{
+    "switch-click": [];
+    "transcription": [text: string];
+}>();
 
 async function onTranscription(text: string) {
-
+    emit("transcription", text);
 }
 
 </script>
@@ -34,14 +43,14 @@ async function onTranscription(text: string) {
         <!-- Mic button -->
         <div class="m-auto">
             <ClientOnly>
-                <MicButtonClient :language="currentLanguage" @transcribed="onTranscription" />
+                <MicButtonClient :language="props.currentLanguage" @transcribed="onTranscription" />
             </ClientOnly>
         </div>
         <!-- Switch button  -->
         <div class="m-auto">
             <UChip size="2xl" inset color="secondary">
                 <template #content>
-                    <UIcon :name="languageIcon" />
+                    <UIcon :name="props.othersLanguage.icon" />
                 </template>
                 <CircleButton @click="() => $emit('switch-click')">
                     <UIcon name="i-lucide-arrow-left-right" size="24" />

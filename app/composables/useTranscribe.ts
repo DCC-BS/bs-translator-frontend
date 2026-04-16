@@ -16,7 +16,11 @@ export function useTranscribe() {
      * @param language Language code for transcription
      * @yields Transcribed text chunks
      */
-    async function* transcribe(blob: Blob, language?: LanguageCode) {
+    async function* transcribe(
+        blob: Blob,
+        language?: LanguageCode,
+        signal?: AbortSignal,
+    ): AsyncGenerator<string> {
         console.debug("Starting transcription with language:", language);
 
         const formData = new FormData();
@@ -27,6 +31,7 @@ export function useTranscribe() {
         const response = await apiStreamFetch("/api/transcribe/audio", {
             method: "POST",
             body: formData,
+            signal,
         });
 
         if (isApiError(response)) {

@@ -19,6 +19,7 @@ const isProcessing = ref(false);
 const audioVisualization = ref<number[]>([]);
 const currentLanguage = ref(getLanguage(props.language?.code));
 const guessedText = ref("");
+const transcribeAbortController = ref<AbortController>();
 
 const { transcribe } = useTranscribe();
 
@@ -106,13 +107,33 @@ function updateVisualization() {
 }
 
 async function handleTranscription(blob: Blob) {
+    transcribeAbortController.value?.abort();
+    transcribeAbortController.value = new AbortController();
+    transcribeQueue = [];
+
     let transcribedText = "";
 
     try {
         for await (const chunk of transcribe(blob, props.language?.code)) {
             transcribedText += chunk;
+
+            if (transcribeAbortController.value?.signal.aborted) {
+                break;
+            }
         }
-    } finally {
+
+        if (currentLanguage.value.code === "auto") {
+            const detectedLanguage = await translationService.detectLanguage(transcribedText);
+            currentLanguage.value = getLanguage(detectedLanguage.language);
+        }
+    } catch (error) {
+        if (typeof error === "object" && error !== null && "name" in error && error.name === "AbortError") {
+            logger.info("Transcription aborted by user");
+        } else {
+            logger.error("Transcription error:", String(error));
+        }
+    }
+    finally {
         isProcessing.value = false;
     }
 
@@ -121,27 +142,55 @@ async function handleTranscription(blob: Blob) {
     }
 }
 
-async function onInterval(mp3: Blob) {
-    let transcribedText = "";
-    for await (const chunk of transcribe(mp3, currentLanguage.value?.code)) {
-        transcribedText += chunk;
-        guessedText.value += transcribedText;
-    }
+let transcribeQueue: AsyncGenerator<string, unknown, unknown>[] = [];
 
-    if (currentLanguage.value.code === "auto") {
-        const detectedLanguage = await translationService.detectLanguage(transcribedText);
-        currentLanguage.value = getLanguage(detectedLanguage.language);
+async function runTranscription() {
+    transcribeAbortController.value?.abort();
+    transcribeAbortController.value = new AbortController();
+    const signal = transcribeAbortController.value.signal;
+
+    while (true) {
+        if (signal.aborted) {
+            break;
+        }
+
+        if (transcribeQueue.length === 0) {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            continue;
+        }
+
+        const currentTranscription = transcribeQueue.shift();
+        if (!currentTranscription) continue;
+
+        for await (const chunk of currentTranscription) {
+            guessedText.value += chunk;
+            if (signal.aborted) {
+                break;
+            }
+        }
     }
+}
+
+async function onInterval(mp3: Blob) {
+    transcribeQueue.push(transcribe(mp3, currentLanguage.value?.code));
 }
 
 async function toggleRecording() {
     if (isAudioRecording.value) {
+        transcribeAbortController.value?.abort();
         await stopAudioRecording();
         guessedText.value = "";
     } else {
         await startAudioRecording();
+        runTranscription();
     }
 }
+
+onUnmounted(() => {
+    cleanupVisualization();
+    transcribeAbortController.value?.abort();
+    transcribeAbortController.value = new AbortController();
+});
 </script>
 
 <template>

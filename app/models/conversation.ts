@@ -15,3 +15,16 @@ export type Conversation = {
     userA: UserConversation;
     userB: UserConversation;
 };
+
+export function createEmptyConversation(): Conversation {
+    return {
+        userA: {
+            messages: [],
+            language: undefined,
+        },
+        userB: {
+            messages: [],
+            language: undefined,
+        },
+    };
+}
