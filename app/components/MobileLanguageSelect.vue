@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { AnimatePresence, motion } from "motion-v";
-import { type Language, languages } from "~/models/languages";
+import { languages } from "~/models/languages";
 
 const props = defineProps<{
     includeAutoDetect?: boolean;
@@ -10,7 +10,6 @@ const props = defineProps<{
 
 const { t } = useI18n();
 
-const isOpen = ref(false);
 const search = ref("");
 
 const autoOption = computed(() => {
@@ -79,84 +78,36 @@ const items = computed(() => {
 
 function select(code: string) {
     selectedCode.value = code;
-    isOpen.value = false;
     search.value = "";
 }
-
-watch(isOpen, (open) => {
-    if (!open) search.value = "";
-});
 </script>
 
 <template>
-    <UButton variant="ghost" size="sm" @click="isOpen = true">
-        <div v-if="selectedLanguage" class="flex items-center gap-1.5">
-            <UIcon
-                :name="selectedLanguage.icon"
-                :class="{
+    <UDrawer :title="t('conversation.selectLanguage')">
+        <UButton variant="ghost" size="sm">
+            <div v-if="selectedLanguage" class="flex items-center gap-1.5">
+                <UIcon :name="selectedLanguage.icon" :class="{
                     'animate-spin':
                         isDetectingLanguage &&
                         selectedLanguage.code === 'auto',
-                }"
-                size="sm"
-            />
-            <span class="text-sm">{{ selectedLanguage.name }}</span>
-            <UIcon name="i-lucide-chevron-down" size="xs" class="opacity-50" />
-        </div>
-    </UButton>
-
-    <UDrawer v-model:open="isOpen" :title="t('conversation.selectLanguage')" handle>
+                }" size="sm" />
+                <span class="text-sm">{{ selectedLanguage.name }}</span>
+                <UIcon name="i-lucide-chevron-down" size="xs" class="opacity-50" />
+            </div>
+        </UButton>
         <template #body>
             <div class="flex flex-col h-full">
-                <div class="px-4 pb-3">
-                    <UInput
-                        v-model="search"
-                        icon="i-lucide-search"
-                        :placeholder="t('conversation.searchLanguage')"
-                        size="lg"
-                    />
+                <div class="px-4 pb-3 w-full">
+                    <UInput v-model="search" icon="i-lucide-search" :placeholder="t('conversation.searchLanguage')"
+                        size="lg" class="w-full" />
                 </div>
-                <div class="flex-1 overflow-y-auto px-2 pb-4">
-                    <motion.button
-                        v-for="(item, index) in items"
-                        :key="item.code"
-                        class="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left active:bg-primary-100 transition-colors"
-                        :class="{
-                            'bg-primary-100': item.code === selectedCode,
-                        }"
-                        :initial="{ opacity: 0, x: -20 }"
-                        :animate="{
-                            opacity: 1,
-                            x: 0,
-                            transition: {
-                                delay: Math.min(index * 0.03, 0.6),
-                                duration: 0.25,
-                                ease: 'easeOut',
-                            },
-                        }"
-                        @click="select(item.code)"
-                    >
+                <div class="grid grid-cols-3 gap-3 overflow-y-auto px-2 pb-4">
+                    <UButton v-for="(item, index) in items" :key="item.code"
+                        class="w-full flex flex-col items-center gap-3" @click="select(item.code)">
                         <UIcon :name="item.icon" size="lg" />
                         <span class="text-base">{{ item.name }}</span>
-                        <AnimatePresence>
-                            <motion.div
-                                v-if="item.code === selectedCode"
-                                :initial="{ scale: 0 }"
-                                :animate="{
-                                    scale: [0, 1.3, 1],
-                                    transition: { duration: 0.3, type: 'spring', stiffness: 400 },
-                                }"
-                                :exit="{ scale: 0, transition: { duration: 0.15 } }"
-                                class="ml-auto"
-                            >
-                                <UIcon name="i-lucide-check" class="text-primary" />
-                            </motion.div>
-                        </AnimatePresence>
-                    </motion.button>
-                    <p
-                        v-if="items.length === 0"
-                        class="text-center py-8 opacity-50"
-                    >
+                    </UButton>
+                    <p v-if="items.length === 0" class="text-center py-8 opacity-50">
                         {{ t("conversation.noLanguageFound") }}
                     </p>
                 </div>

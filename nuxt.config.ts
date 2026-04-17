@@ -130,7 +130,7 @@ export default defineNuxtConfig({
             githubToken: process.env.NUXT_FEEDBACK_GITHUB_TOKEN,
         },
         public: {
-            useFeedback: process.env.USE_FEEDBACK ?? false,
+            useFeedback: process.env.USE_FEEDBACK === "true",
             useDummyData: process.env.DUMMY,
             logger: {
                 loglevel: process.env.LOG_LEVEL || "debug",

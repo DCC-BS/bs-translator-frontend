@@ -66,5 +66,8 @@ export const languageMap: Record<string, Language> = {
     "zh-tw": { code: "zh-tw", icon: "flag:tw-4x3" }, // Chinese (Traditional) - Taiwan};
 };
 
-export const languages: Language[] = Object.values(languageMap);
+export const languages: Language[] = Object.values(languageMap).filter(
+    (lang) => lang.code !== "auto",
+);
+export const languagesAndAuto: Language[] = Object.values(languageMap);
 export type LanguageCode = keyof typeof languageMap;

@@ -7,7 +7,6 @@ const CLIENT_ID_KEY = "client_id";
  */
 export function useClientId() {
     const clientId = useState<string>(CLIENT_ID_KEY);
-    const logger = useLogger();
 
     /**
      * Initialize or retrieve the client ID from localStorage
@@ -62,6 +61,7 @@ export function useClientId() {
             try {
                 localStorage.setItem(CLIENT_ID_KEY, newId);
             } catch (error) {
+                const logger = useLogger();
                 logger.warn(
                     error,
                     "Could not save new client ID to localStorage",
