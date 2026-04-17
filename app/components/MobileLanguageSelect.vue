@@ -11,6 +11,7 @@ const props = defineProps<{
 const { t } = useI18n();
 
 const search = ref("");
+const isOpen = ref(false);
 
 const autoOption = computed(() => {
     const detectedName =
@@ -79,11 +80,12 @@ const items = computed(() => {
 function select(code: string) {
     selectedCode.value = code;
     search.value = "";
+    isOpen.value = false;
 }
 </script>
 
 <template>
-    <UDrawer :title="t('conversation.selectLanguage')">
+    <UDrawer v-model:open="isOpen" :title="t('conversation.selectLanguage')">
         <UButton variant="ghost" size="sm">
             <div v-if="selectedLanguage" class="flex items-center gap-1.5">
                 <UIcon :name="selectedLanguage.icon" :class="{
@@ -101,10 +103,10 @@ function select(code: string) {
                     <UInput v-model="search" icon="i-lucide-search" :placeholder="t('conversation.searchLanguage')"
                         size="lg" class="w-full" />
                 </div>
-                <div class="grid grid-cols-3 gap-3 overflow-y-auto px-2 pb-4">
-                    <UButton v-for="(item, index) in items" :key="item.code"
-                        class="w-full flex flex-col items-center gap-3" @click="select(item.code)">
-                        <UIcon :name="item.icon" size="lg" />
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 overflow-y-auto px-2 pb-4">
+                    <UButton v-for="(item, index) in items" :key="item.code" class="flex flex-col items-center gap-3"
+                        @click="select(item.code)">
+                        <UIcon :name="item.icon" size="xl" />
                         <span class="text-base">{{ item.name }}</span>
                     </UButton>
                     <p v-if="items.length === 0" class="text-center py-8 opacity-50">

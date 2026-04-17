@@ -2,21 +2,45 @@
 import type { UIMessage, UIDataTypes, UITools } from "ai";
 import type { ButtonProps } from "@nuxt/ui";
 import type { UserConversation } from "~/models/conversation";
+import { useSpeechSynthesis } from "@vueuse/core";
+import type { Language } from "~/models/languages";
 
 const props = defineProps<{
     userMessage: UserConversation;
+    language: Language;
 }>();
 
 type MessageAction = Omit<ButtonProps, "onClick"> & {
     onClick?:
-        | ((
-              e: MouseEvent,
-              message: UIMessage<unknown, UIDataTypes, UITools>,
-          ) => void)
-        | undefined;
+    | ((
+        e: MouseEvent,
+        message: UIMessage<unknown, UIDataTypes, UITools>,
+    ) => void)
+    | undefined;
 };
 
 const { showToast } = useUserFeedback();
+const isSupported = ref(false);
+const voices = ref<SpeechSynthesisVoice[]>([]);
+
+const voiceMap: Record<string, SpeechSynthesisVoice> = {};
+
+onMounted(async () => {
+
+    await nextTick(); // Wait for the next tick to ensure the voices are loaded
+
+    voices.value = window.speechSynthesis.getVoices();
+
+    console.debug("Available voices:", voices);
+
+    for (const voice of voices.value) {
+        voiceMap[voice.lang] = voice;
+        if (voice.lang === props.language.code) {
+            isSupported.value = true;
+            break;
+        }
+    }
+});
 
 const messages = computed<UIMessage[]>(() => {
     return props.userMessage.messages.map((msg) => ({
@@ -28,6 +52,7 @@ const messages = computed<UIMessage[]>(() => {
                 text: msg.content,
             },
         ],
+
     }));
 });
 
@@ -44,9 +69,24 @@ const actions = ref<MessageAction[]>([
         },
     },
 ]);
+
+function onSpeak(text: string) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.voice = window.speechSynthesis
+        .getVoices()
+        .find((voice) => voice.lang === props.language.code) || null;
+
+    window.speechSynthesis.speak(utterance);
+}
+
 </script>
 
 <template>
+    <div>VOICES:</div>
+    <div v-for="voice in voices" :key="voice.name">
+        <div>{{ voice.name }} ({{ voice.lang }})</div>
+    </div>
+
     <UChatMessages class="h-full" should-auto-scroll shouldScrollToBottom :user="{
         side: 'right',
         variant: 'soft',
@@ -64,5 +104,16 @@ const actions = ref<MessageAction[]>([
     }" :messages="messages" :auto-scroll="{
         color: 'primary',
     }">
+        <template #content="{ message }">
+            <div>
+                <div>{{message.parts.filter(part => 'text' in part).map(part => part.text).join(' ')}}</div>
+                <div class="flex justify-end">
+                    <UButton icon="i-lucide-volume-2"
+                        @click="onSpeak(message.parts.filter(part => 'text' in part).map(part => part.text).join(' '))">
+                    </UButton>
+                </div>
+            </div>
+        </template>
+
     </UChatMessages>
 </template>

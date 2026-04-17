@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import type { Language } from "~/models/languages";
 import CircleButton from "./CircleButton.vue";
-import { TranslationService } from "~/services/translationService";
 
 const props = defineProps<{
     language?: Language;
@@ -12,8 +11,6 @@ const emit = defineEmits<{
 }>();
 
 const logger = useLogger();
-
-const translationService = useService(TranslationService);
 
 const isProcessing = ref(false);
 const audioVisualization = ref<number[]>([]);
@@ -49,8 +46,8 @@ const iconName = computed(() => {
     return isAudioProcessing.value || isProcessing.value
         ? "i-lucide-loader-2"
         : isAudioRecording.value
-          ? "i-lucide-square"
-          : "i-lucide-mic";
+            ? "i-lucide-square"
+            : "i-lucide-mic";
 });
 
 let audioContext: AudioContext | null = null;
