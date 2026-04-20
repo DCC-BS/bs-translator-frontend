@@ -2,12 +2,6 @@
 import { AnimatePresence, motion } from "motion-v";
 import type { Language } from "~/models/languages";
 import ToolBar from "~/components/conversation/ToolBar.vue";
-import {
-    type Conversation,
-    type ConversationMessage,
-    createEmptyConversation,
-    type UserConversation,
-} from "~/models/conversation";
 import ChatView from "~/components/conversation/ChatView.vue";
 import LanguageSetup from "~/components/conversation/LanguageSetup.vue";
 import { TranslationService } from "~/services/translationService";
@@ -16,59 +10,22 @@ definePageMeta({ layout: "conversation" });
 
 const { t } = useI18n();
 
-type Phase = "setup-a" | "transition" | "conversation";
+const {
+    addMessage,
+    removeLastMessage,
+    changeCurrentLanguage,
+    current,
+    phase,
+    other,
+    switchUser
+} = useConversation();
 
-const translationService = useService(TranslationService);
+
 const logger = useLogger();
 
-const phase = ref<Phase>("setup-a");
-const isUserA = ref(true);
 const switchDirection = ref(1);
 
-const userALanguage = ref<Language>(getLanguage("auto"));
-const userBLanguage = ref<Language>(getLanguage("auto"));
-
-const conversation = ref<Conversation>(createEmptyConversation());
-
 const pendingText = ref<string | null>(null);
-
-const queuedTranslations = ref({
-    a: [] as { text: string; message: ConversationMessage }[],
-    b: [] as { text: string; message: ConversationMessage }[],
-});
-
-const currentLanguage = computed(() =>
-    isUserA.value ? userALanguage.value : userBLanguage.value,
-);
-const otherLanguage = computed(() =>
-    isUserA.value ? userBLanguage.value : userALanguage.value,
-);
-
-const currentUserMessages = computed<UserConversation>(() =>
-    isUserA.value ? conversation.value.userA : conversation.value.userB,
-);
-const otherUserMessages = computed<UserConversation>(() =>
-    isUserA.value ? conversation.value.userB : conversation.value.userA,
-);
-
-const chatBg = computed(() =>
-    isUserA.value ? "bg-primary-300" : "bg-secondary-300",
-);
-
-const currentLanguageCode = computed({
-    get: () => currentLanguage.value.code,
-    set: (code: string) => {
-        if (isUserA.value) {
-            userALanguage.value = getLanguage(code);
-        } else {
-            userBLanguage.value = getLanguage(code);
-        }
-    },
-});
-
-const transitionPersonName = computed(() =>
-    isUserA.value ? t("conversation.personA") : t("conversation.personB"),
-);
 
 const transitionEnter = computed(() => ({
     x: switchDirection.value * 100,
@@ -79,38 +36,6 @@ const transitionExit = computed(() => ({
     x: switchDirection.value * -100,
     opacity: 0,
 }));
-
-watch(
-    [userALanguage, userBLanguage],
-    async () => {
-        if (
-            userALanguage.value.code !== "auto" &&
-            userBLanguage.value.code !== "auto"
-        ) {
-            if (queuedTranslations.value.b.length > 0) {
-                await processQueue(
-                    queuedTranslations.value.b,
-                    userALanguage.value,
-                    userBLanguage.value,
-                );
-                queuedTranslations.value.b = [];
-            }
-            if (queuedTranslations.value.a.length > 0) {
-                await processQueue(
-                    queuedTranslations.value.a,
-                    userBLanguage.value,
-                    userALanguage.value,
-                );
-                queuedTranslations.value.a = [];
-            }
-        }
-    },
-    { deep: true },
-);
-
-function onSetupADetectedLanguage(code: string) {
-    userALanguage.value = getLanguage(code);
-}
 
 const transitionTimer = ref<ReturnType<typeof setTimeout>>();
 
@@ -131,16 +56,12 @@ function onSetupATranscription(text: string) {
 }
 
 function onDetectedLanguage(code: string) {
-    if (isUserA.value) {
-        userALanguage.value = getLanguage(code);
-    } else {
-        userBLanguage.value = getLanguage(code);
-    }
+    current.value.language = getLanguage(code);
 }
 
 function onSwitch() {
-    switchDirection.value = isUserA.value ? 1 : -1;
-    isUserA.value = !isUserA.value;
+    switchDirection.value = current.value.name === "a" ? 1 : -1;
+    switchUser();
     startTransition();
 }
 
@@ -153,8 +74,8 @@ function onConfirmMessage() {
     const text = pendingText.value;
     pendingText.value = null;
     addMessage(text);
-    switchDirection.value = isUserA.value ? 1 : -1;
-    isUserA.value = !isUserA.value;
+    switchDirection.value = current.value.name === "a" ? 1 : -1;
+    switchUser();
     startTransition();
 }
 
@@ -174,86 +95,11 @@ onUnmounted(() => {
 });
 
 function onUndo() {
-    const msgs = currentUserMessages.value.messages;
-    const otherMsgs = otherUserMessages.value.messages;
-
-    for (let i = msgs.length - 1; i >= 0; i--) {
-        if (msgs[i]?.role === "original") {
-            msgs.splice(i, 1);
-            break;
-        }
-    }
-    for (let i = otherMsgs.length - 1; i >= 0; i--) {
-        if (otherMsgs[i]?.role === "translated") {
-            otherMsgs.splice(i, 1);
-            break;
-        }
-    }
+    removeLastMessage();
 }
 
-async function addMessage(text: string) {
-    if (currentLanguage.value.code === "auto") {
-        const result = await translationService.detectLanguage(text);
-        if (isUserA.value) {
-            userALanguage.value = getLanguage(result.language);
-        } else {
-            userBLanguage.value = getLanguage(result.language);
-        }
-    }
+function onSetupADetectedLanguage() {
 
-    currentUserMessages.value.messages.push({
-        id: createUUID(),
-        content: text,
-        role: "original",
-    });
-
-    if (otherLanguage.value.code === "auto") {
-        const msg: ConversationMessage = {
-            id: createUUID(),
-            content: "",
-            role: "translated",
-        };
-        otherUserMessages.value.messages.push(msg);
-        const queue = isUserA.value
-            ? queuedTranslations.value.b
-            : queuedTranslations.value.a;
-        queue.push({ text, message: msg });
-        return;
-    }
-
-    const msg: ConversationMessage = {
-        id: createUUID(),
-        content: "",
-        role: "translated",
-    };
-    otherUserMessages.value.messages.push(msg);
-    translateAndShow(text, currentLanguage.value, otherLanguage.value, msg);
-}
-
-async function translateAndShow(
-    text: string,
-    sourceLang: Language,
-    targetLang: Language,
-    message: ConversationMessage,
-) {
-    for await (const chunk of translationService.translate(text, {
-        source_language: sourceLang.code,
-        target_language: targetLang.code,
-    })) {
-        message.content += chunk;
-    }
-}
-
-async function processQueue(
-    texts: { text: string; message: ConversationMessage }[],
-    sourceLang: Language,
-    targetLang: Language,
-) {
-    logger.debug({ texts }, "Processing translation queue:");
-
-    for (const { text, message } of texts) {
-        await translateAndShow(text, sourceLang, targetLang, message);
-    }
 }
 </script>
 
@@ -262,16 +108,16 @@ async function processQueue(
         <div class="h-full max-w-[900px] min-w-[calc(min(100vw,900px))] mx-auto shadow-md overflow-hidden relative">
             <AnimatePresence mode="wait">
                 <!-- Setup Phase: User A selects language -->
-                <motion.div v-if="phase === 'setup-a'" key="setup" :initial="{ opacity: 0, y: 30 }"
+                <motion.div v-if="phase === 'setup'" key="setup" :initial="{ opacity: 0, y: 30 }"
                     :animate="{ opacity: 1, y: 0 }" :exit="{ opacity: 0, y: -20 }"
-                    :transition="{ duration: 0.3, ease: 'easeInOut' }" class="h-full" :class="chatBg">
-                    <LanguageSetup :language="userALanguage" :other-language="userBLanguage"
+                    :transition="{ duration: 0.3, ease: 'easeInOut' }" class="h-full" :class="current.backgroundColor">
+                    <LanguageSetup :language="current.language" :other-language="other.language"
                         :title="t('conversation.selectYourLanguage')" :subtitle="t('conversation.orStartTalking')"
                         :show-other-language="true" :other-language-label="t('conversation.otherPersonLanguage')
                             " :continue-label="t('conversation.continue')" @update:language="
-                                (l: Language) => (userALanguage = l)
+                                (l: Language) => (current.language = l)
                             " @update:other-language="
-                                (l: Language) => (userBLanguage = l)
+                                (l: Language) => (other.language = l)
                             " @continue="onSetupAContinue" @transcription="onSetupATranscription"
                         @detected-language="onSetupADetectedLanguage" />
                 </motion.div>
@@ -280,13 +126,14 @@ async function processQueue(
                 <motion.div v-else-if="phase === 'transition'" key="transition" :initial="transitionEnter"
                     :animate="{ x: 0, opacity: 1 }" :exit="transitionExit"
                     :transition="{ duration: 0.35, ease: 'easeInOut' }"
-                    class="absolute inset-0 flex flex-col items-center justify-center p-6 gap-6" :class="chatBg">
+                    class="absolute inset-0 flex flex-col items-center justify-center p-6 gap-6"
+                    :class="current.backgroundColor">
                     <motion.div :initial="{ scale: 0.5, opacity: 0 }" :animate="{
                         scale: 1,
                         opacity: 1,
                         transition: { delay: 0.1, type: 'spring', stiffness: 200 },
                     }">
-                        <UIcon :name="otherLanguage.icon" size="4xl" class="mb-2" />
+                        <UIcon :name="current.language.icon" size="4xl" class="mb-2" />
                     </motion.div>
 
                     <motion.h1 class="text-2xl font-bold text-center" :initial="{ opacity: 0, y: 10 }" :animate="{
@@ -296,7 +143,7 @@ async function processQueue(
                     }">
                         {{
                             t("conversation.handToPerson", [
-                                transitionPersonName,
+                                "other person",
                             ])
                         }}
                     </motion.h1>
@@ -317,14 +164,14 @@ async function processQueue(
                 <!-- Conversation Phase -->
                 <motion.div v-else key="conversation" :initial="{ opacity: 0 }" :animate="{ opacity: 1 }"
                     :exit="{ opacity: 0 }" :transition="{ duration: 0.25, ease: 'easeInOut' }"
-                    class="grid grid-rows-[1fr_auto] h-full" :class="chatBg">
+                    class="grid grid-rows-[1fr_auto] h-full" :class="current.backgroundColor">
                     <div class="p-2 overflow-y-auto">
-                        <ChatView class="p-2" :user-message="currentUserMessages" :language="currentLanguage" />
+                        <ChatView class="p-2" :user-message="current.conversation" :language="current.language" />
                     </div>
 
                     <div class="flex flex-col items-center mx-auto bg-black/10 w-full">
-                        <MobileLanguageSelect v-model="currentLanguageCode" :include-auto-detect="false"
-                            :detected-language-code="currentLanguage.code" />
+                        <MobileLanguageSelect v-model="current.language.code" :include-auto-detect="false"
+                            :detected-language-code="current.language.code" />
 
                         <AnimatePresence mode="wait">
                             <!-- Pending message confirmation (toolbar hidden) -->
@@ -400,7 +247,7 @@ async function processQueue(
                             <motion.div v-else key="toolbar" :initial="{ opacity: 0 }"
                                 :animate="{ opacity: 1, transition: { duration: 0.2 } }"
                                 :exit="{ opacity: 0, transition: { duration: 0.1 } }" class="w-full">
-                                <ToolBar :current-language="currentLanguage" :others-language="otherLanguage"
+                                <ToolBar :current-language="current.language" :others-language="other.language"
                                     @switch-click="onSwitch" @transcription="onConversationTranscription" @undo="onUndo"
                                     @detected-language="onDetectedLanguage" />
                             </motion.div>

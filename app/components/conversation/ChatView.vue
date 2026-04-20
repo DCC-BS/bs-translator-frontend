@@ -2,7 +2,6 @@
 import type { UIMessage, UIDataTypes, UITools } from "ai";
 import type { ButtonProps } from "@nuxt/ui";
 import type { UserConversation } from "~/models/conversation";
-import { useSpeechSynthesis } from "@vueuse/core";
 import type { Language } from "~/models/languages";
 
 const props = defineProps<{
@@ -20,27 +19,7 @@ type MessageAction = Omit<ButtonProps, "onClick"> & {
 };
 
 const { showToast } = useUserFeedback();
-const isSupported = ref(false);
-const voices = ref<SpeechSynthesisVoice[]>([]);
-
-const voiceMap: Record<string, SpeechSynthesisVoice> = {};
-
-onMounted(async () => {
-
-    await nextTick(); // Wait for the next tick to ensure the voices are loaded
-
-    voices.value = window.speechSynthesis.getVoices();
-
-    console.debug("Available voices:", voices);
-
-    for (const voice of voices.value) {
-        voiceMap[voice.lang] = voice;
-        if (voice.lang === props.language.code) {
-            isSupported.value = true;
-            break;
-        }
-    }
-});
+const { isSupported, voices, speak } = useTTS(props.language);
 
 const messages = computed<UIMessage[]>(() => {
     return props.userMessage.messages.map((msg) => ({
@@ -71,21 +50,33 @@ const actions = ref<MessageAction[]>([
 ]);
 
 function onSpeak(text: string) {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.voice = window.speechSynthesis
-        .getVoices()
-        .find((voice) => voice.lang === props.language.code) || null;
-
-    window.speechSynthesis.speak(utterance);
+    speak(text);
 }
 
 </script>
 
 <template>
-    <div>VOICES:</div>
-    <div v-for="voice in voices" :key="voice.name">
-        <div>{{ voice.name }} ({{ voice.lang }})</div>
-    </div>
+    <UDrawer>
+        <UButton variant="outline">Available Voices</UButton>
+        <template #content>
+            <div class="p-4 overflow-auto max-h-[80vh]">
+                <h2 class="text-xl">Available voices</h2>
+                <div class="flex flex-col gap-2 mt-4">
+                    <div v-for="voice in voices" :key="voice.name" class="flex items-center gap-3">
+                        <div class="flex-1">
+                            <p class="font-medium">{{ voice.name }}</p>
+                            <p class="text-sm opacity-70">{{ voice.lang }}</p>
+                        </div>
+                        <UButton size="sm" variant="outline"
+                            @click="speak('Hello, this is a voice test.', { voice: voice })">
+                            Test
+                        </UButton>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </UDrawer>
+
 
     <UChatMessages class="h-full" should-auto-scroll shouldScrollToBottom :user="{
         side: 'right',
@@ -108,7 +99,7 @@ function onSpeak(text: string) {
             <div>
                 <div>{{message.parts.filter(part => 'text' in part).map(part => part.text).join(' ')}}</div>
                 <div class="flex justify-end">
-                    <UButton icon="i-lucide-volume-2"
+                    <UButton icon="i-lucide-volume-2" :active="isSupported" variant="ghost" size="sm"
                         @click="onSpeak(message.parts.filter(part => 'text' in part).map(part => part.text).join(' '))">
                     </UButton>
                 </div>

@@ -17,6 +17,7 @@ const audioVisualization = ref<number[]>([]);
 const currentLanguage = ref(getLanguage(props.language?.code));
 const guessedText = ref("");
 const transcribeAbortController = ref<AbortController>();
+const liveTranscribeAbortController = ref<AbortController>();
 
 const { transcribe } = useTranscribe();
 
@@ -169,15 +170,18 @@ async function runTranscription() {
 }
 
 async function onInterval(mp3: Blob) {
-    transcribeQueue.push(transcribe(mp3, currentLanguage.value?.code));
+    transcribeQueue.push(transcribe(mp3, currentLanguage.value?.code, liveTranscribeAbortController.value?.signal));
 }
 
 async function toggleRecording() {
     if (isAudioRecording.value) {
         transcribeAbortController.value?.abort();
+        liveTranscribeAbortController.value?.abort();
         await stopAudioRecording();
         guessedText.value = "";
     } else {
+        liveTranscribeAbortController.value?.abort();
+        liveTranscribeAbortController.value = new AbortController();
         await startAudioRecording();
         runTranscription();
     }
@@ -187,6 +191,8 @@ onUnmounted(() => {
     cleanupVisualization();
     transcribeAbortController.value?.abort();
     transcribeAbortController.value = new AbortController();
+    liveTranscribeAbortController.value?.abort();
+    liveTranscribeAbortController.value = new AbortController();
 });
 </script>
 

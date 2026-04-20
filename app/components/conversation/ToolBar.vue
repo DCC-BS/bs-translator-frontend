@@ -23,10 +23,7 @@ const emit = defineEmits<{
     <div class="grid grid-cols-3 gap-4 p-4 justify-center items-center">
         <div class="flex justify-end items-center">
             <UPopover>
-                <motion.div
-                    :whilePress="{ scale: 0.85 }"
-                    :transition="{ type: 'spring', stiffness: 400, damping: 17 }"
-                >
+                <motion.div :whilePress="{ scale: 0.85 }" :transition="{ type: 'spring', stiffness: 400, damping: 17 }">
                     <CircleButton class="w-12 h-12">
                         <UIcon name="i-lucide-ellipsis" />
                     </CircleButton>
@@ -49,10 +46,8 @@ const emit = defineEmits<{
             </ClientOnly>
         </div>
         <div class="m-auto">
-            <motion.div
-                :whilePress="{ scale: 0.85, rotate: 180 }"
-                :transition="{ type: 'spring', stiffness: 300, damping: 15 }"
-            >
+            <motion.div :whilePress="{ scale: 0.85, rotate: 180 }"
+                :transition="{ type: 'spring', stiffness: 300, damping: 15 }">
                 <UChip size="2xl" inset color="secondary">
                     <template #content>
                         <UIcon :name="props.othersLanguage.icon" />

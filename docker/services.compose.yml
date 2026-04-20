@@ -71,7 +71,6 @@ services:
       - DOCLING_SERVE_ENABLE_UI=true
     volumes:
       - "${HOME}/.cache/docling:/models"
-      - ./docling_config.json:/app/docling_config.json:ro
   translator-backend:
     image: ghcr.io/dcc-bs/bs-translator-backend:latest
     expose:
