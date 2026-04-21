@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { AnimatePresence, motion } from "motion-v";
 import { languages } from "~/models/languages";
 
 const props = defineProps<{
@@ -85,7 +84,7 @@ function select(code: string) {
 </script>
 
 <template>
-    <UDrawer v-model:open="isOpen" :title="t('conversation.selectLanguage')">
+    <UDrawer v-model:open="isOpen">
         <UButton variant="ghost" size="sm">
             <div v-if="selectedLanguage" class="flex items-center gap-1.5">
                 <UIcon :name="selectedLanguage.icon" :class="{
@@ -97,12 +96,8 @@ function select(code: string) {
                 <UIcon name="i-lucide-chevron-down" size="xs" class="opacity-50" />
             </div>
         </UButton>
-        <template #body>
-            <div class="flex flex-col h-full">
-                <div class="px-4 pb-3 w-full">
-                    <UInput v-model="search" icon="i-lucide-search" :placeholder="t('conversation.searchLanguage')"
-                        size="lg" class="w-full" />
-                </div>
+        <template #content>
+            <div class="grid grid-rows-[1fr_auto] max-h-[80vh]">
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 overflow-y-auto px-2 pb-4">
                     <UButton v-for="(item, index) in items" :key="item.code" class="flex flex-col items-center gap-3"
                         @click="select(item.code)">
@@ -112,6 +107,10 @@ function select(code: string) {
                     <p v-if="items.length === 0" class="text-center py-8 opacity-50">
                         {{ t("conversation.noLanguageFound") }}
                     </p>
+                </div>
+                <div class="px-4 pb-3 w-full">
+                    <UInput v-model="search" icon="i-lucide-search" :placeholder="t('conversation.searchLanguage')"
+                        size="lg" class="w-full" />
                 </div>
             </div>
         </template>

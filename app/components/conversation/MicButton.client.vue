@@ -47,8 +47,8 @@ const iconName = computed(() => {
     return isAudioProcessing.value || isProcessing.value
         ? "i-lucide-loader-2"
         : isAudioRecording.value
-          ? "i-lucide-square"
-          : "i-lucide-mic";
+            ? "i-lucide-square"
+            : "i-lucide-mic";
 });
 
 let audioContext: AudioContext | null = null;
@@ -181,9 +181,9 @@ async function onInterval(mp3: Blob) {
 
 async function toggleRecording() {
     if (isAudioRecording.value) {
-        transcribeAbortController.value?.abort();
         liveTranscribeAbortController.value?.abort();
         await stopAudioRecording();
+        transcribeAbortController.value?.abort();
         guessedText.value = "";
     } else {
         liveTranscribeAbortController.value?.abort();
