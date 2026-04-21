@@ -251,14 +251,17 @@
         "orStartTalking": "oder sprich, um die Sprache zu erkennen",
         "otherPersonLanguage": "Sprache der anderen Person (optional)",
         "continue": "Weiter",
-        "handToPerson": "Gib das Handy an {0}",
+        "handToPerson": "Gib das Handy an die andere Person weiter",
         "selectOrTalk": "Wähle deine Sprache oder sprich",
         "ready": "Ich bin bereit",
         "undo": "Letzte Nachricht rückgängig machen",
         "recordMore": "Weitere Aufnahme hinzufügen...",
         "selectLanguage": "Sprache wählen",
         "searchLanguage": "Sprache suchen...",
-        "noLanguageFound": "Keine Sprache gefunden"
+        "noLanguageFound": "Keine Sprache gefunden",
+        "availableVoices": "Verfügbare Stimmen",
+        "test": "Testen",
+        "cannotTranslateText": "Ich kann diesen Text nicht übersetzen."
     },
     "api_error": {
         "fetch_failed": "Fetch fehlgeschlagen. Bitte versuchen Sie es erneut.",

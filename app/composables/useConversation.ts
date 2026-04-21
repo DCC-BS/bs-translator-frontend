@@ -1,8 +1,8 @@
-import {
-    type ConversationMessage,
-    type UserConversation,
+import type {
+    ConversationMessage,
+    UserConversation,
 } from "~/models/conversation";
-import { languageMap, type Language } from "~/models/languages";
+import { type Language, languageMap } from "~/models/languages";
 import { TranslationService } from "~/services/translationService";
 
 type Phase = "setup" | "transition" | "conversation";
@@ -29,13 +29,13 @@ export function useConversation() {
     const translationSerivce = useService(TranslationService);
     const phase = ref<Phase>("setup");
 
-    const userA = reactive<UserContext>(newContext("bg-primary-200", "a"));
-    const userB = reactive<UserContext>(newContext("bg-secondary-200", "b"));
+    const userA = reactive<UserContext>(newContext("bg-blue-200", "a"));
+    const userB = reactive<UserContext>(newContext("bg-orange-200", "b"));
 
     const current = ref(userA);
     const other = ref(userB);
 
-    let intervalId: number | undefined | NodeJS.Timeout = undefined;
+    let intervalId: number | undefined | NodeJS.Timeout;
 
     onMounted(() => {
         intervalId = setInterval(() => processQueue(), 1000);
@@ -56,12 +56,17 @@ export function useConversation() {
         other.value = other.value === userA ? userB : userA;
     }
 
-    function addMessage(text: string) {
+    async function addMessage(text: string) {
         const messageA: ConversationMessage = {
             id: crypto.randomUUID(),
             role: "original",
             content: text,
         };
+
+        if (current.value.language.code === "auto") {
+            const result = await translationSerivce.detectLanguage(text);
+            current.value.language = getLanguage(result.language);
+        }
 
         const messageB: ConversationMessage = {
             ...messageA,
@@ -114,18 +119,8 @@ export function useConversation() {
             },
         ]) {
             if (sourceLang.code === "auto" || targetLang.code === "auto") {
-                console.warn(
-                    "Skipping translation due to auto-detect language. Source:",
-                    sourceLang,
-                    "Target:",
-                    targetLang,
-                );
                 continue; // Skip translation if either language is set to auto-detect
             }
-
-            console.log(
-                `Processing translation queue for user ${sourceLang.code} -> ${targetLang.code}. Queue length: ${queue.length}`,
-            );
 
             for (const { text, message } of queue) {
                 translateAndAddMessage(text, sourceLang, targetLang, message);

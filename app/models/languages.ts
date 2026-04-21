@@ -128,6 +128,7 @@ export const toBCP47: Record<string, string> = {
     uk: "uk-UA",
     ur: "ur-PK",
     vi: "vi-VN",
+    "zh-hk": "zh-HK",
     "zh-cn": "zh-CN",
     "zh-tw": "zh-TW",
 };

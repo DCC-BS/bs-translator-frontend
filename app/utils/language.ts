@@ -1,7 +1,7 @@
 import {
-    languageMap,
     type Language,
     type LanguageCode,
+    languageMap,
     toBCP47,
 } from "~/models/languages";
 
@@ -51,4 +51,19 @@ export function toBCP47Code(lang: FuzzyLanguage): string {
     }
 
     return toBCP47[code] as string;
+}
+
+export function fromBCP47Code(bcp47: string): Language {
+    const code = Object.keys(toBCP47).find(
+        (key) => toBCP47[key] === bcp47.trim(),
+    );
+
+    if (!code) {
+        console.warn(
+            `BCP-47 code "${bcp47}" not found in toBCP47 mapping. Defaulting to auto-detect.`,
+        );
+        return languageMap.auto as Language; // Default to auto-detect if BCP-47 code is not found
+    }
+
+    return getLanguage(code as FuzzyLanguage);
 }

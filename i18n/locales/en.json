@@ -251,14 +251,17 @@
         "orStartTalking": "or start talking to auto-detect",
         "otherPersonLanguage": "Other person's language (optional)",
         "continue": "Continue",
-        "handToPerson": "Hand the phone to {0}",
+        "handToPerson": "Hand the phone to the other person",
         "selectOrTalk": "Select your language or start talking",
         "ready": "I'm ready",
         "undo": "Undo last message",
         "recordMore": "Record more to add...",
         "selectLanguage": "Select Language",
         "searchLanguage": "Search language...",
-        "noLanguageFound": "No language found"
+        "noLanguageFound": "No language found",
+        "availableVoices": "Available voices",
+        "test": "Test",
+        "cannotTranslateText": "I cannot translate this text."
     },
     "api_error": {
         "fetch_failed": "Fetch failed. Please try again.",

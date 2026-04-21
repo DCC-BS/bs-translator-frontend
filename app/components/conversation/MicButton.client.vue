@@ -47,8 +47,8 @@ const iconName = computed(() => {
     return isAudioProcessing.value || isProcessing.value
         ? "i-lucide-loader-2"
         : isAudioRecording.value
-            ? "i-lucide-square"
-            : "i-lucide-mic";
+          ? "i-lucide-square"
+          : "i-lucide-mic";
 });
 
 let audioContext: AudioContext | null = null;
@@ -170,7 +170,13 @@ async function runTranscription() {
 }
 
 async function onInterval(mp3: Blob) {
-    transcribeQueue.push(transcribe(mp3, currentLanguage.value?.code, liveTranscribeAbortController.value?.signal));
+    transcribeQueue.push(
+        transcribe(
+            mp3,
+            currentLanguage.value?.code,
+            liveTranscribeAbortController.value?.signal,
+        ),
+    );
 }
 
 async function toggleRecording() {
@@ -197,7 +203,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <UPopover :open="isAudioRecording" :dismissible="false" :ui="{ content: 'ring-0 shadow-none' }">
+    <UPopover :open="isAudioRecording" :dismissible="false" :ui="{ content: 'ring-0 shadow-none bg-transparent' }">
         <template #content>
             <div v-if="isAudioRecording" class="flex flex-col justify-center items-center max-w-[80vw]">
                 <div class="text-wrap wrap-break-word text-center">{{ guessedText }}</div>

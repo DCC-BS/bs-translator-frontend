@@ -1,25 +1,16 @@
 <script lang="ts" setup>
 import { AnimatePresence, motion } from "motion-v";
-import type { Language } from "~/models/languages";
-import ToolBar from "~/components/conversation/ToolBar.vue";
 import ChatView from "~/components/conversation/ChatView.vue";
 import LanguageSetup from "~/components/conversation/LanguageSetup.vue";
-import { TranslationService } from "~/services/translationService";
+import ToolBar from "~/components/conversation/ToolBar.vue";
+import type { Language } from "~/models/languages";
 
 definePageMeta({ layout: "conversation" });
 
 const { t } = useI18n();
 
-const {
-    addMessage,
-    removeLastMessage,
-    changeCurrentLanguage,
-    current,
-    phase,
-    other,
-    switchUser
-} = useConversation();
-
+const { addMessage, removeLastMessage, current, phase, other, switchUser } =
+    useConversation();
 
 const logger = useLogger();
 
@@ -53,10 +44,6 @@ function onSetupAContinue() {
 function onSetupATranscription(text: string) {
     addMessage(text);
     phase.value = "conversation";
-}
-
-function onDetectedLanguage(code: string) {
-    current.value.language = getLanguage(code);
 }
 
 function onSwitch() {
@@ -97,10 +84,6 @@ onUnmounted(() => {
 function onUndo() {
     removeLastMessage();
 }
-
-function onSetupADetectedLanguage() {
-
-}
 </script>
 
 <template>
@@ -118,8 +101,7 @@ function onSetupADetectedLanguage() {
                                 (l: Language) => (current.language = l)
                             " @update:other-language="
                                 (l: Language) => (other.language = l)
-                            " @continue="onSetupAContinue" @transcription="onSetupATranscription"
-                        @detected-language="onSetupADetectedLanguage" />
+                            " @continue="onSetupAContinue" @transcription="onSetupATranscription" />
                 </motion.div>
 
                 <!-- Transition Phase: Auto handoff between users -->
@@ -141,11 +123,7 @@ function onSetupADetectedLanguage() {
                         y: 0,
                         transition: { delay: 0.15, duration: 0.3 },
                     }">
-                        {{
-                            t("conversation.handToPerson", [
-                                "other person",
-                            ])
-                        }}
+                        {{ t("conversation.handToPerson") }}
                     </motion.h1>
 
                     <div class="flex items-center gap-1.5 mt-4">
@@ -248,8 +226,8 @@ function onSetupADetectedLanguage() {
                                 :animate="{ opacity: 1, transition: { duration: 0.2 } }"
                                 :exit="{ opacity: 0, transition: { duration: 0.1 } }" class="w-full">
                                 <ToolBar :current-language="current.language" :others-language="other.language"
-                                    @switch-click="onSwitch" @transcription="onConversationTranscription" @undo="onUndo"
-                                    @detected-language="onDetectedLanguage" />
+                                    @switch-click="onSwitch" @transcription="onConversationTranscription"
+                                    @undo="onUndo" />
                             </motion.div>
                         </AnimatePresence>
                     </div>

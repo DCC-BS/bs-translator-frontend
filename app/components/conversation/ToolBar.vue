@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { motion } from "motion-v";
+import type { Language } from "~/models/languages";
 import CircleButton from "./CircleButton.vue";
-import { type Language } from "~/models/languages";
 import MicButtonClient from "./MicButton.client.vue";
+import VoiceList from "./VoiceList.vue";
 
 interface InputProps {
     currentLanguage: Language;
@@ -15,7 +16,6 @@ const emit = defineEmits<{
     "switch-click": [];
     transcription: [text: string];
     undo: [];
-    "detected-language": [code: string];
 }>();
 </script>
 
@@ -30,7 +30,16 @@ const emit = defineEmits<{
                 </motion.div>
 
                 <template #content>
-                    <div class="p-2">
+                    <div class="p-2 gap-2 flex flex-col">
+                        <UDrawer>
+                            <CircleButton>
+                                <UIcon name="i-lucide-megaphone" />
+                            </CircleButton>
+                            <template #content>
+                                <VoiceList />
+                            </template>
+                        </UDrawer>
+
                         <CircleButton @click="() => emit('undo')">
                             <UIcon name="i-lucide-undo" />
                         </CircleButton>
@@ -41,22 +50,18 @@ const emit = defineEmits<{
         <div class="m-auto">
             <ClientOnly>
                 <MicButtonClient :language="props.currentLanguage"
-                    @transcribed="(t: string) => emit('transcription', t)"
-                    @detected-language="(c: string) => emit('detected-language', c)" />
+                    @transcribed="(t: string) => emit('transcription', t)" />
             </ClientOnly>
         </div>
         <div class="m-auto">
-            <motion.div :whilePress="{ scale: 0.85, rotate: 180 }"
-                :transition="{ type: 'spring', stiffness: 300, damping: 15 }">
-                <UChip size="2xl" inset color="secondary">
-                    <template #content>
-                        <UIcon :name="props.othersLanguage.icon" />
-                    </template>
-                    <CircleButton @click="() => emit('switch-click')">
-                        <UIcon name="i-lucide-arrow-left-right" size="24" />
-                    </CircleButton>
-                </UChip>
-            </motion.div>
+            <UChip size="2xl" inset color="secondary">
+                <template #content>
+                    <UIcon :name="props.othersLanguage.icon" />
+                </template>
+                <CircleButton @click="() => emit('switch-click')">
+                    <UIcon name="i-lucide-arrow-left-right" size="24" />
+                </CircleButton>
+            </UChip>
         </div>
     </div>
 </template>
