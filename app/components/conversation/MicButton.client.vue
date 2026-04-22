@@ -33,9 +33,13 @@ const {
         initializeVisualization(stream);
     },
     onRecordingStopped: async (audioBlob: Blob) => {
-        cleanupVisualization();
-        isProcessing.value = true;
-        await handleTranscription(audioBlob);
+        try {
+            cleanupVisualization();
+            isProcessing.value = true;
+            await handleTranscription(audioBlob);
+        } catch (e) {
+            console.error(String(e));
+        }
     },
     onError: () => {
         cleanupVisualization();
@@ -47,8 +51,8 @@ const iconName = computed(() => {
     return isAudioProcessing.value || isProcessing.value
         ? "i-lucide-loader-2"
         : isAudioRecording.value
-            ? "i-lucide-square"
-            : "i-lucide-mic";
+          ? "i-lucide-square"
+          : "i-lucide-mic";
 });
 
 let audioContext: AudioContext | null = null;
@@ -183,7 +187,6 @@ async function toggleRecording() {
     if (isAudioRecording.value) {
         liveTranscribeAbortController.value?.abort();
         await stopAudioRecording();
-        transcribeAbortController.value?.abort();
         guessedText.value = "";
     } else {
         liveTranscribeAbortController.value?.abort();
