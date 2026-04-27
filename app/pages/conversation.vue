@@ -41,8 +41,8 @@ function onSetupAContinue() {
     phase.value = "conversation";
 }
 
-function onSetupATranscription(text: string) {
-    addMessage(text);
+async function onSetupATranscription(text: string) {
+    await addMessage(text);
     phase.value = "conversation";
 }
 
@@ -56,21 +56,21 @@ function onConversationTranscription(text: string) {
     pendingText.value = text;
 }
 
-function onConfirmMessage() {
+async function onConfirmMessage() {
     if (!pendingText.value) return;
     const text = pendingText.value;
     pendingText.value = null;
-    addMessage(text);
+    await addMessage(text);
     switchDirection.value = current.value.name === "a" ? 1 : -1;
     switchUser();
     startTransition();
 }
 
-function onAddNewMessage() {
+async function onAddNewMessage() {
     if (!pendingText.value) return;
     const text = pendingText.value;
     pendingText.value = null;
-    addMessage(text);
+    await addMessage(text);
 }
 
 function onRetryMessage() {

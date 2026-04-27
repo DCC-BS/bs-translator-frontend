@@ -36,6 +36,11 @@ export function useTranscribe() {
 
         if (isApiError(response)) {
             error.value = response.message;
+
+            if (response.errorId === "request_aborted") {
+                yield "";
+            }
+
             showError(new Error(t(`api_error.transcribe.${response.errorId}`)));
 
             yield "";
