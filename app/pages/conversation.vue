@@ -12,8 +12,6 @@ const { t } = useI18n();
 const { addMessage, removeLastMessage, current, phase, other, switchUser } =
     useConversation();
 
-const logger = useLogger();
-
 const switchDirection = ref(1);
 
 const pendingText = ref<string | null>(null);
@@ -143,7 +141,7 @@ function onUndo() {
                 <motion.div v-else key="conversation" :initial="{ opacity: 0 }" :animate="{ opacity: 1 }"
                     :exit="{ opacity: 0 }" :transition="{ duration: 0.25, ease: 'easeInOut' }"
                     class="grid grid-rows-[1fr_auto] h-full" :class="current.backgroundColor">
-                    <div class="p-2 overflow-y-auto">
+                    <div class="p-2 pt-10 overflow-y-auto">
                         <ChatView class="p-2" :user-message="current.conversation" :language="current.language" />
                     </div>
 

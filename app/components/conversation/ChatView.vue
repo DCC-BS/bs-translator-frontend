@@ -11,11 +11,11 @@ const props = defineProps<{
 
 type MessageAction = Omit<ButtonProps, "onClick"> & {
     onClick?:
-        | ((
-              e: MouseEvent,
-              message: UIMessage<unknown, UIDataTypes, UITools>,
-          ) => void)
-        | undefined;
+    | ((
+        e: MouseEvent,
+        message: UIMessage<unknown, UIDataTypes, UITools>,
+    ) => void)
+    | undefined;
 };
 
 const { showToast } = useUserFeedback();
