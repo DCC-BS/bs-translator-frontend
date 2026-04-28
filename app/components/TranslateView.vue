@@ -135,33 +135,23 @@ function onCapturePhoto() {
             </template>
 
             <template #left>
-                <motion.div class="h-full w-full relative" :initial="{ opacity: 0, x: -20 }" :animate="{
-                    opacity: 1,
-                    x: 0,
-                    transition: { delay: 0.2, duration: 0.3, ease: 'easeInOut' },
-                }">
+                <div class="h-full w-full relative">
                     <SourceTextView v-model="sourceText" :is-over-drop-zone="isOverDropZone"
                         :is-converting="isConverting" :error="conversionError" :fileName="fileName"
                         :language-code="sourceLanguage" ref="dropZoneRef" @clear-error="clearError"
                         @trigger-file-upload="triggerFileUpload" />
-                </motion.div>
+                </div>
             </template>
 
             <template #right>
-                <motion.div class="h-full w-full" :initial="{ opacity: 0, x: 20 }" :animate="{
-                    opacity: 1,
-                    x: 0,
-                    transition: { delay: 0.3, duration: 0.3, ease: 'easeInOut' },
-                }">
+                <div class="h-full w-full">
                     <TargetTextView v-model="translatedText" :is-translating="isTranslating"
                         :languageCode="targetLanguage" />
-                </motion.div>
+                </div>
             </template>
         </SplitContainer>
     </div>
 </template>
-
-
 
 <style>
 /* Animation for transition effects */

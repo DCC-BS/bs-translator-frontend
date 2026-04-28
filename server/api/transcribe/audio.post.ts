@@ -27,9 +27,11 @@ export default backendHandlerBuilder()
             forwardHeaders.set("X-Client-Id", clientId);
         }
 
-        const signal = getAbortSignal(event);
+        let signal: AbortSignal | undefined;
 
         try {
+            signal = getAbortSignal(event);
+
             const response = await fetch(url, {
                 method: method,
                 body: form,
@@ -45,7 +47,7 @@ export default backendHandlerBuilder()
 
             return response;
         } catch (error) {
-            if (signal.aborted) {
+            if (signal?.aborted) {
                 return new Response(null, { status: 499 });
             }
             throw error;

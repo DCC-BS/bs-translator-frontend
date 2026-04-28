@@ -42,9 +42,11 @@ async function handleRestartTour(): Promise<void> {
 <template>
     <NavigationBar data-tour="main-content">
         <template #left>
-            <ULink to="/" class="text-xl font-bold ml-4">
-            BS Translator
-            </ULink>
+            <div>
+                <ULink to="/" class="hidden md-inline text-xl font-bold ml-4">
+                    {{ t("navigation.app")}}
+                </ULink>
+            </div>
         </template>
         <template #rightPostItems>
             <OnlineStatus :isOnlineCheckFunction="onlineFetchFunction" />

@@ -14,10 +14,7 @@ const logger = useLogger();
 
 const isProcessing = ref(false);
 const audioVisualization = ref<number[]>([]);
-const currentLanguage = ref(getLanguage(props.language?.code));
-const guessedText = ref("");
 const transcribeAbortController = ref<AbortController>();
-const liveTranscribeAbortController = ref<AbortController>();
 
 const { transcribe } = useTranscribe();
 
@@ -44,15 +41,14 @@ const {
     onError: () => {
         cleanupVisualization();
     },
-    onStore: onInterval,
 });
 
 const iconName = computed(() => {
     return isAudioProcessing.value || isProcessing.value
         ? "i-lucide-loader-2"
         : isAudioRecording.value
-          ? "i-lucide-square"
-          : "i-lucide-mic";
+            ? "i-lucide-square"
+            : "i-lucide-mic";
 });
 
 let audioContext: AudioContext | null = null;
@@ -146,53 +142,11 @@ async function handleTranscription(blob: Blob) {
     }
 }
 
-async function runTranscription() {
-    transcribeAbortController.value?.abort();
-    transcribeAbortController.value = new AbortController();
-    const signal = transcribeAbortController.value.signal;
-
-    while (true) {
-        if (signal.aborted) {
-            break;
-        }
-
-        if (transcribeQueue.length === 0) {
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            continue;
-        }
-
-        const currentTranscription = transcribeQueue.shift();
-        if (!currentTranscription) continue;
-
-        for await (const chunk of currentTranscription) {
-            guessedText.value += chunk;
-            if (signal.aborted) {
-                break;
-            }
-        }
-    }
-}
-
-async function onInterval(mp3: Blob) {
-    transcribeQueue.push(
-        transcribe(
-            mp3,
-            currentLanguage.value?.code,
-            liveTranscribeAbortController.value?.signal,
-        ),
-    );
-}
-
 async function toggleRecording() {
     if (isAudioRecording.value) {
-        liveTranscribeAbortController.value?.abort();
         await stopAudioRecording();
-        guessedText.value = "";
     } else {
-        liveTranscribeAbortController.value?.abort();
-        liveTranscribeAbortController.value = new AbortController();
         await startAudioRecording();
-        runTranscription();
     }
 }
 
@@ -200,8 +154,6 @@ onUnmounted(() => {
     cleanupVisualization();
     transcribeAbortController.value?.abort();
     transcribeAbortController.value = new AbortController();
-    liveTranscribeAbortController.value?.abort();
-    liveTranscribeAbortController.value = new AbortController();
 });
 </script>
 
@@ -209,8 +161,6 @@ onUnmounted(() => {
     <UPopover :open="isAudioRecording" :dismissible="false" :ui="{ content: 'ring-0 shadow-none bg-transparent' }">
         <template #content>
             <div v-if="isAudioRecording" class="flex flex-col justify-center items-center max-w-[80vw]">
-                <div class="text-wrap wrap-break-word text-center">{{ guessedText }}</div>
-
                 <div v-if="isAudioRecording"
                     class="flex items-center gap-[2px] w-64 h-10 px-3 rounded-full bg-primary-100">
                     <div v-for="(value, index) in audioVisualization" :key="index"

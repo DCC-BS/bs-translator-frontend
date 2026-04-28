@@ -28,8 +28,6 @@ watch(
     { immediate: true },
 );
 
-onMounted(() => {});
-
 const text = ref("");
 const isProcessing = ref(false);
 const audioVisualization = ref<number[]>([]);
@@ -142,51 +140,26 @@ async function handleTranscription(blob: Blob) {
 </script>
 
 <template>
-    <div
-        class="flex items-stretch gap-2"
-        :class="`justify-${props.align}`"
-        ref="container"
-    >
-        <div
-            v-if="isRecording"
-            class="flex items-center gap-[2px] grow h-10 px-3 rounded-md bg-[var(--ui-bg-elevated)]"
-        >
-            <div
-                v-for="(value, index) in audioVisualization"
-                :key="index"
+    <div class="flex items-stretch gap-2" :class="`justify-${props.align}`" ref="container">
+        <div v-if="isRecording"
+            class="flex items-center gap-[2px] grow h-10 px-3 rounded-md bg-[var(--ui-bg-elevated)]">
+            <div v-for="(value, index) in audioVisualization" :key="index"
                 :style="{ height: Math.max(value * 0.36, 2) + 'px' }"
-                class="grow min-w-0 bg-primary rounded-full transition-[height] duration-100"
-            />
+                class="grow min-w-0 bg-primary rounded-full transition-[height] duration-100" />
         </div>
 
-        <div
-            v-else-if="isProcessing || isAudioProcessing"
-            class="flex items-center justify-center grow h-full px-4 rounded-md bg-[var(--ui-bg-elevated)]"
-        >
-            <UIcon
-                name="i-lucide-loader-2"
-                class="w-5 h-5 animate-spin text-muted"
-            />
+        <div v-else-if="isProcessing || isAudioProcessing"
+            class="flex items-center justify-center grow h-full px-4 rounded-md bg-[var(--ui-bg-elevated)]">
+            <UIcon name="i-lucide-loader-2" class="w-5 h-5 animate-spin text-muted" />
         </div>
 
-        <UChatPrompt
-            v-else
-            class="hidden md:inline grow w-full"
-            v-model="text"
-            @submit="onSubmit"
-        >
+        <UChatPrompt v-else class="hidden md:inline grow w-full" v-model="text" @submit="onSubmit">
             <UChatPromptSubmit :status="props.status" />
         </UChatPrompt>
 
-        <UButton
-            class="aspect-square w-15 flex items-center justify-center shrink-0"
-            :disabled="isProcessing || isAudioProcessing"
-            @click="toggleRecording"
-        >
-            <UIcon
-                :name="isRecording ? 'i-lucide-square' : 'i-lucide-mic'"
-                class="w-5 h-5"
-            />
+        <UButton class="aspect-square w-15 flex items-center justify-center shrink-0"
+            :disabled="isProcessing || isAudioProcessing" @click="toggleRecording">
+            <UIcon :name="isRecording ? 'i-lucide-square' : 'i-lucide-mic'" class="w-5 h-5" />
         </UButton>
     </div>
 </template>

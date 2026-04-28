@@ -1,4 +1,5 @@
 import { isApiError } from "@dcc-bs/communication.bs.js";
+import type { createModuleResolutionCache } from "typescript";
 import type { LanguageCode } from "~/models/languages";
 
 /**
@@ -21,8 +22,6 @@ export function useTranscribe() {
         language?: LanguageCode,
         signal?: AbortSignal,
     ): AsyncGenerator<string> {
-        console.debug("Starting transcription with language:", language);
-
         const formData = new FormData();
         formData.append("audio_file", blob, "audio.webm");
         // Ensure language is never undefined, default to "auto"
@@ -37,13 +36,13 @@ export function useTranscribe() {
         if (isApiError(response)) {
             error.value = response.message;
 
-            if (response.errorId === "request_aborted") {
-                yield "";
+            if (response.errorId !== "request_aborted") {
+                showError(
+                    new Error(t(`api_error.transcribe.${response.errorId}`)),
+                );
             }
 
-            showError(new Error(t(`api_error.transcribe.${response.errorId}`)));
-
-            yield "";
+            return;
         } else {
             const reader = response.getReader();
             const decoder = new TextDecoder();

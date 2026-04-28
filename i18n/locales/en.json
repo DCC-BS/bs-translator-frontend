@@ -261,7 +261,9 @@
         "noLanguageFound": "No language found",
         "availableVoices": "Available voices",
         "test": "Test",
-        "cannotTranslateText": "I cannot translate this text."
+        "cannotTranslateText": "I cannot translate this text.",
+        "startRecordingMessage1": "Start the conversation by recording a message using the {mic}",
+        "startRecordingMessage2": "Button below."
     },
     "api_error": {
         "fetch_failed": "Fetch failed. Please try again.",

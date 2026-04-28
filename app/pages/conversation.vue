@@ -7,10 +7,11 @@ import type { Language } from "~/models/languages";
 
 definePageMeta({ layout: "conversation" });
 
-const { t } = useI18n();
-
 const { addMessage, removeLastMessage, current, phase, other, switchUser } =
     useConversation();
+
+const currentLanguage = computed(() => current.value.language);
+const { tMap } = useTextTranslate(currentLanguage, ["conversation.handToPerson"]);
 
 const switchDirection = ref(1);
 
@@ -31,6 +32,7 @@ const transitionTimer = ref<ReturnType<typeof setTimeout>>();
 function startTransition() {
     phase.value = "transition";
     transitionTimer.value = setTimeout(() => {
+        onTransitionEnd();
         phase.value = "conversation";
     }, 2000);
 }
@@ -39,14 +41,12 @@ function onSetupAContinue() {
     phase.value = "conversation";
 }
 
-async function onSetupATranscription(text: string) {
-    await addMessage(text);
-    phase.value = "conversation";
+function onTransitionEnd() {
+    switchUser();
 }
 
 function onSwitch() {
     switchDirection.value = current.value.name === "a" ? 1 : -1;
-    switchUser();
     startTransition();
 }
 
@@ -93,13 +93,11 @@ function onUndo() {
                     :animate="{ opacity: 1, y: 0 }" :exit="{ opacity: 0, y: -20 }"
                     :transition="{ duration: 0.3, ease: 'easeInOut' }" class="h-full" :class="current.backgroundColor">
                     <LanguageSetup :language="current.language" :other-language="other.language"
-                        :title="t('conversation.selectYourLanguage')" :subtitle="t('conversation.orStartTalking')"
-                        :show-other-language="true" :other-language-label="t('conversation.otherPersonLanguage')
-                            " :continue-label="t('conversation.continue')" @update:language="
-                                (l: Language) => (current.language = l)
-                            " @update:other-language="
-                                (l: Language) => (other.language = l)
-                            " @continue="onSetupAContinue" @transcription="onSetupATranscription" />
+                        :show-other-language="true" @update:language="
+                            (l: Language) => (current.language = l)
+                        " @update:other-language="
+                            (l: Language) => (other.language = l)
+                        " @continue="onSetupAContinue" />
                 </motion.div>
 
                 <!-- Transition Phase: Auto handoff between users -->
@@ -121,7 +119,7 @@ function onUndo() {
                         y: 0,
                         transition: { delay: 0.15, duration: 0.3 },
                     }">
-                        {{ t("conversation.handToPerson") }}
+                        {{ tMap["conversation.handToPerson"] }}
                     </motion.h1>
 
                     <div class="flex items-center gap-1.5 mt-4">
