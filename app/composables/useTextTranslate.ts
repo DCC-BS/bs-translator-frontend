@@ -11,7 +11,7 @@ export function useTextTranslate<const T extends string[]>(
     textToTranslate: T,
 ): { tMap: Record<T[number], Ref<string>> } {
     const translationService = useService(TranslationService);
-    const { t, locales } = useI18n({ locale: "en" });
+    const { t, locales, loadLocaleMessages } = useI18n({ locale: "en" });
 
     const tMap: Record<T[number], Ref<string>> = {} as Record<
         T[number],
@@ -122,17 +122,19 @@ export function useTextTranslate<const T extends string[]>(
         }
     }
 
-    function localizeTranslateText(
+    async function localizeTranslateText(
         key: string,
         lang: LanguageCode,
-    ): TranslationResult {
+    ): Promise<TranslationResult> {
         const normalizedLangCode = lang.replace("_uk", "").replace("_us", "");
 
-        if (
-            lang === "auto" ||
-            locales.value.includes(normalizedLangCode as any)
-        ) {
+        if (lang === "auto") {
             return t(key);
+        }
+        if (locales.value.some((x) => x.code === normalizedLangCode)) {
+            await loadLocaleMessages(normalizedLangCode as any);
+            // biome-ignore lint/suspicious/noExplicitAny: auto generate type
+            return t(key, {}, { locale: normalizedLangCode as any });
         }
 
         return undefined;

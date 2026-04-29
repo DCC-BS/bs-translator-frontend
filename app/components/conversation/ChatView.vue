@@ -20,7 +20,15 @@ type MessageAction = Omit<ButtonProps, "onClick"> & {
 
 const { showToast } = useUserFeedback();
 const { isSupported, speak } = useTTS(props.language);
-const { tMap } = useTextTranslate(toRef(() => props.language), ["ui.copyToClipboard", "ui.copySuccess", "conversation.startRecordingMessage1", "conversation.startRecordingMessage2"]);
+const { tMap } = useTextTranslate(
+    toRef(() => props.language),
+    [
+        "ui.copyToClipboard",
+        "ui.copySuccess",
+        "conversation.startRecordingMessage1",
+        "conversation.startRecordingMessage2",
+    ],
+);
 
 const { direction } = useLanguageDirection(toRef(() => props.language.code));
 
@@ -39,7 +47,7 @@ const messages = computed<UIMessage[]>(() => {
 
 const isEmpty = computed(
     () =>
-        messages.value.length === 0 ||
+        messages.value.filter((x) => x.role === "user").length === 0 ||
         props.userMessage.messages.every((msg) => msg.content.trim() === ""),
 );
 

@@ -33,6 +33,9 @@ export default defineNuxtConfig({
         analyze: false,
     },
     vite: {
+        server: {
+            allowedHosts: ["42a7-82-197-183-54.ngrok-free.app"],
+        },
         optimizeDeps: {
             include: [
                 "pino", // CJS

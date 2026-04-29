@@ -11,7 +11,9 @@ const { addMessage, removeLastMessage, current, phase, other, switchUser } =
     useConversation();
 
 const currentLanguage = computed(() => current.value.language);
-const { tMap } = useTextTranslate(currentLanguage, ["conversation.handToPerson"]);
+const { tMap } = useTextTranslate(currentLanguage, [
+    "conversation.handToPerson",
+]);
 
 const switchDirection = ref(1);
 
@@ -59,9 +61,7 @@ async function onConfirmMessage() {
     const text = pendingText.value;
     pendingText.value = null;
     await addMessage(text);
-    switchDirection.value = current.value.name === "a" ? 1 : -1;
-    switchUser();
-    startTransition();
+    onSwitch();
 }
 
 async function onAddNewMessage() {
