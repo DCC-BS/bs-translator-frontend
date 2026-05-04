@@ -24,7 +24,6 @@ const {
     isRecording: isAudioRecording,
     isProcessing: isAudioProcessing,
 } = useAudioRecording({
-    storeToDbInterval: 1,
     logger: (msg) => logger.debug("[AudioRecording]", msg),
     onRecordingStarted: (stream: MediaStream) => {
         initializeVisualization(stream);
@@ -47,8 +46,8 @@ const iconName = computed(() => {
     return isAudioProcessing.value || isProcessing.value
         ? "i-lucide-loader-2"
         : isAudioRecording.value
-            ? "i-lucide-square"
-            : "i-lucide-mic";
+          ? "i-lucide-square"
+          : "i-lucide-mic";
 });
 
 let audioContext: AudioContext | null = null;
@@ -158,23 +157,48 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <UPopover :open="isAudioRecording" :dismissible="false" :ui="{ content: 'ring-0 shadow-none bg-transparent' }">
+    <UPopover
+        :open="isAudioRecording"
+        :dismissible="false"
+        :ui="{ content: 'ring-0 shadow-none bg-transparent' }"
+    >
         <template #content>
-            <div v-if="isAudioRecording" class="flex flex-col justify-center items-center max-w-[80vw]">
-                <div v-if="isAudioRecording"
-                    class="flex items-center gap-[2px] w-64 h-10 px-3 rounded-full bg-primary-100">
-                    <div v-for="(value, index) in audioVisualization" :key="index"
+            <div
+                v-if="isAudioRecording"
+                class="flex flex-col justify-center items-center max-w-[80vw]"
+            >
+                <div
+                    v-if="isAudioRecording"
+                    class="flex items-center gap-[2px] w-64 h-10 px-3 rounded-full bg-primary-100"
+                >
+                    <div
+                        v-for="(value, index) in audioVisualization"
+                        :key="index"
                         :style="{ height: Math.max(value * 0.36, 2) + 'px' }"
-                        class="grow min-w-0 bg-primary rounded-full transition-[height] duration-100" />
+                        class="grow min-w-0 bg-primary rounded-full transition-[height] duration-100"
+                    />
                 </div>
             </div>
-            <div v-else-if="isProcessing || isAudioProcessing"
-                class="flex items-center justify-center w-64 h-10 px-4 rounded-full bg-[var(--ui-bg-elevated)]">
-                <UIcon name="i-lucide-loader-2" class="w-5 h-5 animate-spin text-muted" />
+            <div
+                v-else-if="isProcessing || isAudioProcessing"
+                class="flex items-center justify-center w-64 h-10 px-4 rounded-full bg-[var(--ui-bg-elevated)]"
+            >
+                <UIcon
+                    name="i-lucide-loader-2"
+                    class="w-5 h-5 animate-spin text-muted"
+                />
             </div>
         </template>
-        <CircleButton @click="toggleRecording" color="error" :disabled="isProcessing || isAudioProcessing">
-            <UIcon :name="iconName" size="24" :class="{ 'animate-spin': isProcessing || isAudioProcessing }" />
+        <CircleButton
+            @click="toggleRecording"
+            color="error"
+            :disabled="isProcessing || isAudioProcessing"
+        >
+            <UIcon
+                :name="iconName"
+                size="24"
+                :class="{ 'animate-spin': isProcessing || isAudioProcessing }"
+            />
         </CircleButton>
     </UPopover>
 </template>

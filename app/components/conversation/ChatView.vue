@@ -11,11 +11,11 @@ const props = defineProps<{
 
 type MessageAction = Omit<ButtonProps, "onClick"> & {
     onClick?:
-    | ((
-        e: MouseEvent,
-        message: UIMessage<unknown, UIDataTypes, UITools>,
-    ) => void)
-    | undefined;
+        | ((
+              e: MouseEvent,
+              message: UIMessage<unknown, UIDataTypes, UITools>,
+          ) => void)
+        | undefined;
 };
 
 const { showToast } = useUserFeedback();
@@ -72,45 +72,81 @@ function onSpeak(text: string) {
 
 <template>
     <div :dir="direction" class="relative h-full w-full">
-        <UChatMessages class="h-full" should-auto-scroll shouldScrollToBottom :user="{
-            side: 'right',
-            variant: 'soft',
-            icon: 'i-lucide-circle-user',
-            actions: actions,
-            ui: { content: 'bg-primary-300' },
-        }" :assistant="{
-            side: 'left',
-            variant: 'soft',
-            icon: 'i-lucide-languages',
-            actions: actions,
-            ui: {
-                content: 'bg-secondary-300',
-            },
-        }" :messages="messages" :auto-scroll="{
-            color: 'primary',
-        }">
+        <UChatMessages
+            class="h-full"
+            should-auto-scroll
+            shouldScrollToBottom
+            :user="{
+                side: 'right',
+                variant: 'soft',
+                icon: 'i-lucide-circle-user',
+                actions: actions,
+                ui: { content: 'bg-primary-300' },
+            }"
+            :assistant="{
+                side: 'left',
+                variant: 'soft',
+                icon: 'i-lucide-languages',
+                actions: actions,
+                ui: {
+                    content: 'bg-secondary-300',
+                },
+            }"
+            :messages="messages"
+            :auto-scroll="{
+                color: 'primary',
+            }"
+        >
             <template #content="{ message }">
                 <div>
-                    <div>{{message.parts.filter(part => 'text' in part).map(part => part.text).join(' ')}}</div>
+                    <div>
+                        {{
+                            message.parts
+                                .filter((part) => "text" in part)
+                                .map((part) => part.text)
+                                .join(" ")
+                        }}
+                    </div>
                     <div class="flex justify-end">
-                        <UButton icon="i-lucide-volume-2" v-if="isSupported" variant="ghost" size="sm"
-                            @click="onSpeak(message.parts.filter(part => 'text' in part).map(part => part.text).join(' '))">
+                        <UButton
+                            icon="i-lucide-volume-2"
+                            v-if="isSupported"
+                            variant="ghost"
+                            size="sm"
+                            @click="
+                                onSpeak(
+                                    message.parts
+                                        .filter((part) => 'text' in part)
+                                        .map((part) => part.text)
+                                        .join(' '),
+                                )
+                            "
+                        >
                         </UButton>
                     </div>
                 </div>
             </template>
         </UChatMessages>
 
-        <div v-if="isEmpty"
-            class="absolute bottom-0 w-full text-2xl font-semibold text-neutral-500 text-center p-6 pointer-events-none">
+        <div
+            v-if="isEmpty"
+            class="absolute bottom-0 w-full text-2xl font-semibold text-neutral-500 text-center p-6 pointer-events-none"
+        >
             <div class="flex flex-col justify-center items-center">
                 <div>
-                    <span>{{ tMap["conversation.startRecordingMessage1"] }}</span>
+                    <span>{{
+                        tMap["conversation.startRecordingMessage1"]
+                    }}</span>
                     <UIcon name="i-lucide-mic" />
-                    <span>{{ tMap["conversation.startRecordingMessage2"] }}</span>
+                    <span>{{
+                        tMap["conversation.startRecordingMessage2"]
+                    }}</span>
                 </div>
 
-                <UIcon name="i-lucide-arrow-down" class="w-10 h-10 m-2 text-muted" />
+                <UIcon
+                    name="i-lucide-arrow-down"
+                    class="w-10 h-10 m-2 text-muted"
+                />
             </div>
         </div>
     </div>

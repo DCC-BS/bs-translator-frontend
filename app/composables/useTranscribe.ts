@@ -1,5 +1,4 @@
 import { isApiError } from "@dcc-bs/communication.bs.js";
-import type { createModuleResolutionCache } from "typescript";
 import type { LanguageCode } from "~/models/languages";
 
 /**
@@ -43,24 +42,23 @@ export function useTranscribe() {
             }
 
             return;
-        } else {
-            const reader = response.getReader();
-            const decoder = new TextDecoder();
+        }
+        const reader = response.getReader();
+        const decoder = new TextDecoder();
 
-            try {
-                while (true) {
-                    const { done, value } = await reader.read();
+        try {
+            while (true) {
+                const { done, value } = await reader.read();
 
-                    if (done) {
-                        break;
-                    }
-
-                    const chunk = decoder.decode(value, { stream: true });
-                    yield chunk;
+                if (done) {
+                    break;
                 }
-            } finally {
-                reader.releaseLock();
+
+                const chunk = decoder.decode(value, { stream: true });
+                yield chunk;
             }
+        } finally {
+            reader.releaseLock();
         }
     }
 

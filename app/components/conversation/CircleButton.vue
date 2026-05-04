@@ -17,8 +17,13 @@ const emit = defineEmits<{
 </script>
 
 <template>
-    <UButton size="xl" :color="color" :disabled="disabled"
-        class="rounded-full w-16 h-16 flex items-center justify-center" @click="emit('click', $event)">
+    <UButton
+        size="xl"
+        :color="color"
+        :disabled="disabled"
+        class="rounded-full w-16 h-16 flex items-center justify-center"
+        @click="emit('click', $event)"
+    >
         <slot />
     </UButton>
 </template>

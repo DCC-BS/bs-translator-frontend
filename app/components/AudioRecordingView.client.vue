@@ -71,8 +71,13 @@ async function recover() {
 <template>
     <UDrawer v-model:open="isRecordingDrawerOpen" @close="stopRecording">
         <UTooltip :text="t('ui.recordAudio')" :delay-duration="0">
-            <UButton icon="i-lucide-mic" variant="link" color="neutral" data-testid="microphoneButton"
-                data-tour="record-audio" />
+            <UButton
+                icon="i-lucide-mic"
+                variant="link"
+                color="neutral"
+                data-testid="microphoneButton"
+                data-tour="record-audio"
+            />
         </UTooltip>
         <template #content>
             <div class="w-full">
@@ -81,20 +86,42 @@ async function recover() {
                         <USkeleton class="w-full h-[400px]" />
                     </div>
                     <div v-else>
-                        <div class="flex flex-col justify-center items-center"
-                            v-if="!isRecording && abandonedRecording && abandonedRecording.length > 0">
+                        <div
+                            class="flex flex-col justify-center items-center"
+                            v-if="
+                                !isRecording &&
+                                abandonedRecording &&
+                                abandonedRecording.length > 0
+                            "
+                        >
                             <p class="mb-2 text-sm text-gray-500">
-                                {{ t("audio.abandonedRecording", { date: lastAbandonedRecordingLocalDate }) }}
+                                {{
+                                    t("audio.abandonedRecording", {
+                                        date: lastAbandonedRecordingLocalDate,
+                                    })
+                                }}
                             </p>
 
-                            <UButton icon="i-lucide-history" variant="ghost" color="secondary" @click="recover">{{
-                                t("audio.recover") }}
+                            <UButton
+                                icon="i-lucide-history"
+                                variant="ghost"
+                                color="secondary"
+                                @click="recover"
+                                >{{ t("audio.recover") }}
                             </UButton>
                         </div>
 
-                        <AudioRecorder ref="audioRecorder" :logger="console.log"
-                            :auto-start="abandonedRecording && abandonedRecording.length === 0" :show-result="false"
-                            @recording-started="isRecording = true" @recording-stopped="onRecordingStopped" />
+                        <AudioRecorder
+                            ref="audioRecorder"
+                            :logger="console.log"
+                            :auto-start="
+                                abandonedRecording &&
+                                abandonedRecording.length === 0
+                            "
+                            :show-result="false"
+                            @recording-started="isRecording = true"
+                            @recording-stopped="onRecordingStopped"
+                        />
                     </div>
                 </div>
             </div>

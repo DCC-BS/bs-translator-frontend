@@ -4,6 +4,7 @@ import type {
 } from "~/models/conversation";
 import { type Language, languageMap } from "~/models/languages";
 import { TranslationService } from "~/services/translationService";
+import { v7 as uuidv7 } from "uuid";
 
 type Phase = "setup" | "transition" | "conversation";
 
@@ -25,8 +26,31 @@ function newContext(bgColor: string, name: "a" | "b"): UserContext {
     } as UserContext;
 }
 
+function createHistoryContext(history: ConversationMessage[]) {
+    function roleToUser(role: "translated" | "original") {
+        return role === "original" ? "UserA" : "UserB";
+    }
+
+    let context = "";
+
+    for (const message of history.toReversed()) {
+        if (context.length > 500) {
+            break;
+        }
+
+        if (!message.content) {
+            continue;
+        }
+
+        const newMessage = `${roleToUser(message.role)}: ${message.content} \n`;
+        context = newMessage + context;
+    }
+
+    return context;
+}
+
 export function useConversation() {
-    const translationSerivce = useService(TranslationService);
+    const translationService = useService(TranslationService);
     const phase = ref<Phase>("setup");
 
     const userA = reactive<UserContext>(newContext("bg-blue-200", "a"));
@@ -58,13 +82,13 @@ export function useConversation() {
 
     async function addMessage(text: string) {
         const messageA: ConversationMessage = {
-            id: crypto.randomUUID(),
+            id: uuidv7(),
             role: "original",
             content: text,
         };
 
         if (current.value.language.code === "auto") {
-            const result = await translationSerivce.detectLanguage(text);
+            const result = await translationService.detectLanguage(text);
             current.value.language = getLanguage(result.language);
         }
 
@@ -106,16 +130,18 @@ export function useConversation() {
     }
 
     async function processQueue() {
-        for (const { queue, sourceLang, targetLang } of [
+        for (const { queue, sourceLang, targetLang, history } of [
             {
                 queue: userA.queuedTranslations,
                 sourceLang: userB.language,
                 targetLang: userA.language,
+                history: userA.conversation.messages,
             },
             {
                 queue: userB.queuedTranslations,
                 sourceLang: userA.language,
                 targetLang: userB.language,
+                history: userB.conversation.messages,
             },
         ]) {
             if (sourceLang.code === "auto" || targetLang.code === "auto") {
@@ -123,21 +149,31 @@ export function useConversation() {
             }
 
             for (const { text, message } of queue) {
-                translateAndAddMessage(text, sourceLang, targetLang, message);
+                translateMessage(
+                    text,
+                    sourceLang,
+                    targetLang,
+                    message,
+                    history,
+                );
             }
             queue.length = 0;
         }
     }
 
-    async function translateAndAddMessage(
+    async function translateMessage(
         text: string,
         sourceLang: FuzzyLanguage,
         targetLang: FuzzyLanguage,
         message: ConversationMessage,
+        history: ConversationMessage[],
     ) {
-        for await (const chunk of translationSerivce.translate(text, {
+        const context = createHistoryContext(history);
+
+        for await (const chunk of translationService.translate(text, {
             source_language: getLanguage(sourceLang).code,
             target_language: getLanguage(targetLang).code,
+            context: context,
         })) {
             message.content += chunk;
         }

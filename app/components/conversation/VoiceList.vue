@@ -30,21 +30,34 @@ watch(
 );
 </script>
 <template>
-  <div class="p-4 overflow-auto max-h-[80vh]">
-    <div class="mx-auto max-w-md">
-      <h2 class="text-xl">{{ t('conversation.availableVoices') }}</h2>
-      <div class="flex flex-col gap-2">
-        <div v-for="voice in voices" :key="voice.name" class="flex items-center gap-3">
-          <div class="flex-1">
-            <p class="font-medium">{{ voice.name }}</p>
-            <p class="text-sm opacity-70">{{ voice.lang }}</p>
-          </div>
-          <UButton size="sm" variant="outline"
-            @click="speak(exampleTextMap[voice.name] ?? t('conversation.cannotTranslateText'), { voice: voice })">
-            {{ t('conversation.test') }}
-          </UButton>
+    <div class="p-4 overflow-auto max-h-[80vh]">
+        <div class="mx-auto max-w-md">
+            <h2 class="text-xl">{{ t("conversation.availableVoices") }}</h2>
+            <div class="flex flex-col gap-2">
+                <div
+                    v-for="voice in voices"
+                    :key="voice.name"
+                    class="flex items-center gap-3"
+                >
+                    <div class="flex-1">
+                        <p class="font-medium">{{ voice.name }}</p>
+                        <p class="text-sm opacity-70">{{ voice.lang }}</p>
+                    </div>
+                    <UButton
+                        size="sm"
+                        variant="outline"
+                        @click="
+                            speak(
+                                exampleTextMap[voice.name] ??
+                                    t('conversation.cannotTranslateText'),
+                                { voice: voice },
+                            )
+                        "
+                    >
+                        {{ t("conversation.test") }}
+                    </UButton>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </template>
