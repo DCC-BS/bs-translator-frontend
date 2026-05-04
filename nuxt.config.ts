@@ -34,10 +34,7 @@ export default defineNuxtConfig({
     },
     vite: {
         server: {
-            allowedHosts: [
-                "42a7-82-197-183-54.ngrok-free.app",
-                "robust-nationally-lacewing.ngrok-free.app",
-            ],
+            allowedHosts: [],
         },
         optimizeDeps: {
             include: [

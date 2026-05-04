@@ -8,23 +8,27 @@ const { t } = useI18n();
 
 watch(
     voices,
-    (newVoices) => {
+    async (newVoices) => {
         exampleTextMap.value = {};
 
-        newVoices.forEach(async (voice) => {
+        for (const voice of newVoices) {
             if (!exampleTextMap.value[voice.name]) {
                 let text = "";
                 const code = fromBCP47Code(voice.lang)?.code ?? "en";
 
-                for await (const chunk of translationService.translate(
-                    `Hello, this is a test of the ${voice.name} voice.`,
-                    { source_language: "en", target_language: code },
-                )) {
-                    text += chunk;
+                try {
+                    for await (const chunk of translationService.translate(
+                        `Hello, this is a test of the ${voice.name} voice.`,
+                        { source_language: "en", target_language: code },
+                    )) {
+                        text += chunk;
+                    }
+                    exampleTextMap.value[voice.name] = text;
+                } catch {
+                    exampleTextMap.value[voice.name] = "";
                 }
-                exampleTextMap.value[voice.name] = text;
             }
-        });
+        }
     },
     { immediate: true },
 );

@@ -63,7 +63,8 @@ export const languageMap: Record<string, Language> = {
     ur: { code: "ur", icon: "flag:pk-4x3" }, // Urdu - Pakistan
     vi: { code: "vi", icon: "flag:vn-4x3" }, // Vietnamese - Vietnam
     "zh-cn": { code: "zh-cn", icon: "flag:cn-4x3" }, // Chinese (Simplified) - China
-    "zh-tw": { code: "zh-tw", icon: "flag:tw-4x3" }, // Chinese (Traditional) - Taiwan};
+    "zh-hk": { code: "zh-hk", icon: "flag:hk-4x3" }, // Chinese (Cantonese) - Hong Kong
+    "zh-tw": { code: "zh-tw", icon: "flag:tw-4x3" }, // Chinese (Traditional) - Taiwan
 };
 
 export const languages: Language[] = Object.values(languageMap).filter(

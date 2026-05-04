@@ -7,6 +7,12 @@ export function useTTS(language: Language) {
 
     function loadVoices() {
         voices.value = window.speechSynthesis.getVoices();
+        for (const voice of voices.value) {
+            voiceMap[voice.lang] = voice;
+            if (voice.lang === toBCP47Code(language.code)) {
+                isSupported.value = true;
+            }
+        }
     }
 
     onMounted(async () => {
@@ -15,14 +21,6 @@ export function useTTS(language: Language) {
         window.speechSynthesis.onvoiceschanged = () => {
             loadVoices();
         };
-
-        for (const voice of voices.value) {
-            voiceMap[voice.lang] = voice;
-            if (voice.lang === toBCP47Code(language.code)) {
-                isSupported.value = true;
-                break;
-            }
-        }
     });
 
     onUnmounted(() => {

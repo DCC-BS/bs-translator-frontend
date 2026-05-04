@@ -83,10 +83,9 @@ export function useTranslate() {
 
             detectedSourceLanguage.value = result.language as LanguageCode;
             return result.language as LanguageCode;
-        } catch (error) {
-            // Only log errors if not aborted
+        } catch {
             if (!signal.aborted) {
-                console.error("Language detection failed:", error);
+                isDetectingLanguage.value = false;
             }
             return "auto";
         } finally {

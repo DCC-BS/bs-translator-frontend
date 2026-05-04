@@ -5,11 +5,13 @@ const emit = defineEmits<(e: "onRecordingComplete", file: Blob) => void>();
 
 const { t } = useI18n();
 
+const logger = useLogger();
+
 const { isReady, abandonedRecording, deleteAbandonedRecording, getMp3Blob } =
     useAudioSessions({
         deleteOldSessionsDaysInterval: 30,
         maxSessionsToKeep: 1,
-        logger: console.log,
+        logger: (msg) => logger.debug("[AudioSessions]", msg),
     });
 
 const audioRecorder = ref<typeof AudioRecorder>();
@@ -113,7 +115,7 @@ async function recover() {
 
                         <AudioRecorder
                             ref="audioRecorder"
-                            :logger="console.log"
+                            :logger="(msg: string) => logger.debug('[AudioRecorder]', msg)"
                             :auto-start="
                                 abandonedRecording &&
                                 abandonedRecording.length === 0

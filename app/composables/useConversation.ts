@@ -129,35 +129,44 @@ export function useConversation() {
         }
     }
 
-    async function processQueue() {
-        for (const { queue, sourceLang, targetLang, history } of [
-            {
-                queue: userA.queuedTranslations,
-                sourceLang: userB.language,
-                targetLang: userA.language,
-                history: userA.conversation.messages,
-            },
-            {
-                queue: userB.queuedTranslations,
-                sourceLang: userA.language,
-                targetLang: userB.language,
-                history: userB.conversation.messages,
-            },
-        ]) {
-            if (sourceLang.code === "auto" || targetLang.code === "auto") {
-                continue; // Skip translation if either language is set to auto-detect
-            }
+    let processing = false;
 
-            for (const { text, message } of queue) {
-                translateMessage(
-                    text,
-                    sourceLang,
-                    targetLang,
-                    message,
-                    history,
-                );
+    async function processQueue() {
+        if (processing) return;
+        processing = true;
+
+        try {
+            for (const { queue, sourceLang, targetLang, history } of [
+                {
+                    queue: userA.queuedTranslations,
+                    sourceLang: userB.language,
+                    targetLang: userA.language,
+                    history: userA.conversation.messages,
+                },
+                {
+                    queue: userB.queuedTranslations,
+                    sourceLang: userA.language,
+                    targetLang: userB.language,
+                    history: userB.conversation.messages,
+                },
+            ]) {
+                if (sourceLang.code === "auto" || targetLang.code === "auto") {
+                    continue;
+                }
+
+                for (const { text, message } of queue) {
+                    await translateMessage(
+                        text,
+                        sourceLang,
+                        targetLang,
+                        message,
+                        history,
+                    );
+                }
+                queue.length = 0;
             }
-            queue.length = 0;
+        } finally {
+            processing = false;
         }
     }
 

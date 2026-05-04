@@ -26,7 +26,6 @@ export function useTextTranslate<const T extends string[]>(
         () => targetLanguage.value,
         async () => {
             await translateAll();
-            console.log("Translation complete:", tMap);
         },
         { immediate: true },
     );
@@ -116,8 +115,7 @@ export function useTextTranslate<const T extends string[]>(
             }
 
             return translatedText.trim();
-        } catch (error) {
-            console.error("Error during LLM translation:", error);
+        } catch {
             return undefined;
         }
     }
