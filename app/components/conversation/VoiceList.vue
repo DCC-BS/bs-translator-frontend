@@ -1,7 +1,10 @@
 <script lang="ts" setup>
 import { TranslationService } from "~/services/translationService";
 
-const { voices, speak } = useTTS({ code: "en-US", icon: "i-lucide-flag-usa" });
+const { voices, speak } = useTTS(() => ({
+    code: "en-US",
+    icon: "i-lucide-flag-usa",
+}));
 const translationService = useService(TranslationService);
 const exampleTextMap = ref<Record<string, string>>({});
 const { t } = useI18n();

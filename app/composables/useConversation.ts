@@ -1,10 +1,10 @@
+import { v7 as uuidv7 } from "uuid";
 import type {
     ConversationMessage,
     UserConversation,
 } from "~/models/conversation";
 import { type Language, languageMap } from "~/models/languages";
 import { TranslationService } from "~/services/translationService";
-import { v7 as uuidv7 } from "uuid";
 
 type Phase = "setup" | "transition" | "conversation";
 

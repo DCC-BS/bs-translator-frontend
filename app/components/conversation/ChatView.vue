@@ -19,7 +19,7 @@ type MessageAction = Omit<ButtonProps, "onClick"> & {
 };
 
 const { showToast } = useUserFeedback();
-const { isSupported, speak } = useTTS(props.language);
+const { isSupported, speak } = useTTS(() => props.language);
 const { tMap } = useTextTranslate(
     toRef(() => props.language),
     [

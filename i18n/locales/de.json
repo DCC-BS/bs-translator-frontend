@@ -137,7 +137,9 @@
         "hideSettings": "Einstellungen ausblenden",
         "takePhoto": "Foto aufnehmen",
         "recordAudio": "Audio aufnehmen",
-        "clearText": "Text löschen"
+        "clearText": "Text löschen",
+        "readAloud": "Vorlesen",
+        "stopReading": "Vorlesen stoppen"
     },
     "audio": {
         "recover": "Wiederherstellen",

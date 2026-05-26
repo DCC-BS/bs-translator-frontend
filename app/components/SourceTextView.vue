@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import type { LanguageCode } from "~/models/languages";
+import type { Language, LanguageCode } from "~/models/languages";
+import { languageMap } from "~/models/languages";
 
 const props = defineProps<{
     isOverDropZone?: boolean;
@@ -7,6 +8,7 @@ const props = defineProps<{
     error?: string;
     fileName?: string;
     languageCode: LanguageCode;
+    detectedSourceLanguage?: LanguageCode;
 }>();
 
 const emit = defineEmits<{
@@ -19,6 +21,29 @@ const { t } = useI18n();
 const sourceText = defineModel<string>();
 const { direction } = useLanguageDirection(toRef(props, "languageCode"));
 const { transcribe } = useTranscribe();
+
+const ttsLanguage = computed<Language>(() => {
+    const code =
+        props.languageCode === "auto"
+            ? props.detectedSourceLanguage
+            : props.languageCode;
+    return languageMap[code ?? "auto"] as Language;
+});
+
+const {
+    isSupported: isTtsSupported,
+    isSpeaking,
+    speak: ttsSpeak,
+    stop: ttsStop,
+} = useTTS(ttsLanguage);
+
+function toggleTTS() {
+    if (isSpeaking.value) {
+        ttsStop();
+    } else {
+        ttsSpeak(sourceText.value ?? "");
+    }
+}
 
 const charCount = computed(() => sourceText.value?.length || 0);
 const isRecordingDrawerOpen = ref(false);
@@ -134,6 +159,10 @@ async function onRecordingStopped(audioBlob: Blob): Promise<void> {
                 <UTooltip :text="t('ui.uploadFile')" :delay-duration="0">
                     <UButton color="neutral" variant="link" @click="emit('trigger-file-upload')" :loading="isConverting"
                         :disabled="isConverting" icon="i-lucide-file-up" data-tour="upload-file" />
+                </UTooltip>
+                <UTooltip v-if="isTtsSupported" :text="isSpeaking ? t('ui.stopReading') : t('ui.readAloud')" :delay-duration="0">
+                    <UButton :icon="isSpeaking ? 'i-lucide-square' : 'i-lucide-volume-2'" variant="link"
+                        :color="isSpeaking ? 'primary' : 'neutral'" :disabled="!sourceText" @click="toggleTTS" />
                 </UTooltip>
             </div>
 

@@ -137,7 +137,9 @@
         "hideSettings": "Hide Settings",
         "takePhoto": "Take Photo",
         "recordAudio": "Record Audio",
-        "clearText": "Clear Text"
+        "clearText": "Clear Text",
+        "readAloud": "Read Aloud",
+        "stopReading": "Stop Reading"
     },
     "audio": {
         "recover": "Recover",

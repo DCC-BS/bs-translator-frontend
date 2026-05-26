@@ -138,7 +138,8 @@ function onCapturePhoto() {
                 <div class="h-full w-full relative">
                     <SourceTextView v-model="sourceText" :is-over-drop-zone="isOverDropZone"
                         :is-converting="isConverting" :error="conversionError" :fileName="fileName"
-                        :language-code="sourceLanguage" ref="dropZoneRef" @clear-error="clearError"
+                        :language-code="sourceLanguage" :detected-source-language="detectedSourceLanguage"
+                        ref="dropZoneRef" @clear-error="clearError"
                         @trigger-file-upload="triggerFileUpload" />
                 </div>
             </template>
