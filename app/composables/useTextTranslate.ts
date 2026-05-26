@@ -124,15 +124,16 @@ export function useTextTranslate<const T extends string[]>(
         key: string,
         lang: LanguageCode,
     ): Promise<TranslationResult> {
-        const normalizedLangCode = lang.replace("_uk", "").replace("_us", "");
+        const normalizedLangCode = lang.replace("_uk", "").replace("_us", "") as
+            | "de"
+            | "en";
 
         if (lang === "auto") {
             return t(key);
         }
         if (locales.value.some((x) => x.code === normalizedLangCode)) {
-            await loadLocaleMessages(normalizedLangCode as any);
-            // biome-ignore lint/suspicious/noExplicitAny: auto generate type
-            return t(key, {}, { locale: normalizedLangCode as any });
+            await loadLocaleMessages(normalizedLangCode);
+            return t(key, {}, { locale: normalizedLangCode });
         }
 
         return undefined;
