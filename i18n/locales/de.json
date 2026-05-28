@@ -250,7 +250,8 @@
         "conversion": {
             "no_document": "Kein Dokument gefunden. Versuchen Sie, das Dokument erneut hochladen.",
             "invalid_mime_type": "Ungültiger Dokumenttyp.",
-            "docling_timeout": "Konvertierung dauerte zu lange. Versuchen Sie eine kürzere Datei zu verwenden."
+            "docling_timeout": "Konvertierung dauerte zu lange. Versuchen Sie eine kürzere Datei zu verwenden.",
+            "docling_task_failed": "Konvertierung fehlgeschlagen. Bitte versuchen Sie es erneut oder verwenden Sie eine andere Datei."
         },
         "transcribe": {
             "errorTimeout": "Transkription dauerte zu lange. Versuchen Sie eine kürzere Aufnahme zu machen.",
