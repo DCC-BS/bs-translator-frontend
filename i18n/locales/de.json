@@ -137,7 +137,9 @@
         "hideSettings": "Einstellungen ausblenden",
         "takePhoto": "Foto aufnehmen",
         "recordAudio": "Audio aufnehmen",
-        "clearText": "Text löschen"
+        "clearText": "Text löschen",
+        "readAloud": "Vorlesen",
+        "stopReading": "Vorlesen stoppen"
     },
     "audio": {
         "recover": "Wiederherstellen",
@@ -238,6 +240,32 @@
     "tooltips": {
         "online-status": "Online-Status",
         "restart-tour": "Tutorial starten"
+    },
+    "conversation": {
+        "personA": "Person A",
+        "personB": "Person B",
+        "tapToSpeak": "Tippen zum Sprechen",
+        "translating": "Übersetze...",
+        "switchToB": "Zu Person B wechseln",
+        "switchToA": "Zu Person A wechseln",
+        "selectLanguageB": "Sprache von Person B wählen",
+        "selectYourLanguage": "Wähle deine Sprache",
+        "orStartTalking": "oder sprich, um die Sprache zu erkennen",
+        "otherPersonLanguage": "Sprache der anderen Person (optional)",
+        "continue": "Weiter",
+        "handToPerson": "Gib das Handy an die andere Person weiter",
+        "selectOrTalk": "Wähle deine Sprache oder sprich",
+        "ready": "Ich bin bereit",
+        "undo": "Letzte Nachricht rückgängig machen",
+        "recordMore": "Weitere Aufnahme hinzufügen...",
+        "selectLanguage": "Sprache wählen",
+        "searchLanguage": "Sprache suchen...",
+        "noLanguageFound": "Keine Sprache gefunden",
+        "availableVoices": "Verfügbare Stimmen",
+        "test": "Testen",
+        "cannotTranslateText": "Ich kann diesen Text nicht übersetzen.",
+        "startRecordingMessage1": "Starte das Gespräch, indem du eine Nachricht mit dem {mic}",
+        "startRecordingMessage2": "-Button unten aufnimmst."
     },
     "api_error": {
         "fetch_failed": "Fetch fehlgeschlagen. Bitte versuchen Sie es erneut.",

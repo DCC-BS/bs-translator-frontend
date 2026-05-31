@@ -86,8 +86,6 @@ watch(stageContainer, (newVal) => {
 });
 
 onUnmounted(() => {
-    console.log("Unmounting OcrImage component");
-
     abortController.value.abort();
     window.removeEventListener("resize", handleWindowResize);
     cleanupEventListeners();

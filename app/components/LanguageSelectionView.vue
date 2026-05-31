@@ -10,9 +10,10 @@ const props = defineProps<{
 const { t } = useI18n();
 
 const autoOption = computed(() => {
-    const detectedName = props.detectedLanguageCode
-        ? t(`languages.${props.detectedLanguageCode}`)
-        : undefined;
+    const detectedName =
+        props.detectedLanguageCode && props.detectedLanguageCode !== "auto"
+            ? t(`languages.${props.detectedLanguageCode}`)
+            : undefined;
 
     if (props.isDetectingLanguage) {
         return {
@@ -61,13 +62,7 @@ const selectedLanguage = computed(() => {
     const found = items.value.find((lang) => lang.code === selectedCode.value);
     if (found) return found;
 
-    return (
-        items.value[0] ?? {
-            code: "auto",
-            name: t("languages.auto"),
-            icon: "i-lucide-scan-search",
-        }
-    );
+    return autoOption.value;
 });
 </script>
 

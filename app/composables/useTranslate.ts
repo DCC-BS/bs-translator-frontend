@@ -83,10 +83,9 @@ export function useTranslate() {
 
             detectedSourceLanguage.value = result.language as LanguageCode;
             return result.language as LanguageCode;
-        } catch (error) {
-            // Only log errors if not aborted
+        } catch {
             if (!signal.aborted) {
-                console.error("Language detection failed:", error);
+                isDetectingLanguage.value = false;
             }
             return "auto";
         } finally {
@@ -151,7 +150,10 @@ export function useTranslate() {
      * @param text - Text to translate
      * @returns Translated text
      */
-    async function translateText(text: string): Promise<string> {
+    async function translateText(
+        text: string,
+        onChunk?: (chunk: string) => void,
+    ): Promise<string> {
         // Return empty string if input is empty or only whitespace
         if (text.trim() === "") {
             return "";
@@ -174,6 +176,9 @@ export function useTranslate() {
                     break;
                 }
                 translated += chunk;
+                if (onChunk) {
+                    onChunk(chunk);
+                }
             }
         } catch (error) {
             if (signal.aborted) {
