@@ -1,4 +1,3 @@
-import type { LanguageVariant } from "typescript";
 import type { LanguageCode } from "~/models/languages";
 import { TranslationService } from "~/services/translationService";
 
@@ -136,9 +135,9 @@ export function useTextTranslate<const T extends string[]>(
         key: string,
         lang: LanguageCode,
     ): Promise<TranslationResult> {
-        const normalizedLangCode = lang
-            .replace("_uk", "")
-            .replace("_us", "") as "de" | "en";
+        const normalizedLangCode = lang.replace("_uk", "").replace("_us", "") as
+            | "de"
+            | "en";
 
         if (lang === "auto") {
             return t(key);
