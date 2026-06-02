@@ -157,7 +157,7 @@ This starts:
 
 ## Project Architecture
 
-```
+```text
 app/
 ├── components/       # Vue components for translation UI
 ├── composables/      # Reusable composition functions

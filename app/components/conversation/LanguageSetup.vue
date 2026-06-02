@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { AnimatePresence, motion } from "motion-v";
-import type { Language } from "~/models/languages";
+import type { Language, LanguageCode } from "~/models/languages";
 
 const props = defineProps<{
     language: Language;
@@ -18,12 +18,14 @@ const { t } = useI18n();
 
 const languageCode = computed({
     get: () => props.language.code,
-    set: (code: string) => emit("update:language", getLanguage(code)),
+    set: (code: string) =>
+        emit("update:language", getLanguage(code as LanguageCode)),
 });
 
 const otherLanguageCode = computed({
     get: () => props.otherLanguage?.code ?? "auto",
-    set: (code: string) => emit("update:otherLanguage", getLanguage(code)),
+    set: (code: string) =>
+        emit("update:otherLanguage", getLanguage(code as LanguageCode)),
 });
 
 const languageReady = computed(() => props.language.code !== "auto");

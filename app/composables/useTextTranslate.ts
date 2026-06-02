@@ -1,9 +1,11 @@
+import type { LanguageVariant } from "typescript";
 import type { LanguageCode } from "~/models/languages";
 import { TranslationService } from "~/services/translationService";
 
 type TranslationResult = string | undefined;
+let translationRound = 0;
 
-// key1 is the lanuage code, key2 is the text key
+// key1 is the language code, key2 is the text key
 const languageCache = new Map<string, Map<string, string>>();
 
 export function useTextTranslate<const T extends string[]>(
@@ -31,10 +33,20 @@ export function useTextTranslate<const T extends string[]>(
     );
 
     async function translateAll() {
+        const runId = ++translationRound;
         const lang = getLanguage(targetLanguage.value);
 
         for (const key of textToTranslate) {
-            tMap[key as T[number]].value = await translateText(key, lang.code);
+            const translated = await translateText(
+                key,
+                lang.code as LanguageCode,
+            );
+
+            if (runId !== translationRound) {
+                return;
+            }
+
+            tMap[key as T[number]].value = translated;
         }
     }
 
@@ -124,9 +136,9 @@ export function useTextTranslate<const T extends string[]>(
         key: string,
         lang: LanguageCode,
     ): Promise<TranslationResult> {
-        const normalizedLangCode = lang.replace("_uk", "").replace("_us", "") as
-            | "de"
-            | "en";
+        const normalizedLangCode = lang
+            .replace("_uk", "")
+            .replace("_us", "") as "de" | "en";
 
         if (lang === "auto") {
             return t(key);

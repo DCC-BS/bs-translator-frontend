@@ -2,7 +2,7 @@
 import type { ButtonProps } from "@nuxt/ui";
 import type { UIDataTypes, UIMessage, UITools } from "ai";
 import type { UserConversation } from "~/models/conversation";
-import type { Language } from "~/models/languages";
+import type { Language, LanguageCode } from "~/models/languages";
 
 const props = defineProps<{
     userMessage: UserConversation;
@@ -30,7 +30,9 @@ const { tMap } = useTextTranslate(
     ],
 );
 
-const { direction } = useLanguageDirection(toRef(() => props.language.code));
+const { direction } = useLanguageDirection(
+    toRef(() => props.language.code as LanguageCode),
+);
 
 const messages = computed<UIMessage[]>(() => {
     return props.userMessage.messages.map((msg) => ({

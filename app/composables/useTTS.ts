@@ -1,5 +1,5 @@
 import type { MaybeRefOrGetter } from "vue";
-import type { Language } from "~/models/languages";
+import type { Language, LanguageCode } from "~/models/languages";
 
 export function useTTS(language: MaybeRefOrGetter<Language>) {
     const isSupported = ref(false);
@@ -27,7 +27,7 @@ export function useTTS(language: MaybeRefOrGetter<Language>) {
             isSupported.value = false;
             return;
         }
-        const bcp47 = toBCP47Code(lang.code);
+        const bcp47 = toBCP47Code(lang.code as LanguageCode);
         isSupported.value = voices.value.some((v) => v.lang === bcp47);
     }
 
@@ -74,7 +74,7 @@ export function useTTS(language: MaybeRefOrGetter<Language>) {
 
         const utterance = new SpeechSynthesisUtterance(text);
         const lang = options?.language ?? getLanguage();
-        const bcp47 = toBCP47Code(lang.code);
+        const bcp47 = toBCP47Code(lang.code as LanguageCode);
 
         utterance.voice = options?.voice ?? voiceMap[bcp47] ?? null;
 

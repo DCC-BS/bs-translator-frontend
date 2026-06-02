@@ -54,8 +54,9 @@ export function toBCP47Code(lang: FuzzyLanguage): string {
 }
 
 export function fromBCP47Code(bcp47: string): Language {
+    const normalized = bcp47.trim().toLowerCase();
     const code = Object.keys(toBCP47).find(
-        (key) => toBCP47[key] === bcp47.trim(),
+        (key) => toBCP47[key]?.toLowerCase() === normalized,
     );
 
     if (!code) {

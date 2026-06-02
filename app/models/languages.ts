@@ -6,7 +6,7 @@ export interface Language {
     icon: string;
 }
 
-export const languageMap: Record<string, Language> = {
+export const languageMap = {
     auto: { code: "auto", icon: "i-lucide-globe-2" }, // Auto-detect language
     de: { code: "de", icon: "flag:de-4x3" }, // German - Germany
     "en-us": { code: "en-us", icon: "flag:us-4x3" }, // English - United States
@@ -65,7 +65,7 @@ export const languageMap: Record<string, Language> = {
     "zh-cn": { code: "zh-cn", icon: "flag:cn-4x3" }, // Chinese (Simplified) - China
     "zh-hk": { code: "zh-hk", icon: "flag:hk-4x3" }, // Chinese (Cantonese) - Hong Kong
     "zh-tw": { code: "zh-tw", icon: "flag:tw-4x3" }, // Chinese (Traditional) - Taiwan
-};
+} as const satisfies Record<string, Language>;
 
 export const languages: Language[] = Object.values(languageMap).filter(
     (lang) => lang.code !== "auto",

@@ -11,6 +11,7 @@ export function useAudioVisualization() {
     });
 
     function initialize(stream: MediaStream) {
+        cleanup();
         audioContext = new AudioContext();
         const source = audioContext.createMediaStreamSource(stream);
         analyser = audioContext.createAnalyser();

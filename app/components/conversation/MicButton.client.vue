@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { Language } from "~/models/languages";
+import type { Language, LanguageCode } from "~/models/languages";
 import CircleButton from "./CircleButton.vue";
 
 const props = defineProps<{
@@ -61,7 +61,11 @@ async function handleTranscription(blob: Blob) {
     let transcribedText = "";
 
     try {
-        for await (const chunk of transcribe(blob, props.language?.code)) {
+        for await (const chunk of transcribe(
+            blob,
+            props.language?.code as LanguageCode,
+            transcribeAbortController.value?.signal,
+        )) {
             transcribedText += chunk;
 
             if (transcribeAbortController.value?.signal.aborted) {
