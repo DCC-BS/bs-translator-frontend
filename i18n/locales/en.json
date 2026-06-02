@@ -231,6 +231,7 @@
             "title": "That's it!",
             "content": "You now know the basic functions of BS Translator. You can restart this tour at any time by clicking the question mark in the top right corner."
         },
+        "progress": "{current} of {total}",
         "skip": "Skip",
         "next": "Next",
         "prev": "Previous",

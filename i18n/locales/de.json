@@ -231,6 +231,7 @@
             "title": "Das wars!",
             "content": "Du kennst nun die Grundfunktionen von BS-Übersetzer. Du kannst diese Tour jederzeit neu starten, indem du oben rechts auf das Fragezeichen klickst."
         },
+        "progress": "{current} von {total}",
         "skip": "Überspringen",
         "next": "Weiter",
         "prev": "Zurück",

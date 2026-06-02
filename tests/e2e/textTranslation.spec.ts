@@ -90,7 +90,11 @@ test("Copy rich translated text", async ({ page, context }) => {
         }
     });
 
-    expect(clipboard).toMatch(new RegExp(`<p(.*?)>${dummyTranslation.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}</p>`));
+    expect(clipboard).toMatch(
+        new RegExp(
+            `<p(.*?)>${dummyTranslation.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</p>`,
+        ),
+    );
 });
 
 test("Copy plain translated text", async ({ page, context }) => {

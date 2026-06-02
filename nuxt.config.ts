@@ -102,7 +102,7 @@ export default defineNuxtConfig({
         "@dcc-bs/audio-recorder.bs.js",
 
         "@nuxtjs/mdc",
-        "nuxt-tour",
+
         "@vite-pwa/nuxt",
         "motion-v/nuxt",
     ],
