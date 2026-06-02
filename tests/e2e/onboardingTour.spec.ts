@@ -66,8 +66,7 @@ test("User can navigate through tour steps using next button", async ({
     for (let i = 0; i < 3; i++) {
         await expect(nextButton).toBeVisible();
         await nextButton.click();
-        await page.waitForTimeout(300); // Wait for animation
-        await expect(tooltip).toBeVisible();
+        await expect(tooltip).toBeVisible({ timeout: 5000 });
     }
 });
 
@@ -85,18 +84,15 @@ test("User can navigate backwards through tour steps", async ({ page }) => {
     // Move forward a few steps
     const nextButton = page.locator("#nt-action-next");
     await nextButton.click();
-    await page.waitForTimeout(300);
+    await expect(tooltip).toBeVisible({ timeout: 5000 });
     await nextButton.click();
-    await page.waitForTimeout(300);
+    await expect(tooltip).toBeVisible({ timeout: 5000 });
 
     // Now go back
     const prevButton = page.locator("#nt-action-prev");
     await expect(prevButton).toBeVisible();
     await prevButton.click();
-    await page.waitForTimeout(300);
-
-    // Tooltip should still be visible
-    await expect(tooltip).toBeVisible();
+    await expect(tooltip).toBeVisible({ timeout: 5000 });
 });
 
 test("User can skip the tour", async ({ page }) => {

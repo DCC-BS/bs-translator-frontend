@@ -235,7 +235,11 @@
         "next": "Next",
         "prev": "Previous",
         "finish": "Finish",
-        "restart": "Restart Tour"
+        "restart": "Restart Tour",
+        "conversation-mode": {
+            "title": "Conversation Mode",
+            "content": "Here you can switch to Conversation Mode. This allows you to have a real-time bilingual conversation — your speech is transcribed and translated, so you can communicate across languages. Each person speaks in their own language and sees or hears the translation in their own language."
+        }
     },
     "tooltips": {
         "online-status": "Online status",

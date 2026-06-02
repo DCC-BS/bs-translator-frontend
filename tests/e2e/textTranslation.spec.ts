@@ -9,6 +9,9 @@ const domainEnergy = local.domains.Energy;
 const glossaryTerm = local.ui.glossaryTerm;
 const glossaryDescription = local.ui.glossaryDescription;
 
+const testInput = "Das ist ein Test.";
+const dummyTranslation = `This is a dummy translation response for: "${testInput}"`;
+
 // Language detection test constants
 const autoDetectText = local.languages.auto;
 
@@ -55,7 +58,7 @@ test("Switch to plain text view", async ({ page, context }) => {
 
     await page.getByTestId("toggleMarkdownButton").click();
     await expect(page.getByTestId("targetTextInput")).toHaveValue(
-        "Das ist ein Test.",
+        dummyTranslation,
     );
 });
 
@@ -87,7 +90,7 @@ test("Copy rich translated text", async ({ page, context }) => {
         }
     });
 
-    expect(clipboard).toMatch(/<p(.*?)>Das ist ein Test.<\/p>/);
+    expect(clipboard).toMatch(new RegExp(`<p(.*?)>${dummyTranslation.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}</p>`));
 });
 
 test("Copy plain translated text", async ({ page, context }) => {
@@ -104,13 +107,16 @@ test("Copy plain translated text", async ({ page, context }) => {
     await page.getByTestId("toggleMarkdownButton").click();
 
     await page.getByTestId("copyToClipboardButton").click();
-    await expect(page.getByText(copySuccessMessage).first()).toBeVisible();
+    await page
+        .getByText(copySuccessMessage)
+        .first()
+        .waitFor({ state: "visible" });
 
     const clipboard = await page.evaluate(async () => {
         return navigator.clipboard.readText();
     });
 
-    expect(clipboard).toBe("Das ist ein Test.");
+    expect(clipboard).toBe(dummyTranslation);
 });
 
 test("Api call is correct when tone is set", async ({ page, context }) => {

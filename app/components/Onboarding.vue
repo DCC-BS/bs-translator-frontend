@@ -104,6 +104,7 @@ const steps = [
         target: '[data-tour="text-output"]',
         title: t("tour.text-output.title"),
         body: t("tour.text-output.content"),
+        popperConfig: { placement: "top" },
     },
     {
         target: '[data-tour="record-audio"]',
@@ -121,16 +122,25 @@ const steps = [
         target: '[data-tour="view-plain-text"]',
         title: t("tour.view-plain-text.title"),
         body: t("tour.view-plain-text.content"),
+        popperConfig: { placement: "top", strategy: "fixed" },
     },
     {
         target: '[data-tour="copy-to-clipboard"]',
         title: t("tour.copy-to-clipboard.title"),
         body: t("tour.copy-to-clipboard.content"),
+        popperConfig: { placement: "top" },
     },
     {
         target: '[data-tour="download-as-word"]',
         title: t("tour.download-as-word.title"),
         body: t("tour.download-as-word.content"),
+        popperConfig: { placement: "top" },
+    },
+    {
+        target: '[data-tour="conversation-mode"]',
+        title: t("tour.conversation-mode.title"),
+        body: t("tour.conversation-mode.content"),
+        popperConfig: { placement: "bottom" },
     },
     {
         title: t("tour.finished.title"),

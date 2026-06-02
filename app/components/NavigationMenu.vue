@@ -62,7 +62,7 @@ async function handleRestartTour(): Promise<void> {
                 </UButton>
             </ULink>
             <ULink v-else to="/conversation">
-                <UButton variant="subtle" color="primary" icon="i-lucide-message-circle-more">
+                <UButton data-tour="conversation-mode" variant="subtle" color="primary" icon="i-lucide-message-circle-more">
                     <div class="hidden md:inline">Conversation Mode </div>
                 </UButton>
             </ULink>
