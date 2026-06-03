@@ -16,7 +16,10 @@ function createDriver() {
         nextBtnText: t("tour.next"),
         prevBtnText: t("tour.prev"),
         doneBtnText: t("tour.finish"),
-        progressText: t("tour.progress", { current: "{{current}}", total: "{{total}}" }),
+        progressText: t("tour.progress", {
+            current: "{{current}}",
+            total: "{{total}}",
+        }),
         onDestroyStarted: () => {
             if (!driverObj.value) return;
             tourCompleted.value = true;
