@@ -47,7 +47,7 @@ COPY --from=build --chown=node:node /app/.output ./
 COPY --from=build --chown=node:node /app/env.d.ts /app/
 COPY --chown=node:node .env*.schema /app/
 
-COPY --from=ghcr.io/dcc-bs/varlock:1.3.0 --chown=node:node /usr/local/bin/varlock /usr/local/bin/varlock
+COPY --from=ghcr.io/dmno-dev/varlock:1.3.0 --chown=node:node /usr/local/bin/varlock /usr/local/bin/varlock
 
 # Expose the port the app runs on
 EXPOSE 3000
