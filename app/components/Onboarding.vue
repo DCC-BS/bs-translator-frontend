@@ -124,6 +124,7 @@ function createDriver() {
                 },
             },
             {
+                element: '[data-tour="start-tour"]',
                 popover: {
                     title: t("tour.finished.title"),
                     description: t("tour.finished.content"),

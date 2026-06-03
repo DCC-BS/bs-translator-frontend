@@ -4,7 +4,6 @@
     "private": true,
     "scripts": {
         "dev": "nuxt dev",
-        "dev:stub": "STUB_API=true nuxt dev",
         "dummy": "DUMMY=true nuxt dev",
         "debug": "nuxt dev --inspect",
         "build": "nuxt build",
