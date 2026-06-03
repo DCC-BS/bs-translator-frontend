@@ -22,6 +22,12 @@ logs
 .env
 .env.*
 !.env.example
-!docker/.env.backend.example
+!.env.backend.example
 
-test-results
+# Custom Docker configuration
+scripts/docker/docker.config.sh
+
+test-results/
+
+env.d.ts
+!.env*.schema

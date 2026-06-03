@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { watchDebounced } from "@vueuse/core";
+import { motion } from "motion-v";
 import { TRANSLATION_DEBOUNCE_MS } from "~/utils/constants";
 
 const router = useRouter();
@@ -96,40 +97,49 @@ function onCapturePhoto() {
     <div class="h-full w-full p-4 flex flex-col">
         <SplitContainer class="flex-1 min-h-0">
             <template #header>
-                <div class="flex items-center w-full">
-                    <div class="flex gap-2 flex-1">
-                        <input type="file" ref="fileInputRef" class="hidden" @change="onFileSelect"
-                            accept=".txt,.doc,.docx,.pdf,.md,.html,.rtf" />
+                <motion.div :initial="{ opacity: 0, y: -10 }" :animate="{
+                    opacity: 1,
+                    y: 0,
+                    transition: { delay: 0.1, duration: 0.3, ease: 'easeInOut' },
+                }">
+                    <div class="flex items-center w-full">
+                        <div class="flex gap-2 flex-1">
+                            <input type="file" ref="fileInputRef" class="hidden" @change="onFileSelect"
+                                accept=".txt,.doc,.docx,.pdf,.md,.html,.rtf" />
 
-                        <!-- <UButton size="xs" color="neutral" variant="ghost" icon="i-lucide-camera"
-                            @click="onCapturePhoto">
-                            <span class="hidden md:inline">
-                                {{ t('ui.takePhoto') }}
-                            </span>
-                        </UButton> -->
+                            <!-- <UButton size="xs" color="neutral" variant="ghost" icon="i-lucide-camera"
+                                @click="onCapturePhoto">
+                                <span class="hidden md:inline">
+                                    {{ t('ui.takePhoto') }}
+                                </span>
+                            </UButton> -->
+                        </div>
+
+                        <!-- Language selection area -->
+                        <div class="hidden xl:inline">
+                            <LanguageSelectionBar v-model:source-language="sourceLanguage"
+                                v-model:target-language="targetLanguage"
+                                :detected-source-language="detectedSourceLanguage"
+                                :is-detecting-language="isDetectingLanguage" @swap-languages="swapLanguages" />
+                        </div>
+
+                        <OptionsToolBar v-model:tone="tone" v-model:domain="domain" v-model:glossary="glossary" />
                     </div>
-
-                    <!-- Language selection area -->
-                    <div class="hidden xl:inline">
+                    <div class="flex justify-center xl:hidden">
                         <LanguageSelectionBar v-model:source-language="sourceLanguage"
-                            v-model:target-language="targetLanguage" :detected-source-language="detectedSourceLanguage"
+                            v-model:target-language="targetLanguage"
+                            :detected-source-language="detectedSourceLanguage"
                             :is-detecting-language="isDetectingLanguage" @swap-languages="swapLanguages" />
                     </div>
-
-                    <OptionsToolBar v-model:tone="tone" v-model:domain="domain" v-model:glossary="glossary" />
-                </div>
-                <div class="flex justify-center xl:hidden">
-                    <LanguageSelectionBar v-model:source-language="sourceLanguage"
-                        v-model:target-language="targetLanguage" :detected-source-language="detectedSourceLanguage"
-                        :is-detecting-language="isDetectingLanguage" @swap-languages="swapLanguages" />
-                </div>
+                </motion.div>
             </template>
 
             <template #left>
                 <div class="h-full w-full relative">
                     <SourceTextView v-model="sourceText" :is-over-drop-zone="isOverDropZone"
                         :is-converting="isConverting" :error="conversionError" :fileName="fileName"
-                        :language-code="sourceLanguage" ref="dropZoneRef" @clear-error="clearError"
+                        :language-code="sourceLanguage" :detected-source-language="detectedSourceLanguage"
+                        ref="dropZoneRef" @clear-error="clearError"
                         @trigger-file-upload="triggerFileUpload" />
                 </div>
             </template>
@@ -143,8 +153,6 @@ function onCapturePhoto() {
         </SplitContainer>
     </div>
 </template>
-
-
 
 <style>
 /* Animation for transition effects */

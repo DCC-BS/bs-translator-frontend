@@ -56,7 +56,7 @@ onUnmounted(() => {
 async function checkCameraAvailability(): Promise<boolean> {
     try {
         // Check if mediaDevices API is supported
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        if (!navigator.mediaDevices?.getUserMedia) {
             cameraAvailable.value = false;
             cameraError.value = t("camera.notSupported");
             isLoading.value = false;

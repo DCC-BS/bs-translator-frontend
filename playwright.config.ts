@@ -40,8 +40,8 @@ export default defineConfig({
 
     webServer: {
         command: process.env.CI
-            ? "STUB_API=true node ./.output/server/index.mjs"
-            : "STUB_API=true bun run dev",
+            ? "DUMMY=true node ./.output/server/index.mjs"
+            : "DUMMY=true bun run dev",
         url: "http://localhost:3000",
         reuseExistingServer: !process.env.CI,
         timeout: 120 * 1000,

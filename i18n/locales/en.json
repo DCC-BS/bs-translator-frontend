@@ -137,7 +137,9 @@
         "hideSettings": "Hide Settings",
         "takePhoto": "Take Photo",
         "recordAudio": "Record Audio",
-        "clearText": "Clear Text"
+        "clearText": "Clear Text",
+        "readAloud": "Read Aloud",
+        "stopReading": "Stop Reading"
     },
     "audio": {
         "recover": "Recover",
@@ -229,15 +231,46 @@
             "title": "That's it!",
             "content": "You now know the basic functions of BS Translator. You can restart this tour at any time by clicking the question mark in the top right corner."
         },
+        "progress": "{current} of {total}",
         "skip": "Skip",
         "next": "Next",
         "prev": "Previous",
         "finish": "Finish",
-        "restart": "Restart Tour"
+        "restart": "Restart Tour",
+        "conversation-mode": {
+            "title": "Conversation Mode",
+            "content": "Here you can switch to Conversation Mode. This allows you to have a real-time bilingual conversation — your speech is transcribed and translated, so you can communicate across languages. Each person speaks in their own language and sees or hears the translation in their own language."
+        }
     },
     "tooltips": {
         "online-status": "Online status",
         "restart-tour": "Start onboarding tour"
+    },
+    "conversation": {
+        "personA": "Person A",
+        "personB": "Person B",
+        "tapToSpeak": "Tap to speak",
+        "translating": "Translating...",
+        "switchToB": "Switch to Person B",
+        "switchToA": "Switch to Person A",
+        "selectLanguageB": "Select Person B's language",
+        "selectYourLanguage": "Select your language",
+        "orStartTalking": "or start talking to auto-detect",
+        "otherPersonLanguage": "Other person's language (optional)",
+        "continue": "Continue",
+        "handToPerson": "Hand the phone to the other person",
+        "selectOrTalk": "Select your language or start talking",
+        "ready": "I'm ready",
+        "undo": "Undo last message",
+        "recordMore": "Record more to add...",
+        "selectLanguage": "Select Language",
+        "searchLanguage": "Search language...",
+        "noLanguageFound": "No language found",
+        "availableVoices": "Available voices",
+        "test": "Test",
+        "cannotTranslateText": "I cannot translate this text.",
+        "startRecordingMessage1": "Start the conversation by recording a message using the {mic}",
+        "startRecordingMessage2": "Button below."
     },
     "api_error": {
         "fetch_failed": "Fetch failed. Please try again.",

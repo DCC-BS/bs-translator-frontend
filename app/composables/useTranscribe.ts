@@ -16,7 +16,11 @@ export function useTranscribe() {
      * @param language Language code for transcription
      * @yields Transcribed text chunks
      */
-    async function* transcribe(blob: Blob, language: LanguageCode) {
+    async function* transcribe(
+        blob: Blob,
+        language?: LanguageCode,
+        signal?: AbortSignal,
+    ): AsyncGenerator<string> {
         const formData = new FormData();
         formData.append("audio_file", blob, "audio.webm");
         // Ensure language is never undefined, default to "auto"
@@ -25,31 +29,36 @@ export function useTranscribe() {
         const response = await apiStreamFetch("/api/transcribe/audio", {
             method: "POST",
             body: formData,
+            signal,
         });
 
         if (isApiError(response)) {
             error.value = response.message;
-            showError(new Error(t(`api_error.transcribe.${response.errorId}`)));
 
-            yield "";
-        } else {
-            const reader = response.getReader();
-            const decoder = new TextDecoder();
-
-            try {
-                while (true) {
-                    const { done, value } = await reader.read();
-
-                    if (done) {
-                        break;
-                    }
-
-                    const chunk = decoder.decode(value, { stream: true });
-                    yield chunk;
-                }
-            } finally {
-                reader.releaseLock();
+            if (response.errorId !== "request_aborted") {
+                showError(
+                    new Error(t(`api_error.transcribe.${response.errorId}`)),
+                );
             }
+
+            return;
+        }
+        const reader = response.getReader();
+        const decoder = new TextDecoder();
+
+        try {
+            while (true) {
+                const { done, value } = await reader.read();
+
+                if (done) {
+                    break;
+                }
+
+                const chunk = decoder.decode(value, { stream: true });
+                yield chunk;
+            }
+        } finally {
+            reader.releaseLock();
         }
     }
 

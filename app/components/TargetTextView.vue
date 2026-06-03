@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import type { LanguageCode } from "~/models/languages";
+import type { Language, LanguageCode } from "~/models/languages";
+import { languageMap } from "~/models/languages";
 
 const props = defineProps<{
     isTranslating?: boolean;
@@ -11,6 +12,24 @@ const { t } = useI18n();
 const toast = useToast();
 const logger = useLogger();
 const { direction } = useLanguageDirection(toRef(props, "languageCode"));
+
+const ttsLanguage = computed<Language>(
+    () => languageMap[props.languageCode] as Language,
+);
+const {
+    isSupported: isTtsSupported,
+    isSpeaking,
+    speak: ttsSpeak,
+    stop: ttsStop,
+} = useTTS(ttsLanguage);
+
+function toggleTTS() {
+    if (isSpeaking.value) {
+        ttsStop();
+    } else {
+        ttsSpeak(translatedText.value ?? "");
+    }
+}
 
 const showMarkdown = ref(true);
 const copySuccess = ref(false);
@@ -165,6 +184,10 @@ async function downloadWord(): Promise<void> {
             :ui="{ base: 'resize-none pb-12 transition-all duration-300 bg-gray-50 dark:bg-gray-900 h-full' }"
             :placeholder="t('ui.translationPlaceholder')" :dir="direction" readonly />
         <div class="absolute p-2 bottom-0 inset-x-0 flex gap-0 flex-wrap justify-end">
+            <UTooltip v-if="isTtsSupported" :text="isSpeaking ? t('ui.stopReading') : t('ui.readAloud')" :delay-duration="0">
+                <UButton :icon="isSpeaking ? 'i-lucide-square' : 'i-lucide-volume-2'" variant="link"
+                    :color="isSpeaking ? 'primary' : 'neutral'" :disabled="!translatedText" @click="toggleTTS" />
+            </UTooltip>
             <UTooltip v-if="translatedText" :text="showMarkdown ? t('ui.viewPlainText') : t('ui.viewAsMarkdown')"
                 :disabled="!translatedText" :delay-duration="0">
                 <UButton data-tour="view-plain-text" :icon="markdownIcon" variant="link" color="neutral"

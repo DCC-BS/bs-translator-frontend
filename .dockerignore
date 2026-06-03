@@ -1,60 +1,6 @@
-.git
-.vscode
-.editorconfig
-README.md
-dockercompose*
-node_modules
-__pycache__
-.pytest_cache
-.nuxt
-dist
-.output
-logs
-test-results
-# Dependencies
 ./node_modules
-.env
-
-# Build output
-./.output
-./.nuxt
-./dist
-
-# IDE files
 ./.vscode
-./.idea
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Git
 ./.git
-./.gitignore
-
-# Documentation
-README.md
-LICENSE
-codecov.yml
-renovate.json
-
-# Images (except needed ones)
-_imgs
-
-# Logs
-logs
-*.log
-
-# Test files
-__tests__
-*.test.*
-*.spec.*
-
-# Development tools
-.eslintrc*
-.prettierrc*
-biome.json
-
-# Docker files
-docker-compose*
-.dockerignore
+./.env
+./.editorconfig
+./.nuxt

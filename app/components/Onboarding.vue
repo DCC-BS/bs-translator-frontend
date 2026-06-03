@@ -1,206 +1,222 @@
 <script lang="ts" setup>
-import type { VTour } from "#components";
-import type { ButtonProp, TourStep } from "#nuxt-tour/props";
+import { type Driver, driver } from "driver.js";
+import "driver.js/dist/driver.css";
 
 const { t } = useI18n();
 const { registerRestartHandler, unregisterRestartHandler, setExampleText } =
     useTourController();
 
 const exampleText = "Schreibe hier deinen text.";
-const tour = ref<InstanceType<typeof VTour>>();
-
-// Tour state
 const tourCompleted = useCookie("tourCompleted", { default: () => false });
-const showTour = ref(false);
-const tourIsActive = ref(false);
-const trapFocus = ref(false);
+const driverObj = ref<Driver>();
+const isReady = ref(false);
+const disclaimerAccepted = useLocalStorage("disclaimerAccepted", "");
 
-// Tour control functions
-function startTour(): void {
-    showTour.value = true;
-    tour.value?.startTour();
+function createDriver() {
+    return driver({
+        showProgress: true,
+        nextBtnText: t("tour.next"),
+        prevBtnText: t("tour.prev"),
+        doneBtnText: t("tour.finish"),
+        progressText: t("tour.progress", {
+            current: "{{current}}",
+            total: "{{total}}",
+        }),
+        onDestroyStarted: () => {
+            if (!driverObj.value) return;
+            tourCompleted.value = true;
+            setExampleText("");
+            driverObj.value.destroy();
+        },
+        steps: [
+            {
+                element: '[data-tour="main-content"]',
+                popover: {
+                    title: t("tour.welcome.title"),
+                    description: t("tour.welcome.content"),
+                    side: "bottom" as const,
+                    align: "center" as const,
+                },
+            },
+            {
+                element: '[data-tour="language-selector"]',
+                popover: {
+                    title: t("tour.language-selector.title"),
+                    description: t("tour.language-selector.content"),
+                    side: "bottom" as const,
+                    align: "center" as const,
+                },
+            },
+            {
+                element: '[data-tour="input-options"]',
+                popover: {
+                    title: t("tour.input-options.title"),
+                    description: t("tour.input-options.content"),
+                    side: "bottom" as const,
+                    align: "center" as const,
+                },
+            },
+            {
+                element: '[data-tour="text-input"]',
+                popover: {
+                    title: t("tour.text-input.title"),
+                    description: t("tour.text-input.content"),
+                    side: "bottom" as const,
+                    align: "center" as const,
+                },
+            },
+            {
+                element: '[data-tour="text-output"]',
+                popover: {
+                    title: t("tour.text-output.title"),
+                    description: t("tour.text-output.content"),
+                    side: "top" as const,
+                    align: "center" as const,
+                },
+            },
+            {
+                element: '[data-tour="record-audio"]',
+                popover: {
+                    title: t("tour.record-audio.title"),
+                    description: t("tour.record-audio.content"),
+                    side: "top" as const,
+                    align: "center" as const,
+                },
+            },
+            {
+                element: '[data-tour="upload-file"]',
+                popover: {
+                    title: t("tour.upload-file.title"),
+                    description: t("tour.upload-file.content"),
+                    side: "top" as const,
+                    align: "center" as const,
+                },
+            },
+            {
+                element: '[data-tour="view-plain-text"]',
+                popover: {
+                    title: t("tour.view-plain-text.title"),
+                    description: t("tour.view-plain-text.content"),
+                    side: "top" as const,
+                    align: "center" as const,
+                },
+            },
+            {
+                element: '[data-tour="copy-to-clipboard"]',
+                popover: {
+                    title: t("tour.copy-to-clipboard.title"),
+                    description: t("tour.copy-to-clipboard.content"),
+                    side: "top" as const,
+                    align: "center" as const,
+                },
+            },
+            {
+                element: '[data-tour="download-as-word"]',
+                popover: {
+                    title: t("tour.download-as-word.title"),
+                    description: t("tour.download-as-word.content"),
+                    side: "top" as const,
+                    align: "center" as const,
+                },
+            },
+            {
+                element: '[data-tour="conversation-mode"]',
+                popover: {
+                    title: t("tour.conversation-mode.title"),
+                    description: t("tour.conversation-mode.content"),
+                    side: "bottom" as const,
+                    align: "center" as const,
+                },
+            },
+            {
+                element: '[data-tour="start-tour"]',
+                popover: {
+                    title: t("tour.finished.title"),
+                    description: t("tour.finished.content"),
+                    side: "bottom" as const,
+                    align: "center" as const,
+                },
+            },
+        ],
+    });
 }
 
-/**
- * Ensures the guided tour can be restarted from other components.
- */
+function start(): void {
+    driverObj.value = createDriver();
+    setExampleText(exampleText);
+    driverObj.value.drive();
+}
+
+function maybeStart(): void {
+    if (!isReady.value) return;
+    if (tourCompleted.value) return;
+    if (disclaimerAccepted.value === "") return;
+    start();
+}
+
 async function restartTour(): Promise<void> {
-    if (tourIsActive.value) {
-        tour.value?.endTour();
+    if (driverObj.value) {
+        driverObj.value.destroy();
         await nextTick();
     }
 
     tourCompleted.value = false;
-    showTour.value = true;
-    tour.value?.resetTour();
+    start();
 }
 
-function onTourStart(): void {
-    tourIsActive.value = true;
-    setExampleText(exampleText); // Only seed example text once the tour is actually active
-    window.addEventListener("keydown", handleKeyboardNavigation);
+function isCompleted(): boolean {
+    return tourCompleted.value === true;
 }
 
-async function onTourComplete(): Promise<void> {
-    tourCompleted.value = true;
-    tourIsActive.value = false;
-    window.removeEventListener("keydown", handleKeyboardNavigation);
-    setExampleText(""); // Clear the example text
+function reset(): void {
+    tourCompleted.value = false;
 }
 
-function handleKeyboardNavigation(event: KeyboardEvent): void {
-    if (!tourIsActive.value) return;
+defineExpose({
+    start,
+    isCompleted,
+    reset,
+});
 
-    // Check if user is typing in an input field
-    const target = event.target as HTMLElement;
-    if (
-        target.tagName === "INPUT" ||
-        target.tagName === "TEXTAREA" ||
-        target.isContentEditable
-    ) {
-        return;
-    }
-
-    switch (event.key) {
-        case "ArrowRight":
-        case "ArrowDown":
-            event.preventDefault();
-            tour.value?.nextStep();
-            break;
-        case "ArrowLeft":
-        case "ArrowUp":
-            event.preventDefault();
-            tour.value?.prevStep();
-            break;
-        case "Escape":
-            event.preventDefault();
-            tour.value?.endTour();
-            break;
-    }
-}
-
-const steps = [
-    {
-        target: '[data-tour="main-content"]',
-        title: t("tour.welcome.title"),
-        body: t("tour.welcome.content"),
-    },
-    {
-        target: '[data-tour="language-selector"]',
-        title: t("tour.language-selector.title"),
-        body: t("tour.language-selector.content"),
-    },
-    {
-        target: '[data-tour="input-options"]',
-        title: t("tour.input-options.title"),
-        body: t("tour.input-options.content"),
-    },
-    {
-        target: '[data-tour="text-input"]',
-        title: t("tour.text-input.title"),
-        body: t("tour.text-input.content"),
-    },
-    {
-        target: '[data-tour="text-output"]',
-        title: t("tour.text-output.title"),
-        body: t("tour.text-output.content"),
-    },
-    {
-        target: '[data-tour="record-audio"]',
-        title: t("tour.record-audio.title"),
-        body: t("tour.record-audio.content"),
-        popperConfig: { placement: "top" },
-    },
-    {
-        target: '[data-tour="upload-file"]',
-        title: t("tour.upload-file.title"),
-        body: t("tour.upload-file.content"),
-        popperConfig: { placement: "top" },
-    },
-    {
-        target: '[data-tour="view-plain-text"]',
-        title: t("tour.view-plain-text.title"),
-        body: t("tour.view-plain-text.content"),
-    },
-    {
-        target: '[data-tour="copy-to-clipboard"]',
-        title: t("tour.copy-to-clipboard.title"),
-        body: t("tour.copy-to-clipboard.content"),
-    },
-    {
-        target: '[data-tour="download-as-word"]',
-        title: t("tour.download-as-word.title"),
-        body: t("tour.download-as-word.content"),
-    },
-    {
-        title: t("tour.finished.title"),
-        body: t("tour.finished.content"),
-    },
-] as TourStep[];
-
-// life cycle hooks
 onMounted(async () => {
     registerRestartHandler(restartTour);
 
     await nextTick();
-    // Auto-start tour for first-time users (delay to ensure UI is ready)
-    if (!tourCompleted.value) {
-        startTour();
-    }
+    isReady.value = true;
+    maybeStart();
 });
 
-// Clean up keyboard listener on unmount
-onUnmounted(() => {
-    if (tourIsActive.value) {
-        window.removeEventListener("keydown", handleKeyboardNavigation);
-    }
+watch(disclaimerAccepted, () => {
+    maybeStart();
+});
 
+onUnmounted(() => {
+    if (driverObj.value) {
+        driverObj.value.destroy();
+    }
     unregisterRestartHandler();
 });
-
-const skipBtn: ButtonProp = {
-    label: t("tour.skip"),
-    leftIcon: "lucide:chevron-last",
-};
-const nextBtn: ButtonProp = {
-    label: t("tour.next"),
-    rightIcon: "lucide:arrow-big-right",
-};
-const prevButton: ButtonProp = {
-    label: t("tour.prev"),
-    leftIcon: "lucide:arrow-big-left",
-};
-const finishButton: ButtonProp = {
-    label: t("tour.finish"),
-    rightIcon: "lucide:check",
-};
 </script>
 
-
-<template>
-    <VTour ref="tour" :steps="steps" @onTourStart="onTourStart" @onTourEnd="onTourComplete"
-        @skip="() => { onTourComplete() }" :highlight="true" :jumpOptions="{ duration: 10 }" :skip-button="skipBtn"
-        :next-button="nextBtn" :prev-button="prevButton" :finish-button="finishButton" :trap-focus="trapFocus" />
-
-    <div class="fixed bg-gray-500 z-50 inset-0 opacity-30" v-if="tourIsActive"></div>
-</template>
+<template></template>
 
 <style scoped>
-@import "../assets/css/main.css";
-
-:deep(#nt-tooltip) {
+:deep(.driver-popover) {
     max-width: 450px;
 }
 
-:deep(#nt-action-next) {
-    @apply bg-primary text-white;
+:deep(.driver-popover-next-btn) {
+    background-color: var(--color-primary);
+    color: white;
 }
 
-:deep(#nt-action-prev) {
-    @apply bg-primary text-white;
+:deep(.driver-popover-prev-btn) {
+    background-color: var(--color-primary);
+    color: white;
 }
 
-:deep(#nt-action-finish) {
-    @apply bg-success text-white;
+:deep(.driver-popover-done-btn) {
+    background-color: var(--color-success);
+    color: white;
 }
 </style>
