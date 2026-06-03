@@ -175,15 +175,12 @@ test("Keyboard navigation works during tour", async ({ page }) => {
     await expect(popover).toBeVisible();
 
     await page.keyboard.press("ArrowRight");
-    await page.waitForTimeout(300);
     await expect(popover).toBeVisible();
 
     await page.keyboard.press("ArrowLeft");
-    await page.waitForTimeout(300);
     await expect(popover).toBeVisible();
 
     await page.keyboard.press("Escape");
-    await page.waitForTimeout(300);
     await expect(popover).toBeHidden();
 });
 
