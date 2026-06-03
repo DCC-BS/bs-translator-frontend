@@ -22,6 +22,6 @@ jobs:
           run_playwright: "true"
           install_method: "bun"
           build_command: "bun run build"
-          test_command: "bunx playwright test"
+          test_command: "bun run test:e2e"
           artifact_name: "playwright-report"
           artifact_retention_days: 30

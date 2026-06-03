@@ -9,6 +9,8 @@ const { registerRestartHandler, unregisterRestartHandler, setExampleText } =
 const exampleText = "Schreibe hier deinen text.";
 const tourCompleted = useCookie("tourCompleted", { default: () => false });
 const driverObj = ref<Driver>();
+const isReady = ref(false);
+const disclaimerAccepted = useLocalStorage("disclaimerAccepted", "");
 
 function createDriver() {
     return driver({
@@ -145,6 +147,13 @@ function start(): void {
     driverObj.value.drive();
 }
 
+function maybeStart(): void {
+    if (!isReady.value) return;
+    if (tourCompleted.value) return;
+    if (disclaimerAccepted.value === "") return;
+    start();
+}
+
 async function restartTour(): Promise<void> {
     if (driverObj.value) {
         driverObj.value.destroy();
@@ -173,9 +182,12 @@ onMounted(async () => {
     registerRestartHandler(restartTour);
 
     await nextTick();
-    if (!tourCompleted.value) {
-        start();
-    }
+    isReady.value = true;
+    maybeStart();
+});
+
+watch(disclaimerAccepted, () => {
+    maybeStart();
 });
 
 onUnmounted(() => {
