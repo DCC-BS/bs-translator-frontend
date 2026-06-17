@@ -160,6 +160,8 @@ export function useTranslate() {
                 } else {
                     showError(new Error(t("api_error.unexpected_error")));
                 }
+            } else {
+                showError(new Error(t("api_error.unexpected_error")));
             }
         } finally {
             isTranslating.value = false;
