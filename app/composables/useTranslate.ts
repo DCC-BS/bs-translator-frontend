@@ -1,4 +1,4 @@
-import { isApiError } from "@dcc-bs/communication.bs.js";
+import { ApiError, isApiError } from "@dcc-bs/communication.bs.js";
 import { watchDebounced } from "@vueuse/core";
 import type { Domain } from "~/models/domain";
 import type { LanguageCode } from "~/models/languages";
@@ -16,6 +16,8 @@ import {
 export function useTranslate() {
     const translationService = useService(TranslationService);
     const { t } = useI18n();
+    const { showError } = useUserFeedback();
+    const logger = useLogger();
 
     const tone = useCookie<Tone>("tone", { default: () => "default" });
     const domain = useCookie<Domain>("domain", { default: () => "None" });
@@ -136,6 +138,26 @@ export function useTranslate() {
                 }
             } catch (_error) {
                 if (!signal.aborted) {
+                    showError(new Error(t("api_error.unexpected_error")));
+                }
+            }
+        } catch (error: unknown) {
+            if (!error) {
+                showError(new Error(t("api_error.unexpected_error")));
+                return;
+            }
+
+            logger.info(error, "Error while translationg");
+
+            if (
+                isApiError(error) ||
+                (typeof error === "object" &&
+                    "message" in error &&
+                    "name" in error)
+            ) {
+                if (isApiError(error)) {
+                    showError(error);
+                } else {
                     showError(new Error(t("api_error.unexpected_error")));
                 }
             }
