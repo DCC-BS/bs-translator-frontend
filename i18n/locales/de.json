@@ -59,7 +59,8 @@
         "ur": "Urdu",
         "vi": "Vietnamesisch",
         "zh-cn": "Chinesisch (Vereinfacht)",
-        "zh-tw": "Chinesisch (Traditionell)"
+        "zh-tw": "Chinesisch (Traditionell)",
+        "zh-hk": "Chinesisch (Hongkong)"
     },
     "domains": {
         "None": "Keine",
@@ -184,7 +185,8 @@
     },
     "navigation": {
         "languages": "Sprachen",
-        "app": "BS-Übersetzer"
+        "app": "BS-Übersetzer",
+        "conversation-mode": "Konversationsmodus"
     },
     "tour": {
         "welcome": {

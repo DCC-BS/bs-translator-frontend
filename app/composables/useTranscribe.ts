@@ -55,8 +55,10 @@ export function useTranscribe() {
                 }
 
                 const chunk = decoder.decode(value, { stream: true });
-                yield chunk;
+                if (chunk) yield chunk;
             }
+            const tail = decoder.decode();
+            if (tail) yield tail;
         } finally {
             reader.releaseLock();
         }

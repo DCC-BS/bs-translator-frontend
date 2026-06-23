@@ -44,16 +44,16 @@ async function handleRestartTour(): Promise<void> {
         <template #left>
             <div>
                 <ULink to="/" class="hidden md-inline text-xl font-bold ml-4">
-                    {{ t("navigation.app")}}
+                    {{ t("navigation.app") }}
                 </ULink>
             </div>
         </template>
         <template #rightPostItems>
             <OnlineStatus :isOnlineCheckFunction="onlineFetchFunction" />
             <UTooltip :text="t('tooltips.restart-tour')" placement="bottom">
-                <UButton v-if="props.showTour" data-tour="start-tour" data-testid="tourRestartButton" :aria-label="t('tour.restart')" variant="ghost"
-                  color="neutral" icon="i-lucide-help-circle" :disabled="!canRestartTour || isRestarting"
-                  @click="handleRestartTour">
+                <UButton v-if="props.showTour" data-tour="start-tour" data-testid="tourRestartButton"
+                    :aria-label="t('tour.restart')" variant="ghost" color="neutral" icon="i-lucide-help-circle"
+                    :disabled="!canRestartTour || isRestarting" @click="handleRestartTour">
                 </UButton>
             </UTooltip>
             <ULink v-if="props.inConversation" to="/">
@@ -62,8 +62,9 @@ async function handleRestartTour(): Promise<void> {
                 </UButton>
             </ULink>
             <ULink v-else to="/conversation">
-                <UButton data-tour="conversation-mode" variant="subtle" color="primary" icon="i-lucide-message-circle-more">
-                    <div class="hidden md:inline">Conversation Mode </div>
+                <UButton data-tour="conversation-mode" variant="subtle" color="primary"
+                    icon="i-lucide-message-circle-more">
+                    <div class="hidden md:inline">{{ t("navigation.conversation-mode") }}</div>
                 </UButton>
             </ULink>
         </template>

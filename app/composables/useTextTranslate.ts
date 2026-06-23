@@ -20,12 +20,19 @@ export function useTextTranslate<const T extends string[]>(
     >;
 
     for (const key of textToTranslate) {
-        tMap[key as T[number]] = ref(fallback(key));
+        tMap[key as T[number]] = ref("");
     }
 
     watch(
         () => targetLanguage.value,
         async () => {
+            // en messages are lazy-loaded; ensure they exist before t(key)
+            await loadLocaleMessages("en");
+            for (const key of textToTranslate) {
+                if (!tMap[key as T[number]].value) {
+                    tMap[key as T[number]].value = fallback(key);
+                }
+            }
             await translateAll();
         },
         { immediate: true },
