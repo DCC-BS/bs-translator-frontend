@@ -26,7 +26,7 @@
         "@mohtasham/md-to-docx": "git+https://github.com/DCC-BS/md-to-docx.js#v3.0.0",
         "@nuxt/ui": "4.8.2",
         "@nuxtjs/i18n": "^10.2.1",
-        "@nuxtjs/mdc": "0.20.2",
+        "@nuxtjs/mdc": "0.22.0",
         "@playwright/test": "^1.57.0",
         "@varlock/vite-integration": "^1.1.1",
         "@vite-pwa/nuxt": "1.1.1",
