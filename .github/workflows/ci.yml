@@ -13,7 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: DCC-BS/ci-workflows/actions/node-bun-biome-playwright@814649735835a84a3d0d6c8d6e6db87dfeb8b348 # v9
+      - uses: DCC-BS/ci-workflows/actions/node-bun-biome-playwright@dd91f584deec446a76ab9f3b1afbeafa9a6c244b # v9
         with:
           node_version: "24.x"
           working_directory: "."
