@@ -51,7 +51,7 @@
         "vue": "3.5.39"
     },
     "devDependencies": {
-        "@ai-sdk/vue": "^3.0.145",
+        "@ai-sdk/vue": "^4.0.0",
         "@biomejs/biome": "2.5.2",
         "@iconify-json/flag": "1.2.12",
         "@iconify-json/lucide": "1.2.115",
