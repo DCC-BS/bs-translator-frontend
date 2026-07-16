@@ -1,25 +1,4 @@
-export type Domain =
-    | "None"
-    | "Government"
-    | "Legal"
-    | "Medical"
-    | "Technical"
-    | "Financial"
-    | "Scientific"
-    | "Marketing"
-    | "Literary"
-    | "Educational"
-    | "Hospitality and Tourism"
-    | "Information Technology"
-    | "Agriculture"
-    | "Energy"
-    | "Real Estate"
-    | "Human Resources"
-    | "Pharmaceutical"
-    | "Art and Culture"
-    | "Logistics and Transportation";
-
-export const domains: Domain[] = [
+export const domains = [
     "None",
     "Government",
     "Legal",
@@ -39,4 +18,6 @@ export const domains: Domain[] = [
     "Pharmaceutical",
     "Art and Culture",
     "Logistics and Transportation",
-];
+] as const;
+
+export type Domain = (typeof domains)[number];

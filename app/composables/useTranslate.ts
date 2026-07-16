@@ -1,4 +1,4 @@
-import { ApiError, isApiError } from "@dcc-bs/communication.bs.js";
+import { isApiError } from "@dcc-bs/communication.bs.js";
 import { watchDebounced } from "@vueuse/core";
 import type { Domain } from "~/models/domain";
 import type { LanguageCode } from "~/models/languages";

@@ -19,6 +19,7 @@
         "env:check": "pass-cli login && bunx varlock load"
     },
     "dependencies": {
+        "@ai-sdk/vue": "^4.0.18",
         "@dcc-bs/audio-recorder.bs.js": "^2.1.2",
         "@dcc-bs/common-ui.bs.js": "^1.2.7",
         "@dcc-bs/communication.bs.js": "^0.1.3",
