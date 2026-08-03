@@ -17,13 +17,6 @@ const onlineFetchFunction = config.public.useDummyData
 
 <template>
     <NavigationBar data-tour="main-content">
-        <template #left>
-            <div>
-                <ULink to="/" class="hidden md:inline text-xl font-bold ml-4">
-                    {{ t("navigation.app") }}
-                </ULink>
-            </div>
-        </template>
         <template #rightPostItems>
             <OnlineStatus :isOnlineCheckFunction="onlineFetchFunction" />
             <ULink v-if="props.inConversation" to="/">
