@@ -31,6 +31,17 @@ export async function acceptDisclaimer(context: BrowserContext) {
 }
 
 /**
+ * Matches a label in any of the given locales. The browser locale decides which
+ * one the app renders, so tests match both instead of pinning one.
+ */
+export function anyLocale(...texts: string[]) {
+    const escaped = texts.map((text) =>
+        text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+    );
+    return new RegExp(`(${escaped.join("|")})`, "i");
+}
+
+/**
  * Restart button comes from common-ui's NavigationBar; it renders a mobile and
  * a desktop variant, only one of which is visible at a time.
  */

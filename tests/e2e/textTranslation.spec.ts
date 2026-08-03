@@ -1,6 +1,19 @@
 import { expect, test } from "@playwright/test";
 
-import { skipTour } from "./helpers";
+import local from "../../i18n/locales/de.json" with { type: "json" };
+import localEn from "../../i18n/locales/en.json" with { type: "json" };
+import { anyLocale, skipTour } from "./helpers";
+
+const copySuccessMessage = anyLocale(
+    local.ui.copySuccess,
+    localEn.ui.copySuccess,
+);
+
+/** e.g. "German (detected)" / "Deutsch (erkannt)" */
+const detectedGerman = anyLocale(
+    local.languages.auto_detected.replace("{0}", local.languages.de),
+    localEn.languages.auto_detected.replace("{0}", localEn.languages.de),
+);
 
 const testInput = "Das ist ein Test.";
 const dummyTranslation = `This is a dummy translation response for: "${testInput}"`;
@@ -12,10 +25,7 @@ test("Text should be translated", async ({ page, context }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    const ta = page.getByPlaceholder(
-        "Enter text to translate or drop a file here...",
-    );
-    await ta.fill("Das ist ein Test.");
+    await page.getByTestId("sourceTextInput").fill("Das ist ein Test.");
 
     await expect(page.getByTestId("targetMarkdown")).toContainText(
         "Das ist ein Test.",
@@ -30,10 +40,7 @@ test("Switch to plain text view", async ({ page, context }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    const ta = page.getByPlaceholder(
-        "Enter text to translate or drop a file here...",
-    );
-    await ta.fill("Das ist ein Test.");
+    await page.getByTestId("sourceTextInput").fill("Das ist ein Test.");
 
     await expect(page.getByTestId("targetMarkdown")).toContainText(
         "Das ist ein Test.",
@@ -54,10 +61,7 @@ test("Copy rich translated text", async ({ page, context }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    const ta = page.getByPlaceholder(
-        "Enter text to translate or drop a file here...",
-    );
-    await ta.fill("Das ist ein Test.");
+    await page.getByTestId("sourceTextInput").fill("Das ist ein Test.");
 
     await expect(page.getByTestId("targetMarkdown")).toContainText(
         "Das ist ein Test.",
@@ -65,24 +69,25 @@ test("Copy rich translated text", async ({ page, context }) => {
     );
 
     await page.getByTestId("copyToClipboardButton").click();
-    await page.waitForTimeout(500);
+    await expect(page.getByText(copySuccessMessage).first()).toBeVisible();
 
+    // Rich copy writes an HTML flavour to the clipboard; assert on that one,
+    // otherwise this test is a duplicate of the plain text copy test.
     const clipboard = await page.evaluate(async () => {
-        try {
-            const items = await navigator.clipboard.read();
-            for (const item of items) {
-                if (item.types.includes("text/plain")) {
-                    const blob = await item.getType("text/plain");
-                    return await blob.text();
-                }
+        const items = await navigator.clipboard.read();
+        for (const item of items) {
+            if (item.types.includes("text/html")) {
+                const blob = await item.getType("text/html");
+                return await blob.text();
             }
-        } catch {
-            // fallback
         }
-        return await navigator.clipboard.readText();
     });
 
-    expect(clipboard).toBe(dummyTranslation);
+    expect(clipboard).toMatch(
+        new RegExp(
+            `<p(.*?)>${dummyTranslation.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</p>`,
+        ),
+    );
 });
 
 test("Copy plain translated text", async ({ page, context }) => {
@@ -92,10 +97,7 @@ test("Copy plain translated text", async ({ page, context }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    const ta = page.getByPlaceholder(
-        "Enter text to translate or drop a file here...",
-    );
-    await ta.fill("Das ist ein Test.");
+    await page.getByTestId("sourceTextInput").fill("Das ist ein Test.");
 
     await expect(page.getByTestId("targetMarkdown")).toContainText(
         "Das ist ein Test.",
@@ -104,6 +106,7 @@ test("Copy plain translated text", async ({ page, context }) => {
 
     await page.getByTestId("toggleMarkdownButton").click();
     await page.getByTestId("copyToClipboardButton").click();
+    await expect(page.getByText(copySuccessMessage).first()).toBeVisible();
 
     const clipboard = await page.evaluate(async () => {
         return navigator.clipboard.readText();
@@ -120,7 +123,11 @@ test("Api call is correct when tone is set", async ({ page, context }) => {
     await page.waitForLoadState("networkidle");
 
     await page.getByTestId("tone-button").click();
-    await page.getByRole("radio", { name: /Informal|Informell/i }).click();
+    await page
+        .getByRole("radio", {
+            name: anyLocale(local.tones.informal, localEn.tones.informal),
+        })
+        .click();
 
     // Wait for the specific request that happens after filling the text
     const responsePromise = page.waitForResponse(
@@ -129,10 +136,7 @@ test("Api call is correct when tone is set", async ({ page, context }) => {
             response.request().method() === "POST",
     );
 
-    const ta = page.getByPlaceholder(
-        "Enter text to translate or drop a file here...",
-    );
-    await ta.fill("Das ist ein Test.");
+    await page.getByTestId("sourceTextInput").fill("Das ist ein Test.");
 
     // Wait for the response and extract request body
     const response = await responsePromise;
@@ -150,7 +154,11 @@ test("Api call is correct when domain is set", async ({ page, context }) => {
     await page.waitForLoadState("networkidle");
 
     await page.getByTestId("domain-button").click();
-    await page.getByRole("radio", { name: /Energy|Energie/i }).click();
+    await page
+        .getByRole("radio", {
+            name: anyLocale(local.domains.Energy, localEn.domains.Energy),
+        })
+        .click();
 
     // Wait for the specific request that happens after filling the text
     const responsePromise = page.waitForResponse(
@@ -159,10 +167,7 @@ test("Api call is correct when domain is set", async ({ page, context }) => {
             response.request().method() === "POST",
     );
 
-    const ta = page.getByPlaceholder(
-        "Enter text to translate or drop a file here...",
-    );
-    await ta.fill("Das ist ein Test.");
+    await page.getByTestId("sourceTextInput").fill("Das ist ein Test.");
 
     // Wait for the response and extract request body
     const response = await responsePromise;
@@ -183,11 +188,18 @@ test("Api call is correct when glossary is set", async ({ page, context }) => {
 
     const dialog = page.getByRole("dialog");
     await dialog
-        .getByPlaceholder(/Term|Begriff/i)
+        .getByPlaceholder(
+            anyLocale(local.ui.glossaryTerm, localEn.ui.glossaryTerm),
+        )
         .first()
         .fill("X");
     await dialog
-        .getByPlaceholder(/Description|Beschreibung/i)
+        .getByPlaceholder(
+            anyLocale(
+                local.ui.glossaryDescription,
+                localEn.ui.glossaryDescription,
+            ),
+        )
         .first()
         .fill("Y");
 
@@ -198,10 +210,7 @@ test("Api call is correct when glossary is set", async ({ page, context }) => {
             response.request().method() === "POST",
     );
 
-    const ta = page.getByPlaceholder(
-        "Enter text to translate or drop a file here...",
-    );
-    await ta.fill("Das ist ein Test.");
+    await page.getByTestId("sourceTextInput").fill("Das ist ein Test.");
 
     // Wait for the first response and extract request body
     const firstResponse = await firstResponsePromise;
@@ -213,11 +222,18 @@ test("Api call is correct when glossary is set", async ({ page, context }) => {
     await page.getByTestId("glossary-button").click();
 
     await dialog
-        .getByPlaceholder(/Term|Begriff/i)
+        .getByPlaceholder(
+            anyLocale(local.ui.glossaryTerm, localEn.ui.glossaryTerm),
+        )
         .last()
         .fill("XX");
     await dialog
-        .getByPlaceholder(/Description|Beschreibung/i)
+        .getByPlaceholder(
+            anyLocale(
+                local.ui.glossaryDescription,
+                localEn.ui.glossaryDescription,
+            ),
+        )
         .last()
         .fill("YY");
 
@@ -274,13 +290,12 @@ test("Language detection is called only once per translation", async ({
     const sourceLanguageSelector = page
         .locator('[data-tour="language-selector"]')
         .first();
-    await expect(sourceLanguageSelector).toContainText(/auto|Automatisch/i);
+    await expect(sourceLanguageSelector).toContainText(
+        anyLocale(local.languages.auto, localEn.languages.auto),
+    );
 
     // Enter text to translate
-    const ta = page.getByPlaceholder(
-        "Enter text to translate or drop a file here...",
-    );
-    await ta.fill("Das ist ein Test.");
+    await page.getByTestId("sourceTextInput").fill("Das ist ein Test.");
 
     // Wait for translation to complete
     await expect(page.getByTestId("targetMarkdown")).toContainText(
@@ -292,7 +307,7 @@ test("Language detection is called only once per translation", async ({
     expect(detectLanguageCallCount).toBe(1);
 
     // Verify the detected language is displayed in the UI
-    await expect(sourceLanguageSelector).toContainText(/erkannt|detected/i);
+    await expect(sourceLanguageSelector).toContainText(detectedGerman);
 });
 
 test("Language detection shows detected language in selector", async ({
@@ -324,10 +339,7 @@ test("Language detection shows detected language in selector", async ({
     await page.waitForLoadState("networkidle");
 
     // Enter text to translate
-    const ta = page.getByPlaceholder(
-        "Enter text to translate or drop a file here...",
-    );
-    await ta.fill("Das ist ein Test.");
+    await page.getByTestId("sourceTextInput").fill("Das ist ein Test.");
 
     // Wait for translation to complete
     await expect(page.getByTestId("targetMarkdown")).toContainText(
@@ -339,6 +351,5 @@ test("Language detection shows detected language in selector", async ({
     const sourceLanguageSelector = page
         .locator('[data-tour="language-selector"]')
         .first();
-    await expect(sourceLanguageSelector).toContainText(/Deutsch|German/i);
-    await expect(sourceLanguageSelector).toContainText(/erkannt|detected/i);
+    await expect(sourceLanguageSelector).toContainText(detectedGerman);
 });

@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import local from "../../i18n/locales/de.json" with { type: "json" };
 import localEn from "../../i18n/locales/en.json" with { type: "json" };
-import { restartTourButton, skipTour } from "./helpers";
+import { anyLocale, restartTourButton, skipTour } from "./helpers";
 
 test("Tooltips are visible on hover for action buttons", async ({
     page,
@@ -18,10 +18,7 @@ test("Tooltips are visible on hover for action buttons", async ({
     await micButton.hover();
     await page.waitForTimeout(500);
     const tooltip = page.locator('[role="tooltip"]').filter({
-        hasText: new RegExp(
-            `(${local.ui.recordAudio}|${localEn.ui.recordAudio})`,
-            "i",
-        ),
+        hasText: anyLocale(local.ui.recordAudio, localEn.ui.recordAudio),
     });
     await expect(tooltip).toBeVisible();
 });
@@ -52,10 +49,7 @@ test("Clear text button appears when text is entered", async ({
     await clearButton.hover();
     await page.waitForTimeout(500);
     const clearTooltip = page.locator('[role="tooltip"]').filter({
-        hasText: new RegExp(
-            `(${local.ui.clearText}|${localEn.ui.clearText})`,
-            "i",
-        ),
+        hasText: anyLocale(local.ui.clearText, localEn.ui.clearText),
     });
     await expect(clearTooltip).toBeVisible();
 
@@ -73,10 +67,7 @@ test("Target text action buttons have tooltips", async ({ page, context }) => {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    const ta = page.getByPlaceholder(
-        "Enter text to translate or drop a file here...",
-    );
-    await ta.fill("Das ist ein Test.");
+    await page.getByTestId("sourceTextInput").fill("Das ist ein Test.");
 
     // Wait for translation to appear
     await expect(page.getByTestId("targetMarkdown")).toContainText(
@@ -89,9 +80,11 @@ test("Target text action buttons have tooltips", async ({ page, context }) => {
     await toggleButton.hover();
     await page.waitForTimeout(600);
     const toggleTooltip = page.locator('[role="tooltip"]').filter({
-        hasText: new RegExp(
-            `(${local.ui.viewPlainText}|${local.ui.viewAsMarkdown}|${localEn.ui.viewPlainText}|${localEn.ui.viewAsMarkdown})`,
-            "i",
+        hasText: anyLocale(
+            local.ui.viewPlainText,
+            local.ui.viewAsMarkdown,
+            localEn.ui.viewPlainText,
+            localEn.ui.viewAsMarkdown,
         ),
     });
     await expect(toggleTooltip).toBeVisible();
@@ -105,9 +98,9 @@ test("Target text action buttons have tooltips", async ({ page, context }) => {
     await copyButton.hover();
     await page.waitForTimeout(600);
     const copyTooltip = page.locator('[role="tooltip"]').filter({
-        hasText: new RegExp(
-            `(${local.ui.copyToClipboard}|${localEn.ui.copyToClipboard})`,
-            "i",
+        hasText: anyLocale(
+            local.ui.copyToClipboard,
+            localEn.ui.copyToClipboard,
         ),
     });
     await expect(copyTooltip).toBeVisible();
@@ -121,9 +114,9 @@ test("Target text action buttons have tooltips", async ({ page, context }) => {
     await downloadButton.hover();
     await page.waitForTimeout(600);
     const downloadTooltip = page.locator('[role="tooltip"]').filter({
-        hasText: new RegExp(
-            `(${local.ui.downloadTranslatedText}|${localEn.ui.downloadTranslatedText})`,
-            "i",
+        hasText: anyLocale(
+            local.ui.downloadTranslatedText,
+            localEn.ui.downloadTranslatedText,
         ),
     });
     await expect(downloadTooltip).toBeVisible();
@@ -149,10 +142,7 @@ test("Tour data attributes are present on key elements", async ({
     await expect(page.locator('[data-tour="upload-file"]')).toBeVisible();
 
     // Enter text to show target area
-    const ta = page.getByPlaceholder(
-        "Enter text to translate or drop a file here...",
-    );
-    await ta.fill("Test");
+    await page.getByTestId("sourceTextInput").fill("Test");
 
     await expect(page.getByTestId("targetMarkdown")).toContainText("Test", {
         timeout: 15000,
@@ -192,10 +182,7 @@ test("File upload button shows tooltip", async ({ page, context }) => {
     await uploadButton.hover();
     await page.waitForTimeout(500);
     const uploadTooltip = page.locator('[role="tooltip"]').filter({
-        hasText: new RegExp(
-            `(${local.ui.uploadFile}|${localEn.ui.uploadFile})`,
-            "i",
-        ),
+        hasText: anyLocale(local.ui.uploadFile, localEn.ui.uploadFile),
     });
     await expect(uploadTooltip).toBeVisible();
 });
