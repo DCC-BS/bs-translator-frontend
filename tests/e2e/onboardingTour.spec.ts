@@ -99,10 +99,7 @@ test("User can close the tour via the close button", async ({
     await expect(popover).toBeHidden();
 });
 
-test("User can complete the tour", async ({
-    page,
-    context,
-}) => {
+test("User can complete the tour", async ({ page, context }) => {
     await context.clearCookies();
     await acceptDisclaimer(context);
 
@@ -142,10 +139,7 @@ test("Navigation restart button restarts onboarding tour", async ({
     await expect(popover).toBeVisible();
 });
 
-test("Tour highlights correct elements", async ({
-    page,
-    context,
-}) => {
+test("Tour highlights correct elements", async ({ page, context }) => {
     await context.clearCookies();
     await acceptDisclaimer(context);
 
@@ -178,10 +172,7 @@ test("Tour highlights correct elements", async ({
     await expect(textInput).toBeVisible();
 });
 
-test("Keyboard navigation works during tour", async ({
-    page,
-    context,
-}) => {
+test("Keyboard navigation works during tour", async ({ page, context }) => {
     await context.clearCookies();
     await acceptDisclaimer(context);
 
@@ -202,10 +193,7 @@ test("Keyboard navigation works during tour", async ({
     await expect(popover).toBeHidden();
 });
 
-test("Tour overlay appears when tour is active", async ({
-    page,
-    context,
-}) => {
+test("Tour overlay appears when tour is active", async ({ page, context }) => {
     await context.clearCookies();
     await acceptDisclaimer(context);
 

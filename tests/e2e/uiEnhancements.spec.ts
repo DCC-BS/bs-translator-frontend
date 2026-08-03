@@ -18,7 +18,10 @@ test("Tooltips are visible on hover for action buttons", async ({
     await micButton.hover();
     await page.waitForTimeout(500);
     const tooltip = page.locator('[role="tooltip"]').filter({
-        hasText: new RegExp(`(${local.ui.recordAudio}|${localEn.ui.recordAudio})`, "i"),
+        hasText: new RegExp(
+            `(${local.ui.recordAudio}|${localEn.ui.recordAudio})`,
+            "i",
+        ),
     });
     await expect(tooltip).toBeVisible();
 });
@@ -49,7 +52,10 @@ test("Clear text button appears when text is entered", async ({
     await clearButton.hover();
     await page.waitForTimeout(500);
     const clearTooltip = page.locator('[role="tooltip"]').filter({
-        hasText: new RegExp(`(${local.ui.clearText}|${localEn.ui.clearText})`, "i"),
+        hasText: new RegExp(
+            `(${local.ui.clearText}|${localEn.ui.clearText})`,
+            "i",
+        ),
     });
     await expect(clearTooltip).toBeVisible();
 
@@ -99,7 +105,10 @@ test("Target text action buttons have tooltips", async ({ page, context }) => {
     await copyButton.hover();
     await page.waitForTimeout(600);
     const copyTooltip = page.locator('[role="tooltip"]').filter({
-        hasText: new RegExp(`(${local.ui.copyToClipboard}|${localEn.ui.copyToClipboard})`, "i"),
+        hasText: new RegExp(
+            `(${local.ui.copyToClipboard}|${localEn.ui.copyToClipboard})`,
+            "i",
+        ),
     });
     await expect(copyTooltip).toBeVisible();
 
@@ -183,7 +192,10 @@ test("File upload button shows tooltip", async ({ page, context }) => {
     await uploadButton.hover();
     await page.waitForTimeout(500);
     const uploadTooltip = page.locator('[role="tooltip"]').filter({
-        hasText: new RegExp(`(${local.ui.uploadFile}|${localEn.ui.uploadFile})`, "i"),
+        hasText: new RegExp(
+            `(${local.ui.uploadFile}|${localEn.ui.uploadFile})`,
+            "i",
+        ),
     });
     await expect(uploadTooltip).toBeVisible();
 });

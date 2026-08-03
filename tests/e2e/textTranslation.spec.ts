@@ -1,6 +1,5 @@
 import { expect, test } from "@playwright/test";
 
-import local from "../../i18n/locales/de.json" with { type: "json" };
 import { skipTour } from "./helpers";
 
 const testInput = "Das ist ein Test.";
@@ -183,8 +182,14 @@ test("Api call is correct when glossary is set", async ({ page, context }) => {
     await page.getByTestId("glossary-button").click();
 
     const dialog = page.getByRole("dialog");
-    await dialog.getByPlaceholder(/Term|Begriff/i).first().fill("X");
-    await dialog.getByPlaceholder(/Description|Beschreibung/i).first().fill("Y");
+    await dialog
+        .getByPlaceholder(/Term|Begriff/i)
+        .first()
+        .fill("X");
+    await dialog
+        .getByPlaceholder(/Description|Beschreibung/i)
+        .first()
+        .fill("Y");
 
     // Wait for the first request that happens after filling the text
     const firstResponsePromise = page.waitForResponse(
@@ -207,8 +212,14 @@ test("Api call is correct when glossary is set", async ({ page, context }) => {
 
     await page.getByTestId("glossary-button").click();
 
-    await dialog.getByPlaceholder(/Term|Begriff/i).last().fill("XX");
-    await dialog.getByPlaceholder(/Description|Beschreibung/i).last().fill("YY");
+    await dialog
+        .getByPlaceholder(/Term|Begriff/i)
+        .last()
+        .fill("XX");
+    await dialog
+        .getByPlaceholder(/Description|Beschreibung/i)
+        .last()
+        .fill("YY");
 
     // Wait for the second request that happens after closing the popup
     const secondResponsePromise = page.waitForResponse(

@@ -33,14 +33,11 @@ export class TranslationService {
             config,
         };
 
-        yield* this.apiClient.apiFetchTextMany(
-            "/api/translate/text",
-            {
-                method: "POST",
-                body: body,
-                signal,
-            },
-        );
+        yield* this.apiClient.apiFetchTextMany("/api/translate/text", {
+            method: "POST",
+            body: body,
+            signal,
+        });
     }
 
     async *translateImage(
