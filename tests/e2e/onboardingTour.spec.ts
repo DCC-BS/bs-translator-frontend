@@ -22,7 +22,7 @@ test("Tour does not auto-start for returning users", async ({
 }) => {
     await context.addCookies([
         {
-            name: "tourCompleted",
+            name: "tour-completed",
             value: "true",
             domain: "localhost",
             path: "/",

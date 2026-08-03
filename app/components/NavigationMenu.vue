@@ -12,31 +12,10 @@ const props = withDefaults(defineProps<InputProps>(), {
 // Add translation hook
 const { t } = useI18n();
 const config = useRuntimeConfig();
-const { restartTour, canRestartTour } = useTourController();
-const logger = useLogger();
-const isRestarting = ref(false);
+const { restartTour } = useTourController();
 const onlineFetchFunction = config.public.useDummyData
     ? async () => true
     : undefined;
-
-/**
- * Restarts the onboarding tour via the shared tour controller.
- */
-async function handleRestartTour(): Promise<void> {
-    if (isRestarting.value || !canRestartTour.value) {
-        return;
-    }
-
-    isRestarting.value = true;
-
-    try {
-        await restartTour();
-    } catch (error) {
-        logger.error(error, "Failed to restart onboarding tour");
-    } finally {
-        isRestarting.value = false;
-    }
-}
 </script>
 
 <template>
@@ -53,7 +32,7 @@ async function handleRestartTour(): Promise<void> {
             <UTooltip :text="t('tooltips.restart-tour')" placement="bottom">
                 <UButton v-if="props.showTour" data-tour="start-tour" data-testid="tourRestartButton"
                     :aria-label="t('tour.restart')" variant="ghost" color="neutral" icon="i-lucide-help-circle"
-                    :disabled="!canRestartTour || isRestarting" @click="handleRestartTour">
+                    @click="restartTour">
                 </UButton>
             </UTooltip>
             <ULink v-if="props.inConversation" to="/">

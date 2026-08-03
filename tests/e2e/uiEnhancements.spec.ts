@@ -10,7 +10,7 @@ const clearTextTooltip = local.ui.clearText;
 async function skipTour(context: BrowserContext) {
     await context.addCookies([
         {
-            name: "tourCompleted",
+            name: "tour-completed",
             value: "true",
             domain: "localhost",
             path: "/",

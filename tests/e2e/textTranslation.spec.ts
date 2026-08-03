@@ -19,7 +19,7 @@ const autoDetectText = local.languages.auto;
 async function skipTour(context: BrowserContext) {
     await context.addCookies([
         {
-            name: "tourCompleted",
+            name: "tour-completed",
             value: "true",
             domain: "localhost",
             path: "/",
