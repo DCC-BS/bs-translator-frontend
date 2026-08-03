@@ -1,18 +1,15 @@
 <script lang="ts" setup>
 interface InputProps {
-    showTour?: boolean;
     inConversation?: boolean;
 }
 
 const props = withDefaults(defineProps<InputProps>(), {
-    showTour: true,
     inConversation: false,
 });
 
 // Add translation hook
 const { t } = useI18n();
 const config = useRuntimeConfig();
-const { restartTour } = useTourController();
 const onlineFetchFunction = config.public.useDummyData
     ? async () => true
     : undefined;
@@ -22,19 +19,13 @@ const onlineFetchFunction = config.public.useDummyData
     <NavigationBar data-tour="main-content">
         <template #left>
             <div>
-                <ULink to="/" class="hidden md-inline text-xl font-bold ml-4">
+                <ULink to="/" class="hidden md:inline text-xl font-bold ml-4">
                     {{ t("navigation.app") }}
                 </ULink>
             </div>
         </template>
         <template #rightPostItems>
             <OnlineStatus :isOnlineCheckFunction="onlineFetchFunction" />
-            <UTooltip :text="t('tooltips.restart-tour')" placement="bottom">
-                <UButton v-if="props.showTour" data-tour="start-tour" data-testid="tourRestartButton"
-                    :aria-label="t('tour.restart')" variant="ghost" color="neutral" icon="i-lucide-help-circle"
-                    @click="restartTour">
-                </UButton>
-            </UTooltip>
             <ULink v-if="props.inConversation" to="/">
                 <UButton variant="ghost" color="neutral" icon="i-lucide-home">
                     <div class="hidden md:inline">Home</div>

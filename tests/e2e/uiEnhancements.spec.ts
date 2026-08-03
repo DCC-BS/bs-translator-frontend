@@ -175,17 +175,11 @@ test("Tour restart button is present in navigation", async ({
     // Dismiss disclaimer
     await page.getByText("Ich habe die Hinweise gelesen").click();
 
-    // Check that restart button exists
-    const restartButton = page.getByTestId("tourRestartButton");
+    // Restart button is provided by common-ui's NavigationBar
+    const restartButton = page
+        .getByRole("button", { name: "Tour neu starten" })
+        .filter({ visible: true });
     await expect(restartButton).toBeVisible();
-
-    // Check tooltip - uses tooltips.restart-tour key in NavigationMenu
-    await restartButton.hover();
-    await page.waitForTimeout(500);
-    const restartTooltip = page.locator('[role="tooltip"]', {
-        hasText: local.tooltips["restart-tour"],
-    });
-    await expect(restartTooltip).toBeVisible();
 });
 
 test("File upload button shows tooltip", async ({ page, context }) => {

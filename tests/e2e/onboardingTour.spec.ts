@@ -1,4 +1,12 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
+
+// Restart button comes from common-ui's NavigationBar; it renders a mobile and
+// a desktop variant, only one of which is visible at a time.
+function restartTourButton(page: Page) {
+    return page
+        .getByRole("button", { name: "Tour neu starten" })
+        .filter({ visible: true });
+}
 
 test("Onboarding tour starts automatically for first-time users", async ({
     page,
@@ -111,7 +119,7 @@ test("User can complete the tour", async ({ page }) => {
 
     await expect(popover).toBeHidden();
 
-    await page.getByTestId("tourRestartButton").click();
+    await restartTourButton(page).click();
     await expect(popover).toBeVisible();
 
     await closeButton.click();
@@ -128,7 +136,7 @@ test("Navigation restart button restarts onboarding tour", async ({ page }) => {
     await page.locator(".driver-popover-close-btn").click();
     await expect(popover).toBeHidden();
 
-    await page.getByTestId("tourRestartButton").click();
+    await restartTourButton(page).click();
     await expect(popover).toBeVisible();
 });
 

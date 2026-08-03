@@ -121,7 +121,7 @@ export function useOnboardingTour() {
                 },
             },
             {
-                element: '[data-tour="start-tour"]',
+                element: '[data-tour="main-content"]',
                 popover: {
                     title: () => t("tour.finished.title"),
                     description: () => t("tour.finished.content"),
