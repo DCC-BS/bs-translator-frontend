@@ -1,5 +1,5 @@
 import type { MDCNode } from "@nuxtjs/mdc";
-import markdownStyle from "~/assets/css/generated_markdown.css?raw";
+import { markdownStyle } from "~/utils/markdownStyle";
 
 /**
  * Converts MDC parsed AST node to HTML string
