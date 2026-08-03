@@ -10,7 +10,9 @@ function detectDirection(code: LanguageCode): "ltr" | "rtl" {
         // Right-to-left languages
         case "ar": // Arabic
         case "fa": // Persian/Farsi
+        case "fa-af": // Dari (Afghan Persian)
         case "he": // Hebrew
+        case "ps": // Pashto
         case "ur": // Urdu
             return "rtl";
         default:

@@ -14,6 +14,7 @@ export const languageMap = {
     fr: { code: "fr", icon: "flag:fr-4x3" }, // French - France
     it: { code: "it", icon: "flag:it-4x3" }, // Italian - Italy
     af: { code: "af", icon: "flag:za-4x3" }, // Afrikaans - South Africa
+    am: { code: "am", icon: "flag:et-4x3" }, // Amharic - Ethiopia
     ar: { code: "ar", icon: "flag:sa-4x3" }, // Arabic - Saudi Arabia
     bg: { code: "bg", icon: "flag:bg-4x3" }, // Bulgarian - Bulgaria
     bn: { code: "bn", icon: "flag:bd-4x3" }, // Bengali - Bangladesh
@@ -25,6 +26,7 @@ export const languageMap = {
     es: { code: "es", icon: "flag:es-4x3" }, // Spanish - Spain
     et: { code: "et", icon: "flag:ee-4x3" }, // Estonian - Estonia
     fa: { code: "fa", icon: "flag:ir-4x3" }, // Persian - Iran
+    "fa-af": { code: "fa-af", icon: "flag:af-4x3" }, // Dari (Afghan Persian) - Afghanistan
     fi: { code: "fi", icon: "flag:fi-4x3" }, // Finnish - Finland
     gu: { code: "gu", icon: "flag:in-4x3" }, // Gujarati - India
     he: { code: "he", icon: "flag:il-4x3" }, // Hebrew - Israel
@@ -33,8 +35,10 @@ export const languageMap = {
     hu: { code: "hu", icon: "flag:hu-4x3" }, // Hungarian - Hungary
     id: { code: "id", icon: "flag:id-4x3" }, // Indonesian - Indonesia
     ja: { code: "ja", icon: "flag:jp-4x3" }, // Japanese - Japan
+    ka: { code: "ka", icon: "flag:ge-4x3" }, // Georgian - Georgia
     kn: { code: "kn", icon: "flag:in-4x3" }, // Kannada - India
     ko: { code: "ko", icon: "flag:kr-4x3" }, // Korean - South Korea
+    ku: { code: "ku", icon: "i-lucide-languages" }, // Kurdish (Kurmanji) - no country flag
     lt: { code: "lt", icon: "flag:lt-4x3" }, // Lithuanian - Lithuania
     lv: { code: "lv", icon: "flag:lv-4x3" }, // Latvian - Latvia
     mk: { code: "mk", icon: "flag:mk-4x3" }, // Macedonian - North Macedonia
@@ -45,6 +49,7 @@ export const languageMap = {
     no: { code: "no", icon: "flag:no-4x3" }, // Norwegian - Norway
     pa: { code: "pa", icon: "flag:in-4x3" }, // Punjabi - India
     pl: { code: "pl", icon: "flag:pl-4x3" }, // Polish - Poland
+    ps: { code: "ps", icon: "flag:af-4x3" }, // Pashto - Afghanistan
     pt: { code: "pt", icon: "flag:pt-4x3" }, // Portuguese - Portugal
     ro: { code: "ro", icon: "flag:ro-4x3" }, // Romanian - Romania
     ru: { code: "ru", icon: "flag:ru-4x3" }, // Russian - Russia
@@ -57,6 +62,7 @@ export const languageMap = {
     ta: { code: "ta", icon: "flag:in-4x3" }, // Tamil - India
     te: { code: "te", icon: "flag:in-4x3" }, // Telugu - India
     th: { code: "th", icon: "flag:th-4x3" }, // Thai - Thailand
+    ti: { code: "ti", icon: "flag:er-4x3" }, // Tigrinya - Eritrea
     tl: { code: "tl", icon: "flag:ph-4x3" }, // Filipino - Philippines
     tr: { code: "tr", icon: "flag:tr-4x3" }, // Turkish - Turkey
     uk: { code: "uk", icon: "flag:ua-4x3" }, // Ukrainian - Ukraine
@@ -81,6 +87,7 @@ export const toBCP47: Record<string, string> = {
     fr: "fr-FR",
     it: "it-IT",
     af: "af-ZA",
+    am: "am-ET",
     ar: "ar-SA",
     bg: "bg-BG",
     bn: "bn-BD",
@@ -92,6 +99,7 @@ export const toBCP47: Record<string, string> = {
     es: "es-ES",
     et: "et-EE",
     fa: "fa-IR",
+    "fa-af": "fa-AF",
     fi: "fi-FI",
     gu: "gu-IN",
     he: "he-IL",
@@ -100,8 +108,10 @@ export const toBCP47: Record<string, string> = {
     hu: "hu-HU",
     id: "id-ID",
     ja: "ja-JP",
+    ka: "ka-GE",
     kn: "kn-IN",
     ko: "ko-KR",
+    ku: "ku-TR",
     lt: "lt-LT",
     lv: "lv-LV",
     mk: "mk-MK",
@@ -112,6 +122,7 @@ export const toBCP47: Record<string, string> = {
     no: "no-NO",
     pa: "pa-IN",
     pl: "pl-PL",
+    ps: "ps-AF",
     pt: "pt-PT",
     ro: "ro-RO",
     ru: "ru-RU",
@@ -124,6 +135,7 @@ export const toBCP47: Record<string, string> = {
     ta: "ta-IN",
     te: "te-IN",
     th: "th-TH",
+    ti: "ti-ER",
     tl: "tl-PH",
     tr: "tr-TR",
     uk: "uk-UA",
