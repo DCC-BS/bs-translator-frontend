@@ -1,6 +1,7 @@
-import { type BrowserContext, expect, test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 import local from "../../i18n/locales/en.json" with { type: "json" };
+import { skipTour } from "./helpers";
 
 const copySuccessMessage = local.ui.copySuccess;
 const toneInformal = local.tones.informal;
@@ -14,18 +15,6 @@ const dummyTranslation = `This is a dummy translation response for: "${testInput
 
 // Language detection test constants
 const autoDetectText = local.languages.auto;
-
-// Helper to skip tour by setting the completion cookie
-async function skipTour(context: BrowserContext) {
-    await context.addCookies([
-        {
-            name: "tour-completed",
-            value: "true",
-            domain: "localhost",
-            path: "/",
-        },
-    ]);
-}
 
 test("Text should be translated", async ({ page, context }) => {
     // Skip tour for this test

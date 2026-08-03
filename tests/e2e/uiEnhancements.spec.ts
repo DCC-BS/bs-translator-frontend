@@ -1,22 +1,11 @@
-import { type BrowserContext, expect, test } from "@playwright/test";
-
+import { expect, test } from "@playwright/test";
 import local from "../../i18n/locales/en.json" with { type: "json" };
+import { restartTourButton, skipTour } from "./helpers";
 
 const recordAudioTooltip = local.ui.recordAudio;
 const uploadFileTooltip = local.ui.uploadFile;
 const clearTextTooltip = local.ui.clearText;
 
-// Helper to skip tour by setting the completion cookie
-async function skipTour(context: BrowserContext) {
-    await context.addCookies([
-        {
-            name: "tour-completed",
-            value: "true",
-            domain: "localhost",
-            path: "/",
-        },
-    ]);
-}
 test("Tooltips are visible on hover for action buttons", async ({
     page,
     context,
@@ -175,11 +164,7 @@ test("Tour restart button is present in navigation", async ({
     // Dismiss disclaimer
     await page.getByText("Ich habe die Hinweise gelesen").click();
 
-    // Restart button is provided by common-ui's NavigationBar
-    const restartButton = page
-        .getByRole("button", { name: "Tour neu starten" })
-        .filter({ visible: true });
-    await expect(restartButton).toBeVisible();
+    await expect(restartTourButton(page)).toBeVisible();
 });
 
 test("File upload button shows tooltip", async ({ page, context }) => {
