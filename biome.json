@@ -24,7 +24,7 @@
     "linter": {
         "enabled": true,
         "rules": {
-            "recommended": true,
+            "preset": "recommended",
             "style": {
                 "noParameterAssign": "error",
                 "useAsConstAssertion": "error",
@@ -52,6 +52,26 @@
                     "correctness": {
                         "noUnusedVariables": "off",
                         "noUnusedImports": "off"
+                    }
+                }
+            }
+        },
+        {
+            "includes": ["app/pages/**/*.vue", "app/layouts/**/*.vue"],
+            "linter": {
+                "rules": {
+                    "style": {
+                        "useVueMultiWordComponentNames": "off"
+                    }
+                }
+            }
+        },
+        {
+            "includes": ["public/**/*.svg"],
+            "linter": {
+                "rules": {
+                    "a11y": {
+                        "noSvgWithoutTitle": "off"
                     }
                 }
             }
