@@ -4,6 +4,7 @@
         "auto_detected": "{0} (detected)",
         "auto_detecting": "Detecting language...",
         "af": "Afrikaans",
+        "am": "Amharic",
         "ar": "Arabic",
         "bg": "Bulgarian",
         "bn": "Bengali",
@@ -19,6 +20,7 @@
         "es": "Spanish",
         "et": "Estonian",
         "fa": "Persian",
+        "fa-af": "Dari",
         "fi": "Finnish",
         "fr": "French",
         "gu": "Gujarati",
@@ -29,8 +31,10 @@
         "id": "Indonesian",
         "it": "Italian",
         "ja": "Japanese",
+        "ka": "Georgian",
         "kn": "Kannada",
         "ko": "Korean",
+        "ku": "Kurdish (Kurmanji)",
         "lt": "Lithuanian",
         "lv": "Latvian",
         "mk": "Macedonian",
@@ -41,6 +45,7 @@
         "no": "Norwegian",
         "pa": "Punjabi",
         "pl": "Polish",
+        "ps": "Pashto",
         "pt": "Portuguese",
         "ro": "Romanian",
         "ru": "Russian",
@@ -53,6 +58,7 @@
         "ta": "Tamil",
         "te": "Telugu",
         "th": "Thai",
+        "ti": "Tigrinya",
         "tl": "Filipino",
         "tr": "Turkish",
         "uk": "Ukrainian",
@@ -231,22 +237,15 @@
         },
         "finished": {
             "title": "That's it!",
-            "content": "You now know the basic functions of BS Translator. You can restart this tour at any time by clicking the question mark in the top right corner."
+            "content": "You now know the basic functions of BS Translator. You can restart this tour at any time by clicking «Restart Tour» in the top right corner."
         },
-        "progress": "{current} of {total}",
-        "skip": "Skip",
-        "next": "Next",
-        "prev": "Previous",
-        "finish": "Finish",
-        "restart": "Restart Tour",
         "conversation-mode": {
             "title": "Conversation Mode",
             "content": "Here you can switch to Conversation Mode. This allows you to have a real-time bilingual conversation — your speech is transcribed and translated, so you can communicate across languages. Each person speaks in their own language and sees or hears the translation in their own language."
         }
     },
     "tooltips": {
-        "online-status": "Online status",
-        "restart-tour": "Start onboarding tour"
+        "online-status": "Online status"
     },
     "conversation": {
         "personA": "Person A",

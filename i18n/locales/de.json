@@ -4,6 +4,7 @@
         "auto_detected": "{0} (erkannt)",
         "auto_detecting": "Sprache wird erkannt...",
         "af": "Afrikaans",
+        "am": "Amharisch",
         "ar": "Arabisch",
         "bg": "Bulgarisch",
         "bn": "Bengalisch",
@@ -19,6 +20,7 @@
         "es": "Spanisch",
         "et": "Estnisch",
         "fa": "Persisch",
+        "fa-af": "Dari",
         "fi": "Finnisch",
         "fr": "Französisch",
         "gu": "Gujarati",
@@ -29,8 +31,10 @@
         "id": "Indonesisch",
         "it": "Italienisch",
         "ja": "Japanisch",
+        "ka": "Georgisch",
         "kn": "Kannada",
         "ko": "Koreanisch",
+        "ku": "Kurdisch (Kurmandschi)",
         "lt": "Litauisch",
         "lv": "Lettisch",
         "mk": "Mazedonisch",
@@ -41,6 +45,7 @@
         "no": "Norwegisch",
         "pa": "Punjabi",
         "pl": "Polnisch",
+        "ps": "Paschtu",
         "pt": "Portugiesisch",
         "ro": "Rumänisch",
         "ru": "Russisch",
@@ -53,6 +58,7 @@
         "ta": "Tamil",
         "te": "Telugu",
         "th": "Thailändisch",
+        "ti": "Tigrinya",
         "tl": "Filipino",
         "tr": "Türkisch",
         "uk": "Ukrainisch",
@@ -231,22 +237,15 @@
         },
         "finished": {
             "title": "Das wars!",
-            "content": "Du kennst nun die Grundfunktionen von BS-Übersetzer. Du kannst diese Tour jederzeit neu starten, indem du oben rechts auf das Fragezeichen klickst."
+            "content": "Du kennst nun die Grundfunktionen von BS-Übersetzer. Du kannst diese Tour jederzeit neu starten, indem du oben rechts auf «Tour neu starten» klickst."
         },
-        "progress": "{current} von {total}",
-        "skip": "Überspringen",
-        "next": "Weiter",
-        "prev": "Zurück",
-        "finish": "Beenden",
-        "restart": "Tour neu starten",
         "conversation-mode": {
             "title": "Konversationsmodus",
             "content": "Hier kannst du in den Konversationsmodus wechseln. Dieser ermöglicht dir eine zweisprachige Echtzeit-Unterhaltung — deine Sprache wird transkribiert und übersetzt, damit du dich sprachübergreifend verständigen kannst. Jede Person spricht in ihrer eigenen Sprache und sieht oder hört die Übersetzung in ihrer eigenen Sprache."
         }
     },
     "tooltips": {
-        "online-status": "Online-Status",
-        "restart-tour": "Tutorial starten"
+        "online-status": "Online-Status"
     },
     "conversation": {
         "personA": "Person A",

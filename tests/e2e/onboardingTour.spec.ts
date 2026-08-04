@@ -1,18 +1,18 @@
 import { expect, test } from "@playwright/test";
+import { acceptDisclaimer, restartTourButton, skipTour } from "./helpers";
 
 test("Onboarding tour starts automatically for first-time users", async ({
     page,
     context,
 }) => {
     await context.clearCookies();
+    await acceptDisclaimer(context);
 
     await page.goto("/");
 
-    await page.getByText("Ich habe die Hinweise gelesen").click();
-
     const popover = page.locator(".driver-popover");
 
-    await popover.waitFor();
+    await popover.waitFor({ state: "visible" });
     await expect(popover).toBeVisible();
 });
 
@@ -20,18 +20,10 @@ test("Tour does not auto-start for returning users", async ({
     page,
     context,
 }) => {
-    await context.addCookies([
-        {
-            name: "tourCompleted",
-            value: "true",
-            domain: "localhost",
-            path: "/",
-        },
-    ]);
+    await context.clearCookies();
+    await skipTour(context);
 
     await page.goto("/");
-
-    await page.getByText("Ich habe die Hinweise gelesen").click();
 
     const popover = page.locator(".driver-popover");
 
@@ -41,14 +33,16 @@ test("Tour does not auto-start for returning users", async ({
 
 test("User can navigate through tour steps using next button", async ({
     page,
+    context,
 }) => {
-    await page.goto("/");
+    await context.clearCookies();
+    await acceptDisclaimer(context);
 
-    await page.getByText("Ich habe die Hinweise gelesen").click();
+    await page.goto("/");
 
     const popover = page.locator(".driver-popover");
 
-    await popover.waitFor();
+    await popover.waitFor({ state: "visible" });
     await expect(popover).toBeVisible();
 
     const nextButton = page.locator(".driver-popover-next-btn");
@@ -60,14 +54,18 @@ test("User can navigate through tour steps using next button", async ({
     }
 });
 
-test("User can navigate backwards through tour steps", async ({ page }) => {
-    await page.goto("/");
+test("User can navigate backwards through tour steps", async ({
+    page,
+    context,
+}) => {
+    await context.clearCookies();
+    await acceptDisclaimer(context);
 
-    await page.getByText("Ich habe die Hinweise gelesen").click();
+    await page.goto("/");
 
     const popover = page.locator(".driver-popover");
 
-    await popover.waitFor();
+    await popover.waitFor({ state: "visible" });
 
     const nextButton = page.locator(".driver-popover-next-btn");
     await nextButton.click();
@@ -81,14 +79,18 @@ test("User can navigate backwards through tour steps", async ({ page }) => {
     await expect(popover).toBeVisible({ timeout: 5000 });
 });
 
-test("User can close the tour via the close button", async ({ page }) => {
-    await page.goto("/");
+test("User can close the tour via the close button", async ({
+    page,
+    context,
+}) => {
+    await context.clearCookies();
+    await acceptDisclaimer(context);
 
-    await page.getByText("Ich habe die Hinweise gelesen").click();
+    await page.goto("/");
 
     const popover = page.locator(".driver-popover");
 
-    await popover.waitFor();
+    await popover.waitFor({ state: "visible" });
     await expect(popover).toBeVisible();
 
     const closeButton = page.locator(".driver-popover-close-btn");
@@ -97,49 +99,55 @@ test("User can close the tour via the close button", async ({ page }) => {
     await expect(popover).toBeHidden();
 });
 
-test("User can complete the tour", async ({ page }) => {
-    await page.goto("/");
+test("User can complete the tour", async ({ page, context }) => {
+    await context.clearCookies();
+    await acceptDisclaimer(context);
 
-    await page.getByText("Ich habe die Hinweise gelesen").click();
+    await page.goto("/");
 
     const popover = page.locator(".driver-popover");
 
-    await popover.waitFor();
+    await popover.waitFor({ state: "visible" });
 
     const closeButton = page.locator(".driver-popover-close-btn");
     await closeButton.click();
 
     await expect(popover).toBeHidden();
 
-    await page.getByTestId("tourRestartButton").click();
+    await restartTourButton(page).click();
     await expect(popover).toBeVisible();
 
     await closeButton.click();
 });
 
-test("Navigation restart button restarts onboarding tour", async ({ page }) => {
-    await page.goto("/");
+test("Navigation restart button restarts onboarding tour", async ({
+    page,
+    context,
+}) => {
+    await context.clearCookies();
+    await acceptDisclaimer(context);
 
-    await page.getByText("Ich habe die Hinweise gelesen").click();
+    await page.goto("/");
 
     const popover = page.locator(".driver-popover");
 
-    await popover.waitFor();
+    await popover.waitFor({ state: "visible" });
     await page.locator(".driver-popover-close-btn").click();
     await expect(popover).toBeHidden();
 
-    await page.getByTestId("tourRestartButton").click();
+    await restartTourButton(page).click();
     await expect(popover).toBeVisible();
 });
 
-test("Tour highlights correct elements", async ({ page }) => {
-    await page.goto("/");
+test("Tour highlights correct elements", async ({ page, context }) => {
+    await context.clearCookies();
+    await acceptDisclaimer(context);
 
-    await page.getByText("Ich habe die Hinweise gelesen").click();
+    await page.goto("/");
 
     const popover = page.locator(".driver-popover");
 
-    await popover.waitFor();
+    await popover.waitFor({ state: "visible" });
 
     const nextButton = page.locator(".driver-popover-next-btn");
 
@@ -164,14 +172,15 @@ test("Tour highlights correct elements", async ({ page }) => {
     await expect(textInput).toBeVisible();
 });
 
-test("Keyboard navigation works during tour", async ({ page }) => {
-    await page.goto("/");
+test("Keyboard navigation works during tour", async ({ page, context }) => {
+    await context.clearCookies();
+    await acceptDisclaimer(context);
 
-    await page.getByText("Ich habe die Hinweise gelesen").click();
+    await page.goto("/");
 
     const popover = page.locator(".driver-popover");
 
-    await popover.waitFor();
+    await popover.waitFor({ state: "visible" });
     await expect(popover).toBeVisible();
 
     await page.keyboard.press("ArrowRight");
@@ -184,14 +193,15 @@ test("Keyboard navigation works during tour", async ({ page }) => {
     await expect(popover).toBeHidden();
 });
 
-test("Tour overlay appears when tour is active", async ({ page }) => {
-    await page.goto("/");
+test("Tour overlay appears when tour is active", async ({ page, context }) => {
+    await context.clearCookies();
+    await acceptDisclaimer(context);
 
-    await page.getByText("Ich habe die Hinweise gelesen").click();
+    await page.goto("/");
 
     const popover = page.locator(".driver-popover");
 
-    await popover.waitFor();
+    await popover.waitFor({ state: "visible" });
     await expect(popover).toBeVisible();
 
     const closeButton = page.locator(".driver-popover-close-btn");

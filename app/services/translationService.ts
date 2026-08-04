@@ -33,36 +33,11 @@ export class TranslationService {
             config,
         };
 
-        const response = await this.apiClient.apiStreamFetch(
-            "/api/translate/text",
-            {
-                method: "POST",
-                body: body,
-                signal,
-            },
-        );
-
-        if (isApiError(response)) {
-            throw response;
-        }
-
-        const reader = response.getReader();
-        const decoder = new TextDecoder();
-
-        try {
-            while (true) {
-                const { done, value } = await reader.read();
-
-                if (done) {
-                    break;
-                }
-
-                const chunk = decoder.decode(value, { stream: true });
-                yield chunk;
-            }
-        } finally {
-            reader.releaseLock();
-        }
+        yield* this.apiClient.apiFetchTextMany("/api/translate/text", {
+            method: "POST",
+            body: body,
+            signal,
+        });
     }
 
     async *translateImage(

@@ -1,11 +1,10 @@
 <script lang="ts" setup>
+const onboardingBuilder = useOnboardingTour();
 </script>
 
 
 <template>
-    <Changelogs />
-    <Onboarding />
-    <Disclaimer app-name="BS Übersetzer" />
+    <FirstRunOrchestrator :onboarding-builder="onboardingBuilder" :disclaimer="{ appName: 'BS Übersetzer' }" />
     <div class="flex flex-col h-dvh">
         <NavigationMenu />
         <div class="flex-1 min-h-0">

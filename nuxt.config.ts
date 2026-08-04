@@ -50,9 +50,6 @@ export default defineNuxtConfig({
         },
         plugins: [varlockVitePlugin({ ssrInjectMode: "resolved-env" })],
         build: {
-            rollupOptions: {
-                maxParallelFileOps: 2,
-            },
             chunkSizeWarningLimit: 1000,
         },
         resolve: {

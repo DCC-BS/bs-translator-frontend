@@ -2,12 +2,12 @@
 </script>
 
 <template>
-    <Changelogs />
-    <Disclaimer app-name="BS Übersetzer" />
+    <!-- No onboarding builder: the tour targets elements of the default layout. -->
+    <FirstRunOrchestrator :disclaimer="{ appName: 'BS Übersetzer' }" />
     <div>
         <div class="fixed z-999 w-full">
             <div class="m-auto w-full max-w-[900px]">
-                <NavigationMenu :showTour="false" :inConversation="true" />
+                <NavigationMenu :inConversation="true" />
             </div>
         </div>
         <slot />
