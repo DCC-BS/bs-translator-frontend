@@ -63,7 +63,28 @@ export default defineNuxtConfig({
             titleTemplate: "BS Übersetzer",
             link: [
                 { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
-                { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+                {
+                    rel: "icon",
+                    type: "image/svg+xml",
+                    href: "/favicon.svg",
+                },
+                {
+                    rel: "icon",
+                    type: "image/png",
+                    sizes: "32x32",
+                    href: "/favicon-32x32.png",
+                },
+                {
+                    rel: "icon",
+                    type: "image/png",
+                    sizes: "16x16",
+                    href: "/favicon-16x16.png",
+                },
+                {
+                    rel: "apple-touch-icon",
+                    sizes: "180x180",
+                    href: "/apple-touch-icon.png",
+                },
             ],
             htmlAttrs: {
                 lang: "de",
@@ -79,7 +100,6 @@ export default defineNuxtConfig({
                     content: "BS Übersetzer",
                 },
                 { name: "application-name", content: "BS Übersetzer" },
-                { name: "msapplication-config", content: "/browserconfig.xml" },
                 { name: "mobile-web-app-capable", content: "yes" },
                 {
                     name: "apple-mobile-web-app-status-bar-style",
@@ -180,25 +200,19 @@ export default defineNuxtConfig({
             orientation: "portrait",
             icons: [
                 {
-                    src: "pwa-192x192.png",
+                    src: "/android-chrome-192x192.png",
                     sizes: "192x192",
                     type: "image/png",
                     purpose: "any",
                 },
                 {
-                    src: "pwa-512x512.png",
+                    src: "/android-chrome-512x512.png",
                     sizes: "512x512",
                     type: "image/png",
                     purpose: "any",
                 },
                 {
-                    src: "pwa-maskable-192x192.png",
-                    sizes: "192x192",
-                    type: "image/png",
-                    purpose: "maskable",
-                },
-                {
-                    src: "pwa-maskable-512x512.png",
+                    src: "/android-chrome-512x512.png",
                     sizes: "512x512",
                     type: "image/png",
                     purpose: "maskable",
