@@ -10,10 +10,12 @@ const onboardingBuilder = useOnboardingTour();
         <div class="flex-1 min-h-0">
             <slot />
         </div>
-        <!-- Footer section with branding and feedback -->
-        <div class="flex items-center justify-between px-2 py-1">
-            <DataBsFooter />
-            <FeedbackControl inline />
-        </div>
+        <DataBsFooter size="sm" class="p-2">
+            <template #right>
+                <div class="flex justify-end">
+                    <FeedbackControl inline />
+                </div>
+            </template>
+        </DataBsFooter>
     </div>
 </template>

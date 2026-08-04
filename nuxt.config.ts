@@ -20,6 +20,7 @@ export default defineNuxtConfig({
         ["github:DCC-BS/nuxt-layers/auth", { install: true }],
         ["github:DCC-BS/nuxt-layers/backend_communication", { install: true }],
         ["github:DCC-BS/nuxt-layers/health_check", { install: false }],
+        ["github:DCC-BS/nuxt-layers/dcc-app-config"], 
         process.env.USE_FEEDBACK === "true"
             ? ["github:DCC-BS/nuxt-layers/feedback-control", { install: true }]
             : undefined,
