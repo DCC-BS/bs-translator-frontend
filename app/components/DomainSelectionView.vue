@@ -16,7 +16,7 @@ const selectedDomain = defineModel<Domain>({
 </script>
 
 <template>
-    <div class="overf§low-auto max-h-[500px]">
+    <div class="overflow-auto max-h-[500px]">
         <URadioGroup v-model="selectedDomain" color="primary" variant="table" :items="items" />
     </div>
 </template>
