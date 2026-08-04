@@ -237,7 +237,7 @@
         },
         "finished": {
             "title": "That's it!",
-            "content": "You now know the basic functions of BS Translator. You can restart this tour at any time by clicking «Restart Tour» in the top right corner."
+            "content": "You now know the basic functions of BS Translator. You can restart this tour at any time by clicking «Help» in the top right corner."
         },
         "conversation-mode": {
             "title": "Conversation Mode",

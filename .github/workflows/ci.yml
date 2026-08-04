@@ -18,7 +18,7 @@ jobs:
           node_version: "24.x"
           working_directory: "."
           run_biome: "true"
-          biome_version: "2.4.15"
+          biome_version: "2.5.5"
           run_playwright: "true"
           install_method: "bun"
           build_command: "DUMMY=true bun run build"

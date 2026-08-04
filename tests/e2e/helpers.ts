@@ -43,10 +43,13 @@ export function anyLocale(...texts: string[]) {
 
 /**
  * Restart button comes from common-ui's NavigationBar; it renders a mobile and
- * a desktop variant, only one of which is visible at a time.
+ * a desktop variant, only one of which is visible at a time. Located by its
+ * data-tour anchor because the label is owned by common-ui and changes between
+ * releases (it is currently "Hilfe"/"Help").
  */
 export function restartTourButton(page: Page) {
     return page
-        .getByRole("button", { name: /Tour neu starten|Restart tour/i })
+        .locator('[data-tour="start-tour"]')
+        .getByRole("button")
         .filter({ visible: true });
 }
