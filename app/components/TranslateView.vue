@@ -1,7 +1,5 @@
 <script lang="ts" setup>
-import { watchDebounced } from "@vueuse/core";
 import { motion } from "motion-v";
-import { TRANSLATION_DEBOUNCE_MS } from "~/utils/constants";
 
 const router = useRouter();
 
@@ -63,16 +61,6 @@ async function handleTranslate(): Promise<void> {
 
     await translate();
 }
-
-watchDebounced(
-    sourceText,
-    () => {
-        if (sourceText.value.trim() !== "" && targetLanguage.value) {
-            handleTranslate();
-        }
-    },
-    { debounce: TRANSLATION_DEBOUNCE_MS },
-);
 
 function triggerFileUpload(): void {
     if (fileInputRef.value) {

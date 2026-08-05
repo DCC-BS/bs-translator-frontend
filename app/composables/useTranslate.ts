@@ -5,10 +5,7 @@ import type { LanguageCode } from "~/models/languages";
 import type { Tone } from "~/models/tone";
 import type { TranslationConfig } from "~/models/translationConfig";
 import { TranslationService } from "~/services/translationService";
-import {
-    TRANSLATION_DEBOUNCE_MS,
-    TRANSLATION_MAX_WAIT_MS,
-} from "~/utils/constants";
+import { TRANSLATION_DEBOUNCE_MS } from "~/utils/constants";
 
 /**
  * Composable for handling text translation with streaming support
@@ -286,18 +283,20 @@ export function useTranslate() {
         }
     });
 
-    // Trigger translation when config changes (debounced)
+    // Trigger translation when the text or the config changes (debounced).
+    // Keep this the single trigger: a second debounced watcher on the same
+    // flow fires in the same tick and sends duplicate backend requests.
+    // No maxWait: translation must not fire while the user is still typing.
     watchDebounced(
-        [targetLanguage, sourceLanguage, tone, domain, glossary],
+        [sourceText, targetLanguage, sourceLanguage, tone, domain, glossary],
         () => {
             // Only translate if source text is not empty
-            if (sourceText.value.trim() !== "") {
+            if (sourceText.value.trim() !== "" && targetLanguage.value) {
                 translate();
             }
         },
         {
             debounce: TRANSLATION_DEBOUNCE_MS,
-            maxWait: TRANSLATION_MAX_WAIT_MS,
         },
     );
 
