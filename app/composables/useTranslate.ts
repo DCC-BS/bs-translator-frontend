@@ -161,7 +161,11 @@ export function useTranslate() {
                 showError(new Error(t("api_error.unexpected_error")));
             }
         } finally {
-            isTranslating.value = false;
+            // Only the active invocation may clear the state: an aborted run
+            // finishes after its successor already set isTranslating = true.
+            if (abortController.value?.signal === signal) {
+                isTranslating.value = false;
+            }
         }
     }
 
@@ -216,7 +220,9 @@ export function useTranslate() {
                 );
             }
         } finally {
-            isTranslating.value = false;
+            if (abortController.value?.signal === signal) {
+                isTranslating.value = false;
+            }
         }
 
         return translated;
@@ -290,8 +296,15 @@ export function useTranslate() {
     watchDebounced(
         [sourceText, targetLanguage, sourceLanguage, tone, domain, glossary],
         () => {
-            // Only translate if source text is not empty
-            if (sourceText.value.trim() !== "" && targetLanguage.value) {
+            if (sourceText.value.trim() === "") {
+                // Stop any in-flight stream so it cannot keep appending output
+                // after the input was cleared.
+                abort();
+                translatedText.value = "";
+                clearDetectedLanguage();
+                return;
+            }
+            if (targetLanguage.value) {
                 translate();
             }
         },
