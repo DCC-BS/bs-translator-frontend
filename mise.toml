@@ -74,14 +74,17 @@ run = "bunx biome check --fix"
 # ── Testing ───────────────────────────────────────────────────────────────────
 
 [tasks."test:e2e"]
+env = { APP_MODE= "ci" }
 description = "run Playwright E2E tests"
 run = "bunx playwright test"
 
 [tasks."test:e2e:ui"]
+env = { APP_MODE= "ci" }
 description = "run Playwright E2E tests with the interactive UI"
 run = "bunx playwright test --ui"
 
 [tasks."e2e:codegen"]
+env = { APP_MODE= "ci" }
 description = "generate Playwright tests via codegen"
 run = "bunx playwright codegen http://localhost:3000"
 
