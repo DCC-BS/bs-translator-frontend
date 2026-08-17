@@ -50,8 +50,8 @@
     },
     "overrides": {
         "vue": "3.5.40",
-        "unhead": "3.2.3",
-        "@unhead/vue": "3.2.3"
+        "unhead": "3.3.0",
+        "@unhead/vue": "3.3.0"
     },
     "devDependencies": {
         "@biomejs/biome": "2.5.6",
