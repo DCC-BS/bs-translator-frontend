@@ -57,6 +57,7 @@ export const languageMap = {
     sl: { code: "sl", icon: "flag:si-4x3" }, // Slovenian - Slovenia
     so: { code: "so", icon: "flag:so-4x3" }, // Somali - Somalia
     sq: { code: "sq", icon: "flag:al-4x3" }, // Albanian - Albania
+    sr: { code: "sr", icon: "flag:rs-4x3" }, // Serbian - Serbia
     sv: { code: "sv", icon: "flag:se-4x3" }, // Swedish - Sweden
     sw: { code: "sw", icon: "flag:tz-4x3" }, // Swahili - Tanzania
     ta: { code: "ta", icon: "flag:in-4x3" }, // Tamil - India
@@ -130,6 +131,7 @@ export const toBCP47: Record<string, string> = {
     sl: "sl-SI",
     so: "so-SO",
     sq: "sq-AL",
+    sr: "sr-RS",
     sv: "sv-SE",
     sw: "sw-TZ",
     ta: "ta-IN",
