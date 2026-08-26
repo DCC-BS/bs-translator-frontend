@@ -29,5 +29,8 @@ scripts/docker/docker.config.sh
 
 test-results/
 
+playwright-report/
+results.json
+
 env.d.ts
 !.env*.schema

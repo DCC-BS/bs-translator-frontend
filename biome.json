@@ -41,7 +41,8 @@
     },
     "javascript": {
         "formatter": {
-            "quoteStyle": "double"
+            "quoteStyle": "double",
+            "semicolons": "always"
         }
     },
     "overrides": [
