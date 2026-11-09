@@ -105,22 +105,22 @@ definePageMeta({ layout: 'dashboard' })
 
 Root layout wrapper. Manages sidebar state and persistence.
 
-| Prop | Default | Description |
-|---|---|---|
-| `storage` | `'cookie'` | State persistence: `'cookie'`, `'localStorage'`, `false` |
-| `storage-key` | `'dashboard'` | Storage key name |
-| `unit` | `'percentages'` | Size unit: `'percentages'` or `'pixels'` |
+| Prop          | Default         | Description                                              |
+| ------------- | --------------- | -------------------------------------------------------- |
+| `storage`     | `'cookie'`      | State persistence: `'cookie'`, `'localStorage'`, `false` |
+| `storage-key` | `'dashboard'`   | Storage key name                                         |
+| `unit`        | `'percentages'` | Size unit: `'percentages'` or `'pixels'`                 |
 
 ### DashboardSidebar
 
 Resizable, collapsible sidebar. Must be inside `DashboardGroup`.
 
-| Prop | Default | Description |
-|---|---|---|
-| `resizable` | `false` | Enable resize by dragging |
-| `collapsible` | `false` | Enable collapse when dragged to edge |
-| `side` | `'left'` | `'left'` or `'right'` |
-| `mode` | `'slideover'` | Mobile menu mode: `'modal'`, `'slideover'`, `'drawer'` |
+| Prop          | Default       | Description                                            |
+| ------------- | ------------- | ------------------------------------------------------ |
+| `resizable`   | `false`       | Enable resize by dragging                              |
+| `collapsible` | `false`       | Enable collapse when dragged to edge                   |
+| `side`        | `'left'`      | `'left'` or `'right'`                                  |
+| `mode`        | `'slideover'` | Mobile menu mode: `'modal'`, `'slideover'`, `'drawer'` |
 
 Slots receive `{ collapsed }` prop. Control state: `v-model:collapsed`, `v-model:open` (mobile).
 
@@ -128,10 +128,10 @@ Slots receive `{ collapsed }` prop. Control state: `v-model:collapsed`, `v-model
 
 Content panel with `#header`, `#body` (scrollable), `#footer`, and `#default` (raw) slots.
 
-| Prop | Default | Description |
-|---|---|---|
-| `id` | `—` | Unique ID (required for multi-panel) |
-| `resizable` | `false` | Enable resize by dragging |
+| Prop        | Default | Description                          |
+| ----------- | ------- | ------------------------------------ |
+| `id`        | `—`     | Unique ID (required for multi-panel) |
+| `resizable` | `false` | Enable resize by dragging            |
 
 ### DashboardNavbar / DashboardToolbar
 

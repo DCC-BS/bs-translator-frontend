@@ -1,22 +1,22 @@
 services:
-  llm:
-    extends:
-      file: ./services.compose.yml
-      service: llm
+    llm:
+        extends:
+            file: ./services.compose.yml
+            service: llm
 
-  faster_whisper:
-    extends:
-      file: ./services.compose.yml
-      service: faster_whisper
+    faster_whisper:
+        extends:
+            file: ./services.compose.yml
+            service: faster_whisper
 
-  docling:
-    extends:
-      file: ./services.compose.yml
-      service: docling
+    docling:
+        extends:
+            file: ./services.compose.yml
+            service: docling
 
-  translator-backend:
-    extends:
-      file: ./services.compose.yml
-      service: translator-backend
-    ports:
-      - "8000:8000"
+    translator-backend:
+        extends:
+            file: ./services.compose.yml
+            service: translator-backend
+        ports:
+            - "8000:8000"

@@ -1,24 +1,24 @@
 name: Build & Test
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
 env:
-  LOGGER_LAYER_URI: github:DCC-BS/nuxt-layers/pino-logger
-  AUTH_MODE: "none"
-  APP_MODE: "ci"
-  CI: true
+    LOGGER_LAYER_URI: github:DCC-BS/nuxt-layers/pino-logger
+    AUTH_MODE: "none"
+    APP_MODE: "ci"
+    CI: true
 
 permissions:
-  contents: read
+    contents: read
 
 jobs:
-  frontend-ci:
-    uses: DCC-BS/ci-workflows/.github/workflows/ci.yml@a7a5611d4ea9bc55f27ca8bc22327181d0e0cbc0 # v10.0.0
-    permissions:
-      contents: read
-      pull-requests: write
+    frontend-ci:
+        uses: DCC-BS/ci-workflows/.github/workflows/ci.yml@a7a5611d4ea9bc55f27ca8bc22327181d0e0cbc0 # v10.0.0
+        permissions:
+            contents: read
+            pull-requests: write

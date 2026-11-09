@@ -30,18 +30,18 @@ pnpm add ai @ai-sdk/gateway @ai-sdk/vue
 ### Server endpoint
 
 ```ts [server/api/chat.post.ts]
-import { streamText, convertToModelMessages } from 'ai'
-import { gateway } from '@ai-sdk/gateway'
+import { streamText, convertToModelMessages } from "ai";
+import { gateway } from "@ai-sdk/gateway";
 
 export default defineEventHandler(async (event) => {
-  const { messages } = await readBody(event)
+    const { messages } = await readBody(event);
 
-  return streamText({
-    model: gateway('anthropic/claude-sonnet-4.6'),
-    system: 'You are a helpful assistant.',
-    messages: await convertToModelMessages(messages)
-  }).toUIMessageStreamResponse()
-})
+    return streamText({
+        model: gateway("anthropic/claude-sonnet-4.6"),
+        system: "You are a helpful assistant.",
+        messages: await convertToModelMessages(messages),
+    }).toUIMessageStreamResponse();
+});
 ```
 
 ## Full page chat
@@ -134,10 +134,10 @@ function onSubmit() {
 
 Scrollable message list with auto-scroll and loading indicator.
 
-| Prop | Description |
-|---|---|
-| `messages` | Array of AI SDK messages |
-| `status` | `'submitted'`, `'streaming'`, `'ready'`, `'error'` |
+| Prop       | Description                                        |
+| ---------- | -------------------------------------------------- |
+| `messages` | Array of AI SDK messages                           |
+| `status`   | `'submitted'`, `'streaming'`, `'ready'`, `'error'` |
 
 Slots: `#content` (receives `{ message }`), `#actions` (per-message), `#indicator` (loading)
 
@@ -145,20 +145,20 @@ Slots: `#content` (receives `{ message }`), `#actions` (per-message), `#indicato
 
 Individual message bubble with avatar, actions, and slots.
 
-| Prop | Description |
-|---|---|
-| `message` | AI SDK UIMessage object |
-| `side` | `'left'` (default), `'right'` |
+| Prop      | Description                   |
+| --------- | ----------------------------- |
+| `message` | AI SDK UIMessage object       |
+| `side`    | `'left'` (default), `'right'` |
 
 ### ChatReasoning
 
 Collapsible block for AI reasoning / thinking process. Auto-opens during streaming, auto-closes when done.
 
-| Prop | Description |
-|---|---|
-| `text` | Reasoning text (displayed inside collapsible content) |
-| `streaming` | Whether reasoning is actively streaming |
-| `open` | Controlled open state |
+| Prop        | Description                                           |
+| ----------- | ----------------------------------------------------- |
+| `text`      | Reasoning text (displayed inside collapsible content) |
+| `streaming` | Whether reasoning is actively streaming               |
+| `open`      | Controlled open state                                 |
 
 Use `isPartStreaming(part)` from `@nuxt/ui/utils/ai` to determine streaming state.
 
@@ -166,15 +166,15 @@ Use `isPartStreaming(part)` from `@nuxt/ui/utils/ai` to determine streaming stat
 
 Collapsible block for AI tool invocation status.
 
-| Prop | Description |
-|---|---|
-| `text` | Tool status text (displayed in trigger) |
-| `icon` | Icon name |
-| `loading` | Show loading spinner on icon |
-| `streaming` | Whether tool is actively running |
-| `suffix` | Secondary text after label |
-| `variant` | `'inline'` (default), `'card'` |
-| `chevron` | `'trailing'` (default), `'leading'` |
+| Prop        | Description                             |
+| ----------- | --------------------------------------- |
+| `text`      | Tool status text (displayed in trigger) |
+| `icon`      | Icon name                               |
+| `loading`   | Show loading spinner on icon            |
+| `streaming` | Whether tool is actively running        |
+| `suffix`    | Secondary text after label              |
+| `variant`   | `'inline'` (default), `'card'`          |
+| `chevron`   | `'trailing'` (default), `'leading'`     |
 
 Use `isToolStreaming(part)` from `@nuxt/ui/utils/ai` to determine if a tool is still running.
 
@@ -186,10 +186,10 @@ Text shimmer animation for streaming states. Automatically used by ChatReasoning
 
 Enhanced textarea form for prompts. Accepts all Textarea props.
 
-| Prop | Description |
-|---|---|
-| `v-model` | Input text binding |
-| `error` | Error from chat instance |
+| Prop      | Description                                                      |
+| --------- | ---------------------------------------------------------------- |
+| `v-model` | Input text binding                                               |
+| `error`   | Error from chat instance                                         |
 | `variant` | `'outline'` (default), `'subtle'`, `'soft'`, `'ghost'`, `'none'` |
 
 Slots: `#default` (submit button), `#footer` (below input, e.g. model selector)
