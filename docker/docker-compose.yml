@@ -1,48 +1,48 @@
 networks:
-  translator-network:
-    driver: bridge
+    translator-network:
+        driver: bridge
 
 services:
-  nginx:
-    extends:
-      file: ./services.compose.yml
-      service: nginx
-    depends_on:
-      - translator-frontend
-    networks:
-      - translator-network
+    nginx:
+        extends:
+            file: ./services.compose.yml
+            service: nginx
+        depends_on:
+            - translator-frontend
+        networks:
+            - translator-network
 
-  llm:
-    extends:
-      file: ./services.compose.yml
-      service: llm
-    networks:
-      - translator-network
+    llm:
+        extends:
+            file: ./services.compose.yml
+            service: llm
+        networks:
+            - translator-network
 
-  faster_whisper:
-    extends:
-      file: ./services.compose.yml
-      service: faster_whisper
-    networks:
-      - translator-network
+    faster_whisper:
+        extends:
+            file: ./services.compose.yml
+            service: faster_whisper
+        networks:
+            - translator-network
 
-  docling:
-    extends:
-      file: ./services.compose.yml
-      service: docling
-    networks:
-      - translator-network
+    docling:
+        extends:
+            file: ./services.compose.yml
+            service: docling
+        networks:
+            - translator-network
 
-  translator-backend:
-    extends:
-      file: ./services.compose.yml
-      service: translator-backend
-    networks:
-      - translator-network
+    translator-backend:
+        extends:
+            file: ./services.compose.yml
+            service: translator-backend
+        networks:
+            - translator-network
 
-  translator-frontend:
-    extends:
-      file: ./services.compose.yml
-      service: translator-frontend
-    networks:
-      - translator-network
+    translator-frontend:
+        extends:
+            file: ./services.compose.yml
+            service: translator-frontend
+        networks:
+            - translator-network
