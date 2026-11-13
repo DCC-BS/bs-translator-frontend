@@ -1,11 +1,14 @@
 import { isApiError } from "@dcc-bs/communication.bs.js";
 import { watchDebounced } from "@vueuse/core";
 import type { Domain } from "~/models/domain";
-import type { LanguageCode } from "~/models/languages";
+import { type LanguageCode, languageMap } from "~/models/languages";
 import type { Tone } from "~/models/tone";
 import type { TranslationConfig } from "~/models/translationConfig";
 import { TranslationService } from "~/services/translationService";
-import { TRANSLATION_DEBOUNCE_MS } from "~/utils/constants";
+import {
+    PREFERENCE_COOKIE_MAX_AGE_SECONDS,
+    TRANSLATION_DEBOUNCE_MS,
+} from "~/utils/constants";
 
 /**
  * Composable for handling text translation with streaming support
@@ -16,16 +19,40 @@ export function useTranslate() {
     const { showError } = useUserFeedback();
     const logger = useLogger();
 
-    const tone = useCookie<Tone>("tone", { default: () => "default" });
-    const domain = useCookie<Domain>("domain", { default: () => "None" });
-    const glossary = useCookie<string>("glossary", { default: () => "" });
+    const tone = useCookie<Tone>("tone", {
+        default: () => "default",
+        maxAge: PREFERENCE_COOKIE_MAX_AGE_SECONDS,
+    });
+    const domain = useCookie<Domain>("domain", {
+        default: () => "None",
+        maxAge: PREFERENCE_COOKIE_MAX_AGE_SECONDS,
+    });
+    const glossary = useCookie<string>("glossary", {
+        default: () => "",
+        maxAge: PREFERENCE_COOKIE_MAX_AGE_SECONDS,
+    });
 
     const sourceLanguage = useCookie<LanguageCode>("sourceLanguage", {
         default: () => "auto",
+        maxAge: PREFERENCE_COOKIE_MAX_AGE_SECONDS,
     });
     const targetLanguage = useCookie<LanguageCode>("targetLanguage", {
         default: () => "en-us",
+        maxAge: PREFERENCE_COOKIE_MAX_AGE_SECONDS,
     });
+
+    // A code from a previous languageMap (e.g. the plain "en" that existed before the
+    // en-us/en-gb split) can still be sitting in a returning user's cookie. Left as-is,
+    // the selector can't find it among its items and silently falls back to showing
+    // "Auto Detect" - a flag/label that matches neither the stored code nor the
+    // language the user actually picked. Reset it here instead of letting that surface
+    // in the UI.
+    if (!(sourceLanguage.value in languageMap)) {
+        sourceLanguage.value = "auto";
+    }
+    if (!(targetLanguage.value in languageMap)) {
+        targetLanguage.value = "en-us";
+    }
 
     const sourceText = ref<string>("");
     const translatedText = ref<string>("");
@@ -80,8 +107,18 @@ export function useTranslate() {
                 return "auto";
             }
 
-            detectedSourceLanguage.value = result.language as LanguageCode;
-            return result.language as LanguageCode;
+            // The backend's detector can return a code this app's languageMap does not
+            // have (e.g. the plain "en" fast-langdetect emits, distinct from the
+            // en-us/en-gb this UI offers). Letting that through would let an unmapped
+            // code reach targetLanguage via the swap button, where it can't be matched
+            // back to a flag or label.
+            if (!(result.language in languageMap)) {
+                return "auto";
+            }
+
+            const detected = result.language as LanguageCode;
+            detectedSourceLanguage.value = detected;
+            return detected;
         } catch {
             if (!signal.aborted) {
                 isDetectingLanguage.value = false;
