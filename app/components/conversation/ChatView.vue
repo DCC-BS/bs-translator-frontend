@@ -1,12 +1,19 @@
 <script lang="ts" setup>
 import type { ButtonProps } from "@nuxt/ui";
 import type { UIDataTypes, UIMessage, UITools } from "ai";
-import type { UserConversation } from "~/models/conversation";
+import type {
+    TranslationStatus,
+    UserConversation,
+} from "~/models/conversation";
 import type { Language, LanguageCode } from "~/models/languages";
 
 const props = defineProps<{
     userMessage: UserConversation;
     language: Language;
+}>();
+
+const emit = defineEmits<{
+    retry: [id: string];
 }>();
 
 type MessageAction = Omit<ButtonProps, "onClick"> & {
@@ -25,8 +32,12 @@ const { tMap } = useTextTranslate(
     [
         "ui.copyToClipboard",
         "ui.copySuccess",
+        "ui.copyFailed",
         "conversation.startRecordingMessage1",
         "conversation.startRecordingMessage2",
+        "conversation.waitingForLanguage",
+        "conversation.translationFailed",
+        "conversation.retry",
     ],
 );
 
@@ -47,22 +58,37 @@ const messages = computed<UIMessage[]>(() => {
     }));
 });
 
-const isEmpty = computed(
+// Only for a view without any message, otherwise the hint covers the bubbles.
+const isEmpty = computed(() => props.userMessage.messages.length === 0);
+
+const statusById = computed(
     () =>
-        messages.value.filter((x) => x.role === "user").length === 0 ||
-        props.userMessage.messages.every((msg) => msg.content.trim() === ""),
+        new Map(props.userMessage.messages.map((msg) => [msg.id, msg.status])),
 );
+
+function statusOf(id: string): TranslationStatus | undefined {
+    return statusById.value.get(id);
+}
+
+function isWaiting(id: string): boolean {
+    const status = statusOf(id);
+    return status === "pending" || status === "translating";
+}
 
 const actions = computed<MessageAction[]>(() => [
     {
         label: tMap["ui.copyToClipboard"].value,
         icon: "i-lucide-copy",
-        onClick: (_e, msg) => {
+        onClick: async (_e, msg) => {
             const content = msg.parts
                 .map((part) => ("text" in part ? part.text : ""))
                 .join(" ");
-            navigator.clipboard.writeText(content);
-            showToast(tMap["ui.copySuccess"].value, "success");
+            try {
+                await navigator.clipboard.writeText(content);
+                showToast(tMap["ui.copySuccess"].value, "success");
+            } catch {
+                showToast(tMap["ui.copyFailed"].value, "error");
+            }
         },
     },
 ]);
@@ -74,8 +100,10 @@ function onSpeak(text: string) {
 
 <template>
     <div :dir="direction" class="relative h-full w-full">
+        <!-- UChatMessages only follows new content while status is "streaming". -->
         <UChatMessages
             class="h-full"
+            status="streaming"
             should-auto-scroll
             shouldScrollToBottom
             :user="{
@@ -109,10 +137,36 @@ function onSpeak(text: string) {
                                 .join(" ")
                         }}
                     </div>
+                    <div
+                        v-if="isWaiting(message.id) && language.code === 'auto'"
+                        class="flex items-center gap-2 text-sm opacity-80"
+                    >
+                        <UIcon name="i-lucide-languages" class="shrink-0" />
+                        <span>{{ tMap["conversation.waitingForLanguage"] }}</span>
+                    </div>
+                    <UIcon
+                        v-else-if="isWaiting(message.id)"
+                        name="i-lucide-loader-2"
+                        class="animate-spin"
+                    />
+                    <div
+                        v-if="statusOf(message.id) === 'failed'"
+                        class="flex flex-wrap items-center gap-2 text-sm text-error"
+                    >
+                        <UIcon name="i-lucide-circle-alert" class="shrink-0" />
+                        <span>{{ tMap["conversation.translationFailed"] }}</span>
+                        <UButton
+                            icon="i-lucide-rotate-ccw"
+                            variant="ghost"
+                            size="sm"
+                            :label="tMap['conversation.retry'].value"
+                            @click="emit('retry', message.id)"
+                        />
+                    </div>
                     <div class="flex justify-end">
                         <UButton
                             icon="i-lucide-volume-2"
-                            v-if="isSupported"
+                            v-if="isSupported && !isWaiting(message.id)"
                             variant="ghost"
                             size="sm"
                             @click="

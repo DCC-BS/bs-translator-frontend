@@ -1,3 +1,4 @@
+import { isApiError } from "@dcc-bs/communication.bs.js";
 import { v7 as uuidv7 } from "uuid";
 import type {
     ConversationMessage,
@@ -8,22 +9,31 @@ import { TranslationService } from "~/services/translationService";
 
 type Phase = "setup" | "transition" | "conversation";
 
+type QueuedTranslation = {
+    text: string;
+    /** Language the text was spoken in ("auto" lets the backend detect it) */
+    sourceLanguage: string;
+    message: ConversationMessage;
+};
+
 type UserContext = {
     name: "a" | "b";
-    language: Language;
+    /** Own copy, never a shared `languageMap` entry. Replace it via `setLanguage`. */
+    language: Readonly<Language>;
     conversation: UserConversation;
-    queuedTranslations: { text: string; message: ConversationMessage }[];
+    /** Translations into this user's language that are not done yet */
+    queuedTranslations: QueuedTranslation[];
     backgroundColor: string;
 };
 
 function newContext(bgColor: string, name: "a" | "b"): UserContext {
     return {
         name,
-        language: languageMap.auto as Language,
+        language: { ...languageMap.auto },
         conversation: { language: undefined, messages: [] },
         queuedTranslations: [],
         backgroundColor: bgColor,
-    } as UserContext;
+    };
 }
 
 function createHistoryContext(history: ConversationMessage[]) {
@@ -51,6 +61,9 @@ function createHistoryContext(history: ConversationMessage[]) {
 
 export function useConversation() {
     const translationService = useService(TranslationService);
+    const logger = useLogger();
+    const i18n = useI18n();
+    const { showToast } = useUserFeedback();
     const phase = ref<Phase>("setup");
 
     const userA = reactive<UserContext>(newContext("bg-blue-200", "a"));
@@ -59,20 +72,39 @@ export function useConversation() {
     const current = ref(userA);
     const other = ref(userB);
 
-    let intervalId: number | undefined | NodeJS.Timeout;
+    /** True while translations are queued or running */
+    const isTranslating = computed(() =>
+        [userA, userB].some((user) =>
+            user.queuedTranslations.some(
+                (entry) => entry.message.status !== "failed",
+            ),
+        ),
+    );
 
-    onMounted(() => {
-        intervalId = setInterval(() => processQueue(), 1000);
-    });
+    let activeTranslation:
+        | { id: string; controller: AbortController }
+        | undefined;
+    let disposed = false;
 
     onUnmounted(() => {
-        if (intervalId) {
-            clearInterval(intervalId);
-        }
+        disposed = true;
+        activeTranslation?.controller.abort();
     });
 
+    function setLanguage(user: UserContext, language: FuzzyLanguage) {
+        const resolved = getLanguage(language);
+        if (user.language.code === resolved.code) return;
+
+        user.language = { ...resolved };
+        void processQueue();
+    }
+
     function changeCurrentLanguage(language: FuzzyLanguage) {
-        current.value.language = getLanguage(language);
+        setLanguage(current.value, language);
+    }
+
+    function changeOtherLanguage(language: FuzzyLanguage) {
+        setLanguage(other.value, language);
     }
 
     function switchUser() {
@@ -81,52 +113,90 @@ export function useConversation() {
     }
 
     async function addMessage(text: string) {
+        const speaker = current.value;
+        const listener = other.value;
+
+        if (speaker.language.code === "auto") {
+            try {
+                const result = await translationService.detectLanguage(text);
+                setLanguage(speaker, result.language);
+            } catch (error) {
+                // Keep "auto": the backend detects the source language while translating.
+                logger.warn(error, "Language detection failed");
+            }
+        }
+
         const messageA: ConversationMessage = {
             id: uuidv7(),
             role: "original",
             content: text,
         };
 
-        if (current.value.language.code === "auto") {
-            const result = await translationService.detectLanguage(text);
-            current.value.language = getLanguage(result.language);
-        }
-
         const messageB: ConversationMessage = {
             ...messageA,
             content: "",
             role: "translated",
+            status: "pending",
         };
 
-        current.value.conversation.messages.push(messageA);
-        other.value.conversation.messages.push(messageB);
-        other.value.queuedTranslations.push({ text, message: messageB });
+        speaker.conversation.messages.push(messageA);
+        listener.conversation.messages.push(messageB);
+        listener.queuedTranslations.push({
+            text,
+            sourceLanguage: speaker.language.code,
+            message: messageB,
+        });
+        void processQueue();
     }
 
     function removeLastMessage() {
         const lastMessage = current.value.conversation.messages.pop();
-        if (lastMessage) {
-            // find and remove from other user's conversation
-            if (
-                other.value.conversation.messages.find(
-                    (msg) => msg.id === lastMessage.id,
-                )
-            ) {
-                other.value.conversation.messages =
-                    other.value.conversation.messages.filter(
-                        (msg) => msg.id !== lastMessage.id,
-                    );
-            }
-            // remove from queued translations
-            else {
-                const index = other.value.queuedTranslations.findIndex(
-                    (entry) => entry.message.id === lastMessage.id,
-                );
-                if (index !== -1) {
-                    other.value.queuedTranslations.splice(index, 1);
-                }
+        if (!lastMessage) return;
+
+        if (activeTranslation?.id === lastMessage.id) {
+            activeTranslation.controller.abort();
+        }
+
+        for (const user of [userA, userB]) {
+            user.conversation.messages = user.conversation.messages.filter(
+                (msg) => msg.id !== lastMessage.id,
+            );
+            user.queuedTranslations = user.queuedTranslations.filter(
+                (entry) => entry.message.id !== lastMessage.id,
+            );
+        }
+    }
+
+    /**
+     * Puts a failed translation back into the queue.
+     */
+    function retryMessage(id: string) {
+        for (const user of [userA, userB]) {
+            const entry = user.queuedTranslations.find(
+                (e) => e.message.id === id && e.message.status === "failed",
+            );
+            if (entry) {
+                entry.message.status = "pending";
+                entry.message.content = "";
             }
         }
+        void processQueue();
+    }
+
+    /**
+     * Next pending translation whose target language is known. Messages for a
+     * user whose language is still "auto" wait in the queue until it is set.
+     */
+    function nextPendingTranslation() {
+        for (const target of [userA, userB]) {
+            if (target.language.code === "auto") continue;
+
+            const entry = target.queuedTranslations.find(
+                (e) => e.message.status === "pending",
+            );
+            if (entry) return { target, entry };
+        }
+        return undefined;
     }
 
     let processing = false;
@@ -136,55 +206,59 @@ export function useConversation() {
         processing = true;
 
         try {
-            for (const { queue, sourceLang, targetLang, history } of [
-                {
-                    queue: userA.queuedTranslations,
-                    sourceLang: userB.language,
-                    targetLang: userA.language,
-                    history: userA.conversation.messages,
-                },
-                {
-                    queue: userB.queuedTranslations,
-                    sourceLang: userA.language,
-                    targetLang: userB.language,
-                    history: userB.conversation.messages,
-                },
-            ]) {
-                if (sourceLang.code === "auto" || targetLang.code === "auto") {
-                    continue;
-                }
-
-                for (const { text, message } of queue) {
-                    await translateMessage(
-                        text,
-                        sourceLang,
-                        targetLang,
-                        message,
-                        history,
-                    );
-                }
-                queue.length = 0;
+            while (!disposed) {
+                const next = nextPendingTranslation();
+                if (!next) break;
+                await translateEntry(next.target, next.entry);
             }
         } finally {
             processing = false;
         }
     }
 
-    async function translateMessage(
-        text: string,
-        sourceLang: FuzzyLanguage,
-        targetLang: FuzzyLanguage,
-        message: ConversationMessage,
-        history: ConversationMessage[],
+    async function translateEntry(
+        target: UserContext,
+        entry: QueuedTranslation,
     ) {
-        const context = createHistoryContext(history);
+        const { message } = entry;
+        const controller = new AbortController();
+        activeTranslation = { id: message.id, controller };
 
-        for await (const chunk of translationService.translate(text, {
-            source_language: getLanguage(sourceLang).code,
-            target_language: getLanguage(targetLang).code,
-            context: context,
-        })) {
-            message.content += chunk;
+        message.status = "translating";
+        message.content = "";
+
+        try {
+            for await (const chunk of translationService.translate(
+                entry.text,
+                {
+                    source_language: entry.sourceLanguage,
+                    target_language: target.language.code,
+                    context: createHistoryContext(target.conversation.messages),
+                },
+                controller.signal,
+            )) {
+                message.content += chunk;
+            }
+
+            message.status = "done";
+            target.queuedTranslations = target.queuedTranslations.filter(
+                (e) => e !== entry,
+            );
+        } catch (error) {
+            // Aborted by undo or by leaving the page: nothing to report.
+            if (controller.signal.aborted) return;
+
+            logger.error(error, "Conversation translation failed");
+            message.status = "failed";
+            showToast(
+                isApiError(error)
+                    ? apiErrorMessage(i18n, "translation", error.errorId)
+                    : i18n.t("api_error.unexpected_error"),
+            );
+        } finally {
+            if (activeTranslation?.controller === controller) {
+                activeTranslation = undefined;
+            }
         }
     }
 
@@ -192,9 +266,12 @@ export function useConversation() {
         phase,
         current,
         other,
+        isTranslating,
         changeCurrentLanguage,
+        changeOtherLanguage,
         switchUser,
         addMessage,
         removeLastMessage,
+        retryMessage,
     };
 }

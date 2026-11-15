@@ -3,15 +3,37 @@ import { AnimatePresence, motion } from "motion-v";
 import ChatView from "~/components/conversation/ChatView.vue";
 import LanguageSetup from "~/components/conversation/LanguageSetup.vue";
 import ToolBar from "~/components/conversation/ToolBar.vue";
-import type { Language } from "~/models/languages";
+import type { Language, LanguageCode } from "~/models/languages";
 
 definePageMeta({ layout: "conversation" });
 
-const { addMessage, removeLastMessage, current, phase, other, switchUser } =
-    useConversation();
+const {
+    addMessage,
+    removeLastMessage,
+    retryMessage,
+    changeCurrentLanguage,
+    changeOtherLanguage,
+    current,
+    phase,
+    other,
+    switchUser,
+    isTranslating,
+} = useConversation();
 
 const currentLanguage = computed(() => current.value.language);
-const transitionLanguage = ref(currentLanguage.value);
+const transitionLanguage = ref<Language>(currentLanguage.value);
+
+// The handoff text is shown in the language of the person handing over, so
+// keep it in sync with the current user outside of the transition itself.
+watch(
+    [currentLanguage, phase],
+    () => {
+        if (phase.value !== "transition") {
+            transitionLanguage.value = currentLanguage.value;
+        }
+    },
+    { immediate: true },
+);
 
 const { tMap } = useTextTranslate(transitionLanguage, [
     "conversation.handToPerson",
@@ -19,6 +41,16 @@ const { tMap } = useTextTranslate(transitionLanguage, [
 
 const switchDirection = ref(1);
 const pendingText = ref<string | null>(null);
+const isSubmitting = ref(false);
+const isMicBusy = ref(false);
+
+useLeavePageGuard(
+    () =>
+        isMicBusy.value ||
+        isSubmitting.value ||
+        isTranslating.value ||
+        !!pendingText.value,
+);
 
 const transitionEnter = computed(() => ({
     x: switchDirection.value * 100,
@@ -35,17 +67,12 @@ const transitionTimer = ref<ReturnType<typeof setTimeout>>();
 function startTransition() {
     phase.value = "transition";
     transitionTimer.value = setTimeout(() => {
-        onTransitionEnd();
         phase.value = "conversation";
     }, 2000);
 }
 
 function onSetupAContinue() {
     phase.value = "conversation";
-}
-
-function onTransitionEnd() {
-    transitionLanguage.value = currentLanguage.value;
 }
 
 function onSwitch() {
@@ -58,19 +85,31 @@ function onConversationTranscription(text: string) {
     pendingText.value = text;
 }
 
+/**
+ * Adds the pending text as a message. It is only cleared once the message
+ * was added, so nothing is lost while the language is being detected.
+ */
+async function submitPendingText(): Promise<boolean> {
+    if (!pendingText.value || isSubmitting.value) return false;
+
+    isSubmitting.value = true;
+    try {
+        await addMessage(pendingText.value);
+        pendingText.value = null;
+        return true;
+    } finally {
+        isSubmitting.value = false;
+    }
+}
+
 async function onConfirmMessage() {
-    if (!pendingText.value) return;
-    const text = pendingText.value;
-    pendingText.value = null;
-    await addMessage(text);
-    onSwitch();
+    if (await submitPendingText()) {
+        onSwitch();
+    }
 }
 
 async function onAddNewMessage() {
-    if (!pendingText.value) return;
-    const text = pendingText.value;
-    pendingText.value = null;
-    await addMessage(text);
+    await submitPendingText();
 }
 
 function onRetryMessage() {
@@ -107,12 +146,8 @@ function onUndo() {
                         :language="current.language"
                         :other-language="other.language"
                         :show-other-language="true"
-                        @update:language="
-                            (l: Language) => (current.language = l)
-                        "
-                        @update:other-language="
-                            (l: Language) => (other.language = l)
-                        "
+                        @update:language="changeCurrentLanguage"
+                        @update:other-language="changeOtherLanguage"
                         @continue="onSetupAContinue"
                     />
                 </motion.div>
@@ -193,6 +228,7 @@ function onUndo() {
                             class="p-2"
                             :user-message="current.conversation"
                             :language="current.language"
+                            @retry="retryMessage"
                         />
                     </div>
 
@@ -200,7 +236,11 @@ function onUndo() {
                         class="flex flex-col items-center mx-auto bg-black/10 w-full"
                     >
                         <MobileLanguageSelect
-                            v-model="current.language.code"
+                            :model-value="current.language.code"
+                            @update:model-value="
+                                (code?: string) =>
+                                    changeCurrentLanguage(code as LanguageCode)
+                            "
                             :include-auto-detect="false"
                             :detected-language-code="current.language.code"
                         />
@@ -255,6 +295,7 @@ function onUndo() {
                                             color="info"
                                             variant="ghost"
                                             icon="i-lucide-rotate-ccw"
+                                            :disabled="isSubmitting"
                                             @click="onRetryMessage"
                                         />
                                     </motion.div>
@@ -278,6 +319,7 @@ function onUndo() {
                                             color="info"
                                             variant="ghost"
                                             icon="i-lucide-list-plus"
+                                            :loading="isSubmitting"
                                             @click="onAddNewMessage"
                                         />
                                     </motion.div>
@@ -301,6 +343,7 @@ function onUndo() {
                                             color="primary"
                                             variant="ghost"
                                             icon="i-lucide-check"
+                                            :loading="isSubmitting"
                                             @click="onConfirmMessage"
                                         />
                                     </motion.div>
@@ -323,6 +366,7 @@ function onUndo() {
                                 class="w-full"
                             >
                                 <ToolBar
+                                    v-model:busy="isMicBusy"
                                     :current-language="current.language"
                                     :others-language="other.language"
                                     @switch-click="onSwitch"

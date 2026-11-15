@@ -1,20 +1,38 @@
 import type { MaybeRefOrGetter } from "vue";
 import type { Language, LanguageCode } from "~/models/languages";
 
+/**
+ * The Web Speech synthesis API, or undefined on the server and in browsers
+ * and WebViews that don't provide it.
+ */
+function getSpeechSynthesis(): SpeechSynthesis | undefined {
+    if (
+        !import.meta.client ||
+        !("speechSynthesis" in window) ||
+        typeof SpeechSynthesisUtterance === "undefined"
+    ) {
+        return undefined;
+    }
+    return window.speechSynthesis;
+}
+
 export function useTTS(language: MaybeRefOrGetter<Language>) {
     const isSupported = ref(false);
     const isSpeaking = ref(false);
     const voices = ref<SpeechSynthesisVoice[]>([]);
     const voiceMap: Record<string, SpeechSynthesisVoice> = {};
+    /** Utterance started by this instance, so we never cancel someone else's speech */
+    let ownUtterance: SpeechSynthesisUtterance | undefined;
 
     function getLanguage(): Language {
         return toValue(language);
     }
 
     function loadVoices() {
-        if (!import.meta.client) return;
+        const synth = getSpeechSynthesis();
+        if (!synth) return;
 
-        voices.value = window.speechSynthesis.getVoices();
+        voices.value = synth.getVoices();
         for (const voice of voices.value) {
             voiceMap[voice.lang] = voice;
         }
@@ -36,20 +54,16 @@ export function useTTS(language: MaybeRefOrGetter<Language>) {
     }
 
     onMounted(() => {
-        if (!import.meta.client) return;
-
         loadVoices();
-        window.speechSynthesis.addEventListener(
+        getSpeechSynthesis()?.addEventListener(
             "voiceschanged",
             onVoicesChanged,
         );
     });
 
     onUnmounted(() => {
-        if (!import.meta.client) return;
-
         stop();
-        window.speechSynthesis.removeEventListener(
+        getSpeechSynthesis()?.removeEventListener(
             "voiceschanged",
             onVoicesChanged,
         );
@@ -68,9 +82,10 @@ export function useTTS(language: MaybeRefOrGetter<Language>) {
         text: string,
         options?: { language?: Language; voice?: SpeechSynthesisVoice },
     ) {
-        if (!import.meta.client) return;
+        const synth = getSpeechSynthesis();
+        if (!synth) return;
 
-        window.speechSynthesis.cancel();
+        synth.cancel();
 
         const utterance = new SpeechSynthesisUtterance(text);
         const lang = options?.language ?? getLanguage();
@@ -78,23 +93,29 @@ export function useTTS(language: MaybeRefOrGetter<Language>) {
 
         utterance.voice = options?.voice ?? voiceMap[bcp47] ?? null;
 
+        function onFinished() {
+            if (ownUtterance === utterance) {
+                ownUtterance = undefined;
+                isSpeaking.value = false;
+            }
+        }
+
         utterance.onstart = () => {
             isSpeaking.value = true;
         };
-        utterance.onend = () => {
-            isSpeaking.value = false;
-        };
-        utterance.onerror = () => {
-            isSpeaking.value = false;
-        };
+        utterance.onend = onFinished;
+        utterance.onerror = onFinished;
 
-        window.speechSynthesis.speak(utterance);
+        ownUtterance = utterance;
+        synth.speak(utterance);
     }
 
     function stop() {
-        if (!import.meta.client) return;
+        const synth = getSpeechSynthesis();
+        if (!synth || !ownUtterance) return;
 
-        window.speechSynthesis.cancel();
+        ownUtterance = undefined;
+        synth.cancel();
         isSpeaking.value = false;
     }
 

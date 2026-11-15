@@ -26,10 +26,20 @@ services:
         networks:
             - translator-network
 
+    vllm-glm-ocr:
+        extends:
+            file: ./services.compose.yml
+            service: vllm-glm-ocr
+        networks:
+            - translator-network
+
     docling:
         extends:
             file: ./services.compose.yml
             service: docling
+        depends_on:
+            vllm-glm-ocr:
+                condition: service_healthy
         networks:
             - translator-network
 

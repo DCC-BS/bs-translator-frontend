@@ -1,3 +1,4 @@
+import type { MaybeRefOrGetter } from "vue";
 import type { LanguageCode } from "~/models/languages";
 
 /**
@@ -22,23 +23,17 @@ function detectDirection(code: LanguageCode): "ltr" | "rtl" {
 
 /**
  * Composable for determining language text direction (LTR/RTL)
- * @param language Reactive reference to the language code
+ * @param language Reactive language code (ref, computed or getter)
  * @returns Object containing the reactive direction
  */
-export function useLanguageDirection(language: Ref<LanguageCode>) {
-    const direction = ref<"ltr" | "rtl">("ltr");
-
-    watch(
-        language,
-        (newLanguage) => {
-            if (!newLanguage) {
-                direction.value = "ltr"; // Default to LTR if text is empty
-                return;
-            }
-            direction.value = detectDirection(newLanguage);
-        },
-        { immediate: true },
-    );
+export function useLanguageDirection(
+    language: MaybeRefOrGetter<LanguageCode | undefined>,
+) {
+    const direction = computed<"ltr" | "rtl">(() => {
+        const code = toValue(language);
+        // Default to LTR if no language is known
+        return code ? detectDirection(code) : "ltr";
+    });
 
     return {
         direction,

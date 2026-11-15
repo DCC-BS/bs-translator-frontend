@@ -41,7 +41,6 @@ export default defineNuxtConfig({
             include: [
                 "pino", // CJS
                 "@dcc-bs/communication.bs.js",
-                "vue-konva",
                 "uuid",
                 "zod",
                 "@vueuse/core",
@@ -163,7 +162,10 @@ export default defineNuxtConfig({
             useFeedback: process.env.USE_FEEDBACK === "true",
             useDummyData: process.env.DUMMY,
             logger: {
-                loglevel: process.env.LOG_LEVEL || "debug",
+                // Override at runtime with NUXT_PUBLIC_LOGGER_LOGLEVEL
+                loglevel:
+                    process.env.LOG_LEVEL ||
+                    (process.env.NODE_ENV === "production" ? "info" : "debug"),
             },
         },
     },
@@ -178,7 +180,9 @@ export default defineNuxtConfig({
             // @dcc-bs/common-ui.bs.js >= 2.2 bundles pdf.js (~2.5 MB lazy chunk),
             // which is over workbox's 2 MiB default and fails the build.
             maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
-            navigateFallback: "/",
+            // SSR app: "/" is not precached, so a navigation fallback would make
+            // workbox throw and skip registering the routes below
+            navigateFallback: null,
             clientsClaim: true,
             skipWaiting: true,
             runtimeCaching: [

@@ -9,10 +9,18 @@ services:
             file: ./services.compose.yml
             service: faster_whisper
 
+    vllm-glm-ocr:
+        extends:
+            file: ./services.compose.yml
+            service: vllm-glm-ocr
+
     docling:
         extends:
             file: ./services.compose.yml
             service: docling
+        depends_on:
+            vllm-glm-ocr:
+                condition: service_healthy
 
     translator-backend:
         extends:

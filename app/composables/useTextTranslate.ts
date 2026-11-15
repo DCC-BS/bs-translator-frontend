@@ -2,7 +2,9 @@ import type { LanguageCode } from "~/models/languages";
 import { TranslationService } from "~/services/translationService";
 
 type TranslationResult = string | undefined;
-let translationRound = 0;
+
+/** The language the i18n keys are translated from by the LLM. */
+const SOURCE_LOCALE = "en";
 
 // key1 is the language code, key2 is the text key
 const languageCache = new Map<string, Map<string, string>>();
@@ -12,7 +14,12 @@ export function useTextTranslate<const T extends string[]>(
     textToTranslate: T,
 ): { tMap: Record<T[number], Ref<string>> } {
     const translationService = useService(TranslationService);
-    const { t, locales, loadLocaleMessages } = useI18n({ locale: "en" });
+    // The global composer: a local `useI18n({ locale })` scope inherits the
+    // global locale, so it would not return the English source strings.
+    const { t, locales, loadLocaleMessages } = useI18n();
+    // Per instance: conversation.vue and ChatView translate independently and
+    // must not cancel each other's runs.
+    let translationRound = 0;
 
     const tMap: Record<T[number], Ref<string>> = {} as Record<
         T[number],
@@ -27,7 +34,7 @@ export function useTextTranslate<const T extends string[]>(
         () => targetLanguage.value,
         async () => {
             // en messages are lazy-loaded; ensure they exist before t(key)
-            await loadLocaleMessages("en");
+            await loadLocaleMessages(SOURCE_LOCALE);
             for (const key of textToTranslate) {
                 if (!tMap[key as T[number]].value) {
                     tMap[key as T[number]].value = fallback(key);
@@ -120,7 +127,7 @@ export function useTextTranslate<const T extends string[]>(
         lang: LanguageCode,
     ): Promise<TranslationResult> {
         try {
-            const text = t(key);
+            const text = sourceText(key);
             let translatedText = "";
 
             const chunks = translationService.translate(text, {
@@ -142,23 +149,28 @@ export function useTextTranslate<const T extends string[]>(
         key: string,
         lang: LanguageCode,
     ): Promise<TranslationResult> {
-        const normalizedLangCode = lang.replace("_uk", "").replace("_us", "") as
-            | "de"
-            | "en";
-
         if (lang === "auto") {
             return t(key);
         }
-        if (locales.value.some((x) => x.code === normalizedLangCode)) {
-            await loadLocaleMessages(normalizedLangCode);
-            return t(key, {}, { locale: normalizedLangCode });
+
+        // App languages are region-specific (en-us, en-gb), UI locales are not.
+        const baseLanguage = lang.split("-")[0];
+        const locale = locales.value.find((x) => x.code === baseLanguage)?.code;
+        if (locale) {
+            await loadLocaleMessages(locale);
+            return t(key, {}, { locale });
         }
 
         return undefined;
     }
 
+    /** The English source string of an i18n key. */
+    function sourceText(key: string): string {
+        return t(key, {}, { locale: SOURCE_LOCALE });
+    }
+
     function fallback(key: string): string {
-        return t(key);
+        return sourceText(key);
     }
 
     return {

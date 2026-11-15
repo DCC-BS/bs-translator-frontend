@@ -6,9 +6,13 @@ import type { LanguageCode } from "~/models/languages";
  */
 export function useTranscribe() {
     const error = ref<string>();
-    const { t } = useI18n();
+    const i18n = useI18n();
     const { showError } = useUserFeedback();
     const { apiStreamFetch } = useApi();
+
+    function errorMessage(errorId: string): string {
+        return apiErrorMessage(i18n, "transcribe", errorId);
+    }
 
     /**
      * Transcribes audio blob to text using streaming response
@@ -36,9 +40,7 @@ export function useTranscribe() {
             error.value = response.message;
 
             if (response.errorId !== "request_aborted") {
-                showError(
-                    new Error(t(`api_error.transcribe.${response.errorId}`)),
-                );
+                showError(new Error(errorMessage(response.errorId)));
             }
 
             return;
@@ -59,6 +61,16 @@ export function useTranscribe() {
             }
             const tail = decoder.decode();
             if (tail) yield tail;
+        } catch (e) {
+            // Aborted by the caller: stop silently.
+            if (signal?.aborted) return;
+
+            error.value = String(e);
+            showError(
+                new Error(
+                    errorMessage(isApiError(e) ? e.errorId : "fetch_failed"),
+                ),
+            );
         } finally {
             reader.releaseLock();
         }

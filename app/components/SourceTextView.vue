@@ -5,30 +5,31 @@ import { languageMap } from "~/models/languages";
 const props = defineProps<{
     isOverDropZone?: boolean;
     isConverting?: boolean;
-    error?: string;
-    fileName?: string;
+    /** No file may be uploaded (a conversion or translation is running). */
+    isUploadDisabled?: boolean;
     languageCode: LanguageCode;
     detectedSourceLanguage?: LanguageCode;
 }>();
 
 const emit = defineEmits<{
-    "clear-error": [];
     "trigger-file-upload": [];
 }>();
 
-const toast = useToast();
 const { t } = useI18n();
 const sourceText = defineModel<string>();
-const { direction } = useLanguageDirection(toRef(props, "languageCode"));
 const { transcribe } = useTranscribe();
 
-const ttsLanguage = computed<Language>(() => {
-    const code =
-        props.languageCode === "auto"
-            ? props.detectedSourceLanguage
-            : props.languageCode;
-    return languageMap[code ?? "auto"] as Language;
-});
+/** The actual input language: the detected one while the source is "auto". */
+const effectiveLanguageCode = computed<LanguageCode>(() =>
+    props.languageCode === "auto"
+        ? (props.detectedSourceLanguage ?? "auto")
+        : props.languageCode,
+);
+const { direction } = useLanguageDirection(effectiveLanguageCode);
+
+const ttsLanguage = computed<Language>(
+    () => languageMap[effectiveLanguageCode.value] as Language,
+);
 
 const {
     isSupported: isTtsSupported,
@@ -49,59 +50,15 @@ const charCount = computed(() => sourceText.value?.length || 0);
 const isRecordingDrawerOpen = ref(false);
 const isTranscribing = ref(false);
 
+// Warn before a reload or leaving the page discards a running transcription.
+useLeavePageGuard(isTranscribing);
+
 /**
  * Clears the text input field
  */
 function clearText(): void {
     sourceText.value = "";
 }
-
-/**
- * Watch for error changes to show error toast
- */
-watch(
-    () => props.error,
-    (newError) => {
-        if (newError) {
-            toast.add({
-                title: t("ui.error"),
-                description: `${newError}. ${t("ui.errorDescription")}`,
-                color: "error",
-                icon: "i-lucide-alert-circle",
-                duration: 5000,
-                actions: [
-                    {
-                        label: t("ui.dismiss"),
-                        onClick: () => emit("clear-error"),
-                    },
-                ],
-            });
-        }
-    },
-);
-
-/**
- * Watch for fileName changes to show success toast
- */
-watch(
-    () => props.fileName,
-    (newFileName, oldFileName) => {
-        if (
-            newFileName &&
-            !props.error &&
-            !props.isConverting &&
-            newFileName !== oldFileName
-        ) {
-            toast.add({
-                title: t("ui.fileConvertedSuccess"),
-                description: newFileName,
-                color: "success",
-                icon: "i-lucide-check-circle",
-                duration: 3000,
-            });
-        }
-    },
-);
 
 async function onRecordingStopped(audioBlob: Blob): Promise<void> {
     isTranscribing.value = true;
@@ -158,7 +115,7 @@ async function onRecordingStopped(audioBlob: Blob): Promise<void> {
                 <AudioRecordingView @on-recording-complete="onRecordingStopped" />
                 <UTooltip :text="t('ui.uploadFile')" :delay-duration="0">
                     <UButton color="neutral" variant="link" @click="emit('trigger-file-upload')" :loading="isConverting"
-                        :disabled="isConverting" icon="i-lucide-file-up" data-tour="upload-file" />
+                        :disabled="isUploadDisabled" icon="i-lucide-file-up" data-tour="upload-file" />
                 </UTooltip>
                 <UTooltip v-if="isTtsSupported" :text="isSpeaking ? t('ui.stopReading') : t('ui.readAloud')" :delay-duration="0">
                     <UButton :icon="isSpeaking ? 'i-lucide-square' : 'i-lucide-volume-2'" variant="link"

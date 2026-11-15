@@ -126,7 +126,7 @@
         "dismiss": "Dismiss",
         "fileConvertedSuccess": "File converted successfully",
         "dropFileToConvert": "Drop file to convert",
-        "supportedFormats": "Supported formats: TXT, DOCX, PPTX, XLSX, PDF",
+        "supportedFormats": "Supported formats: PDF, DOCX, PPTX, XLSX, HTML, MD, ADOC, CSV, TXT and images (PNG, JPG, TIFF, BMP, WEBP), up to 50 MB",
         "convertingFile": "Converting file...",
         "enterTextPlaceholder": "Enter text to translate or drop a file here...",
         "translating": "Translating...",
@@ -272,7 +272,16 @@
         "test": "Test",
         "cannotTranslateText": "I cannot translate this text.",
         "startRecordingMessage1": "Start the conversation by recording a message using the {mic}",
-        "startRecordingMessage2": "Button below."
+        "startRecordingMessage2": "Button below.",
+        "waitingForLanguage": "Select your language below or start speaking to see the translation.",
+        "translationFailed": "Translation failed.",
+        "retry": "Retry",
+        "micErrors": {
+            "permissionDenied": "Microphone access denied. Please allow microphone access in your browser settings.",
+            "noMicrophone": "No microphone found. Please connect a microphone and try again.",
+            "generic": "The microphone could not be started. Please try again.",
+            "stopFailed": "The recording could not be processed. Please try again."
+        }
     },
     "api_error": {
         "fetch_failed": "Fetch failed. Please try again.",
@@ -281,17 +290,67 @@
             "errorTimeout": "Translation request timed out. Try a shorter text.",
             "aborted": "Translation aborted.",
             "unexpected_error": "Unexpected error occurred. Maybe the server is down, if the error persists. Please use the feedback button to send us a message.",
-            "invalid_json_response": "An unexpected error occurred. The server may be unavailable. If the error persists, please use the feedback function to send us a message."
+            "invalid_json_response": "An unexpected error occurred. The server may be unavailable. If the error persists, please use the feedback function to send us a message.",
+            "request_aborted": "Translation aborted.",
+            "fetch_failed": "The text could not be sent. Please check your connection and try again.",
+            "translation_service_unavailable": "The translation service is currently unavailable. Please try again later.",
+            "input_too_long": "The text is too long. Please split it into shorter parts.",
+            "invalid_request": "The translation request was invalid. Please check the selected languages and try again."
         },
         "conversion": {
             "no_document": "No document found. Try to upload the document again.",
             "invalid_mime_type": "Invalid document type.",
             "docling_timeout": "Conversion timed out. Try a shorter file.",
-            "docling_task_failed": "Conversion failed. Please try again or use a different file."
+            "docling_task_failed": "Conversion failed. Please try again or use a different file.",
+            "request_aborted": "Conversion aborted.",
+            "fetch_failed": "The file could not be sent. Please check your connection and try again.",
+            "unexpected_error": "Conversion failed unexpectedly. Maybe the server is down. If the error persists, please use the feedback button to send us a message.",
+            "invalid_json_response": "The conversion returned an invalid response. Please try again or use a different file.",
+            "file_too_large": "The file is too large. The maximum size is 50 MB.",
+            "invalid_request": "The file could not be processed. Please try again or use a different file."
         },
         "transcribe": {
             "errorTimeout": "Transcription timed out. Try a shorter recording.",
-            "aborted": "Transcription aborted."
+            "aborted": "Transcription aborted.",
+            "fetch_failed": "The recording could not be sent. Please check your connection and try again.",
+            "unexpected_error": "Transcription failed. Maybe the server is down. If the error persists, please use the feedback button to send us a message.",
+            "file_too_large": "The recording is too large. Please make a shorter recording.",
+            "invalid_request": "The recording could not be processed. Please try again."
+        }
+    },
+    "leaveGuard": {
+        "message": "A translation or recording is still in progress. If you leave this page, it will be lost. Leave anyway?"
+    },
+    "photo": {
+        "recognizing": "Recognizing text…",
+        "translating": "Translating {done} of {total} text blocks…",
+        "noText": "No text found in this photo.",
+        "retry": "Try again",
+        "retake": "New photo",
+        "fit": "Fit to screen",
+        "showOriginal": "Show original text",
+        "showTranslation": "Show translation",
+        "textView": "Show as text",
+        "imageView": "Show on photo",
+        "selectAll": "Select all",
+        "clearSelection": "Clear selection",
+        "copy": "Copy all",
+        "copySelected": "Copy selection",
+        "copied": "Copied to clipboard",
+        "copyFailed": "Copying failed",
+        "hintTouch": "Pinch to zoom, drag to move. Tap a text block to select it.",
+        "hintMouse": "Scroll to zoom, drag to move. Click a text block to select it.",
+        "captureFailed": "The photo could not be taken. Please try again.",
+        "imageLoadFailed": "This file could not be read as an image.",
+        "errors": {
+            "generic": "The photo could not be translated. Please try again.",
+            "file_too_large": "The photo is too large.",
+            "invalid_mime_type": "This image format is not supported. Please use JPEG or PNG.",
+            "docling_timeout": "Recognizing the text took too long. Please try again.",
+            "docling_task_failed": "The text in this photo could not be recognized.",
+            "no_document": "The text in this photo could not be recognized.",
+            "translation_service_unavailable": "The translation service is currently unavailable. Please try again later.",
+            "fetch_failed": "No connection to the server. Please check your connection."
         }
     }
 }

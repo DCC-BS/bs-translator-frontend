@@ -251,7 +251,7 @@ test("Api call is correct when glossary is set", async ({ page, context }) => {
     const secondRequestBody = await secondResponse.request().postDataJSON();
 
     expect(secondRequestBody).not.toBeNull();
-    expect(secondRequestBody.config.glossary).toEqual("X: Y; XX: YY");
+    expect(secondRequestBody.config.glossary).toEqual("X: Y\nXX: YY");
 });
 
 test("Language detection is called only once per translation", async ({

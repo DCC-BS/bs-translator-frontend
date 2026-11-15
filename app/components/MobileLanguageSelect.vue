@@ -43,8 +43,12 @@ const autoOption = computed(() => {
 
 const selectedCode = defineModel<string>();
 
+// Look up allItems, not the search-filtered items: the label must not fall
+// back to "Auto" while a search hides the selected language.
 const selectedLanguage = computed(() => {
-    const found = items.value.find((lang) => lang.code === selectedCode.value);
+    const found = allItems.value.find(
+        (lang) => lang.code === selectedCode.value,
+    );
     if (found) return found;
     return autoOption.value;
 });

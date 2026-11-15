@@ -18,22 +18,17 @@ export default backendHandlerBuilder()
         }
 
         try {
-            const response = await fetch(url, {
+            const response = await backendFetch(url, {
                 method: method,
                 body: JSON.stringify(body),
                 headers: forwardHeaders,
                 signal,
             });
 
-            setResponseStatus(event, response.status);
-
-            // Guard against non-JSON error responses (e.g., HTML error pages, plain text)
+            // Return the backend error (status + JSON body, e.g. 422 invalid_request)
+            // as-is so consumers can check it with isApiError()
             if (!response.ok) {
-                const contentType = response.headers.get("content-type") ?? "";
-                if (contentType.includes("application/json")) {
-                    return await response.json();
-                }
-                return await response.text();
+                return await forwardBackendError(event, response);
             }
 
             return response;

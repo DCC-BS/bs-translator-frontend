@@ -1,21 +1,26 @@
 import { isApiError } from "@dcc-bs/communication.bs.js";
-import { watchDebounced } from "@vueuse/core";
+import { useLocalStorage, watchDebounced } from "@vueuse/core";
 import type { Domain } from "~/models/domain";
 import { type LanguageCode, languageMap } from "~/models/languages";
 import type { Tone } from "~/models/tone";
 import type { TranslationConfig } from "~/models/translationConfig";
 import { TranslationService } from "~/services/translationService";
+import { apiErrorMessage } from "~/utils/apiErrorMessage";
 import {
+    GLOSSARY_STORAGE_KEY,
     PREFERENCE_COOKIE_MAX_AGE_SECONDS,
     TRANSLATION_DEBOUNCE_MS,
 } from "~/utils/constants";
+import { parseLegacyGlossary, serializeGlossary } from "~/utils/glossary";
+import { isConcreteLanguage } from "~/utils/language";
+import { swapRef } from "~/utils/swap";
 
 /**
  * Composable for handling text translation with streaming support
  */
 export function useTranslate() {
     const translationService = useService(TranslationService);
-    const { t } = useI18n();
+    const { t, te } = useI18n();
     const { showError } = useUserFeedback();
     const logger = useLogger();
 
@@ -27,9 +32,26 @@ export function useTranslate() {
         default: () => "None",
         maxAge: PREFERENCE_COOKIE_MAX_AGE_SECONDS,
     });
-    const glossary = useCookie<string>("glossary", {
-        default: () => "",
-        maxAge: PREFERENCE_COOKIE_MAX_AGE_SECONDS,
+    // The glossary can grow beyond the ~4 KB a cookie holds (the browser then
+    // silently drops it), so it lives in localStorage. Read it on mount only:
+    // the server has no localStorage and must render the same initial state.
+    const glossary = useLocalStorage<string>(GLOSSARY_STORAGE_KEY, "", {
+        initOnMounted: true,
+    });
+    const legacyGlossaryCookie = useCookie<string | null>("glossary");
+
+    // One-time migration of the glossary from its old cookie (and its old
+    // "term: description; ..." format) into localStorage.
+    onMounted(() => {
+        if (!legacyGlossaryCookie.value) {
+            return;
+        }
+        if (!glossary.value) {
+            glossary.value = serializeGlossary(
+                parseLegacyGlossary(String(legacyGlossaryCookie.value)),
+            );
+        }
+        legacyGlossaryCookie.value = null;
     });
 
     const sourceLanguage = useCookie<LanguageCode>("sourceLanguage", {
@@ -50,12 +72,17 @@ export function useTranslate() {
     if (!(sourceLanguage.value in languageMap)) {
         sourceLanguage.value = "auto";
     }
-    if (!(targetLanguage.value in languageMap)) {
+    // The target must be a concrete language: "auto" is only valid as source
+    // (an older swap could store it here, and every request then fails).
+    if (!isConcreteLanguage(targetLanguage.value)) {
         targetLanguage.value = "en-us";
     }
 
     const sourceText = ref<string>("");
     const translatedText = ref<string>("");
+    // The source text translatedText is the complete translation of; used to
+    // tell a finished translation apart from a stale or partial one.
+    const translatedSourceText = ref<string | undefined>(undefined);
 
     // Shared state for language detection across the app
     const detectedSourceLanguage = useState<LanguageCode | undefined>(
@@ -107,12 +134,14 @@ export function useTranslate() {
                 return "auto";
             }
 
-            // The backend's detector can return a code this app's languageMap does not
-            // have (e.g. the plain "en" fast-langdetect emits, distinct from the
-            // en-us/en-gb this UI offers). Letting that through would let an unmapped
-            // code reach targetLanguage via the swap button, where it can't be matched
-            // back to a flag or label.
-            if (!(result.language in languageMap)) {
+            // The backend's detector answers "auto" when it is unsure, and can
+            // return a code this app's languageMap does not have (e.g. the plain
+            // "en" fast-langdetect emits, distinct from the en-us/en-gb this UI
+            // offers). Letting that through would let an unmapped code reach
+            // targetLanguage via the swap button, where it can't be matched back
+            // to a flag or label. Either way: nothing was detected.
+            if (!isConcreteLanguage(result.language)) {
+                detectedSourceLanguage.value = undefined;
                 return "auto";
             }
 
@@ -146,12 +175,14 @@ export function useTranslate() {
      * Can be aborted with the abort() function.
      */
     async function translate(): Promise<void> {
-        if (sourceText.value.trim() === "") {
+        const text = sourceText.value;
+        if (text.trim() === "") {
             clearDetectedLanguage();
             return;
         }
 
         translatedText.value = "";
+        translatedSourceText.value = undefined;
         isTranslating.value = true;
 
         abortController.value?.abort();
@@ -160,42 +191,23 @@ export function useTranslate() {
         const signal = abortController.value.signal;
 
         try {
-            await detectLanguage(sourceText.value, signal);
+            await detectLanguage(text, signal);
 
-            const batches = translateBatched(sourceText.value, signal);
-            try {
-                for await (const chunk of batches) {
-                    if (signal.aborted) {
-                        break;
-                    }
-                    translatedText.value += chunk;
+            for await (const chunk of translateBatched(text, signal)) {
+                if (signal.aborted) {
+                    break;
                 }
-            } catch (_error) {
-                if (!signal.aborted) {
-                    showError(new Error(t("api_error.unexpected_error")));
-                }
+                translatedText.value += chunk;
+            }
+
+            if (!signal.aborted) {
+                translatedSourceText.value = text;
             }
         } catch (error: unknown) {
-            if (!error) {
-                showError(new Error(t("api_error.unexpected_error")));
-                return;
-            }
-
-            logger.info(error, "Error while translationg");
-
-            if (
-                isApiError(error) ||
-                (typeof error === "object" &&
-                    "message" in error &&
-                    "name" in error)
-            ) {
-                if (isApiError(error)) {
-                    showError(error);
-                } else {
-                    showError(new Error(t("api_error.unexpected_error")));
-                }
-            } else {
-                showError(new Error(t("api_error.unexpected_error")));
+            // Aborts (new input, swap, unmount) are intentional, not errors.
+            if (!signal.aborted) {
+                logger.info(error, "Error while translating");
+                showError(new Error(translationErrorMessage(error)));
             }
         } finally {
             // Only the active invocation may clear the state: an aborted run
@@ -221,7 +233,7 @@ export function useTranslate() {
             return "";
         }
 
-        if (!abortController.value) {
+        if (!abortController.value || abortController.value.signal.aborted) {
             abortController.value = new AbortController();
         }
 
@@ -245,16 +257,8 @@ export function useTranslate() {
         } catch (error) {
             if (signal.aborted) {
                 showError(new Error(t("api_error.translation.aborted")));
-            } else if (isApiError(error)) {
-                showError(
-                    new Error(t(`api_error.translation.${error.errorId}`)),
-                );
             } else {
-                showError(
-                    error instanceof Error
-                        ? error
-                        : new Error(t("api_error.unexpected_error")),
-                );
+                showError(new Error(translationErrorMessage(error)));
             }
         } finally {
             if (abortController.value?.signal === signal) {
@@ -266,12 +270,22 @@ export function useTranslate() {
     }
 
     /**
-     * Internal function to handle batched translation with streaming
+     * Maps an error thrown while translating to a translated user message.
+     */
+    function translationErrorMessage(error: unknown): string {
+        return isApiError(error)
+            ? apiErrorMessage({ t, te }, "translation", error.errorId)
+            : t("api_error.unexpected_error");
+    }
+
+    /**
+     * Internal function to handle batched translation with streaming.
+     * Errors (including aborts) propagate to the caller.
      * @param text Text to translate
      * @param signal Abort signal for cancellation
-     * @yields Translated text chunks
+     * @returns Translated text chunks
      */
-    async function* translateBatched(
+    function translateBatched(
         text: string,
         signal: AbortSignal,
     ): AsyncIterable<string> {
@@ -289,24 +303,7 @@ export function useTranslate() {
             glossary: glossary.value,
         };
 
-        try {
-            yield* translationService.translate(text, config, signal);
-        } catch (error: unknown) {
-            // Silently ignore abort errors
-            if (signal.aborted) {
-                return;
-            }
-
-            if (isApiError(error)) {
-                showError(
-                    new Error(t(`api_error.translation.${error.errorId}`)),
-                );
-            } else {
-                showError(new Error(t("api_error.unexpected_error")));
-            }
-
-            return;
-        }
+        return translationService.translate(text, config, signal);
     }
 
     /**
@@ -316,6 +313,29 @@ export function useTranslate() {
         if (abortController.value && isTranslating.value) {
             abortController.value.abort();
             isTranslating.value = false;
+        }
+    }
+
+    /**
+     * Swaps the texts along with a language swap. A running translation is
+     * stopped first so it cannot keep streaming into the swapped field. The
+     * texts are only exchanged when the output is the finished translation of
+     * the current input; otherwise (translation pending, streaming or failed)
+     * the user's input stays the source text and is translated again.
+     */
+    function swapTexts(): void {
+        const hasFinishedTranslation =
+            !isTranslating.value &&
+            translatedText.value !== "" &&
+            translatedSourceText.value === sourceText.value;
+
+        abort();
+
+        if (hasFinishedTranslation) {
+            swapRef(sourceText, translatedText);
+            translatedSourceText.value = sourceText.value;
+        } else {
+            translatedText.value = "";
         }
     }
 
@@ -364,5 +384,6 @@ export function useTranslate() {
         translate,
         translateText,
         abort,
+        swapTexts,
     };
 }

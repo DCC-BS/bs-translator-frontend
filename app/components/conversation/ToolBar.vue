@@ -17,6 +17,9 @@ const emit = defineEmits<{
     transcription: [text: string];
     undo: [];
 }>();
+
+/** True while the mic button is recording or transcribing */
+const busy = defineModel<boolean>("busy", { default: false });
 </script>
 
 <template>
@@ -47,7 +50,10 @@ const emit = defineEmits<{
                             </template>
                         </UDrawer> -->
 
-                        <CircleButton @click="() => emit('undo')">
+                        <CircleButton
+                            :disabled="busy"
+                            @click="() => emit('undo')"
+                        >
                             <UIcon name="i-lucide-undo" />
                         </CircleButton>
                     </div>
@@ -57,6 +63,7 @@ const emit = defineEmits<{
         <div class="m-auto">
             <ClientOnly>
                 <MicButtonClient
+                    v-model:busy="busy"
                     :language="props.currentLanguage"
                     @transcribed="(t: string) => emit('transcription', t)"
                 />
@@ -67,7 +74,10 @@ const emit = defineEmits<{
                 <template #content>
                     <UIcon :name="props.othersLanguage.icon" />
                 </template>
-                <CircleButton @click="() => emit('switch-click')">
+                <CircleButton
+                    :disabled="busy"
+                    @click="() => emit('switch-click')"
+                >
                     <UIcon name="i-lucide-arrow-left-right" size="24" />
                 </CircleButton>
             </UChip>
