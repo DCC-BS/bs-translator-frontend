@@ -22,6 +22,8 @@ const isStarting = ref(false);
 const { audioVisualization, initializeVisualization, cleanupVisualization } =
     useAudioVisualization();
 const transcribeAbortController = ref<AbortController>();
+/** Kept to release the microphone if the recorder fails to stop */
+let recordingStream: MediaStream | undefined;
 
 const { transcribe } = useTranscribe();
 
@@ -34,6 +36,7 @@ const {
 } = useAudioRecording({
     logger: (msg) => logger.debug("[AudioRecording]", msg),
     onRecordingStarted: (stream: MediaStream) => {
+        recordingStream = stream;
         initializeVisualization(stream);
     },
     onRecordingStopped: async (audioBlob: Blob) => {
@@ -162,6 +165,12 @@ async function stopRecording() {
         await stopAudioRecording();
     } catch (e) {
         logger.error(e, "Failed to stop recording");
+        // useAudioRecording does not expose abortRecording() and only releases
+        // the stream after a successful conversion, so stop the tracks here.
+        for (const track of recordingStream?.getTracks() ?? []) {
+            track.stop();
+        }
+        recordingStream = undefined;
         cleanupVisualization();
         isAudioProcessing.value = false;
         isProcessing.value = false;

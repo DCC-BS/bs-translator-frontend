@@ -49,6 +49,10 @@ export async function prepareImageForOcr(image: Blob): Promise<Blob> {
             throw new Error("Canvas 2D context is not available");
         }
         context.imageSmoothingQuality = "high";
+        // JPEG has no alpha: transparent pixels would turn black and hide dark
+        // text, so they are put on white like on paper.
+        context.fillStyle = "#ffffff";
+        context.fillRect(0, 0, canvas.width, canvas.height);
         context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
 
         return await canvasToBlob(canvas, "image/jpeg", OCR_JPEG_QUALITY);

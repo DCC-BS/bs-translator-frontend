@@ -6,6 +6,7 @@ import {
 import type { LanguageCode } from "~/models/languages";
 import type { TranslationConfig } from "~/models/translationConfig";
 import type { TranslationInput } from "~/models/translationInput";
+import { parseStreamError, STREAM_ERROR_SEPARATOR } from "~/utils/streamError";
 import {
     type BlockTranslationEvent,
     blockTranslationEventSchema,
@@ -13,12 +14,6 @@ import {
     imageOcrResultSchema,
     type OcrBlock,
 } from "~~/shared/models/conversionResult";
-
-/**
- * Marks the end of a text translation stream that failed after it had started:
- * the backend sends U+001E followed by `{"errorId", "status"}` and closes.
- */
-const STREAM_ERROR_SEPARATOR = "\u001e";
 
 /**
  * Turns anything a fetch can throw into an ApiError (aborts become `request_aborted`).
@@ -38,21 +33,6 @@ function toApiError(error: unknown): ApiError {
         500,
         error instanceof Error ? error.message : String(error),
     );
-}
-
-function parseStreamError(payload: string): ApiError {
-    try {
-        const parsed = JSON.parse(payload) as {
-            errorId?: string;
-            status?: number;
-        };
-        return new ApiError(
-            parsed.errorId ?? "unexpected_error",
-            parsed.status ?? 500,
-        );
-    } catch {
-        return new ApiError("unexpected_error", 500, payload);
-    }
 }
 
 /**
@@ -276,6 +256,14 @@ export class TranslationService {
             }
             yield event;
         }
+
+        // Every successful stream ends with a `done` event: without it the
+        // connection was cut and some blocks are still untranslated.
+        throw new ApiError(
+            "fetch_failed",
+            502,
+            "Block translation stream ended before its done event",
+        );
     }
 
     /**

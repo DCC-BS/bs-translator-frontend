@@ -162,9 +162,13 @@ async function takePhoto(): Promise<void> {
     }
 
     isCapturing.value = true;
+    const generation = streamGeneration;
     try {
         const frame = await captureVideoFrame(video);
         const photo = await prepareImageForOcr(frame);
+        if (generation !== streamGeneration) {
+            return; // canceled (or unmounted) while the photo was being prepared
+        }
         stopCameraStream();
         emit("photo-captured", photo);
     } catch (error) {
@@ -192,8 +196,12 @@ async function onFileChosen(event: Event): Promise<void> {
     }
 
     isCapturing.value = true;
+    const generation = streamGeneration;
     try {
         const photo = await prepareImageForOcr(file);
+        if (generation !== streamGeneration) {
+            return; // canceled (or unmounted) while the photo was being prepared
+        }
         stopCameraStream();
         emit("photo-captured", photo);
     } catch (error) {

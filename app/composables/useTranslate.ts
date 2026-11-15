@@ -42,7 +42,7 @@ export function useTranslate() {
 
     // One-time migration of the glossary from its old cookie (and its old
     // "term: description; ..." format) into localStorage.
-    onMounted(() => {
+    onMounted(async () => {
         if (!legacyGlossaryCookie.value) {
             return;
         }
@@ -50,9 +50,25 @@ export function useTranslate() {
             glossary.value = serializeGlossary(
                 parseLegacyGlossary(String(legacyGlossaryCookie.value)),
             );
+            // useLocalStorage writes on the next flush.
+            await nextTick();
         }
-        legacyGlossaryCookie.value = null;
+        // useLocalStorage swallows failed writes (e.g. quota exceeded): keep
+        // the cookie until the value is really stored.
+        if (isGlossaryStored()) {
+            legacyGlossaryCookie.value = null;
+        }
     });
+
+    function isGlossaryStored(): boolean {
+        try {
+            return (
+                localStorage.getItem(GLOSSARY_STORAGE_KEY) === glossary.value
+            );
+        } catch {
+            return false;
+        }
+    }
 
     const sourceLanguage = useCookie<LanguageCode>("sourceLanguage", {
         default: () => "auto",
@@ -83,6 +99,10 @@ export function useTranslate() {
     // The source text translatedText is the complete translation of; used to
     // tell a finished translation apart from a stale or partial one.
     const translatedSourceText = ref<string | undefined>(undefined);
+    // The language pair of that finished translation.
+    const translatedLanguages = ref<
+        { source: string; target: string } | undefined
+    >(undefined);
 
     // Shared state for language detection across the app
     const detectedSourceLanguage = useState<LanguageCode | undefined>(
@@ -183,6 +203,7 @@ export function useTranslate() {
 
         translatedText.value = "";
         translatedSourceText.value = undefined;
+        translatedLanguages.value = undefined;
         isTranslating.value = true;
 
         abortController.value?.abort();
@@ -193,6 +214,11 @@ export function useTranslate() {
         try {
             await detectLanguage(text, signal);
 
+            const languages = {
+                source: resolveSourceLanguage(),
+                target: targetLanguage.value,
+            };
+
             for await (const chunk of translateBatched(text, signal)) {
                 if (signal.aborted) {
                     break;
@@ -202,6 +228,7 @@ export function useTranslate() {
 
             if (!signal.aborted) {
                 translatedSourceText.value = text;
+                translatedLanguages.value = languages;
             }
         } catch (error: unknown) {
             // Aborts (new input, swap, unmount) are intentional, not errors.
@@ -279,6 +306,16 @@ export function useTranslate() {
     }
 
     /**
+     * The source language to send: the detected one while on "auto".
+     */
+    function resolveSourceLanguage(): string {
+        // Ensure source_language is never undefined, default to "auto"
+        return sourceLanguage.value === "auto"
+            ? (detectedSourceLanguage.value ?? "auto")
+            : sourceLanguage.value || "auto";
+    }
+
+    /**
      * Internal function to handle batched translation with streaming.
      * Errors (including aborts) propagate to the caller.
      * @param text Text to translate
@@ -289,14 +326,8 @@ export function useTranslate() {
         text: string,
         signal: AbortSignal,
     ): AsyncIterable<string> {
-        // Ensure source_language is never undefined, default to "auto"
-        const resolvedSourceLanguage =
-            sourceLanguage.value === "auto"
-                ? (detectedSourceLanguage.value ?? "auto")
-                : sourceLanguage.value || "auto";
-
         const config: TranslationConfig = {
-            source_language: resolvedSourceLanguage,
+            source_language: resolveSourceLanguage(),
             target_language: targetLanguage.value,
             domain: domain.value,
             tone: tone.value,
@@ -320,20 +351,28 @@ export function useTranslate() {
      * Swaps the texts along with a language swap. A running translation is
      * stopped first so it cannot keep streaming into the swapped field. The
      * texts are only exchanged when the output is the finished translation of
-     * the current input; otherwise (translation pending, streaming or failed)
-     * the user's input stays the source text and is translated again.
+     * the current input between the swapped languages (the languages are
+     * already swapped when this runs); otherwise (translation pending,
+     * streaming, failed or for another language pair) the user's input stays
+     * the source text and is translated again.
      */
     function swapTexts(): void {
         const hasFinishedTranslation =
             !isTranslating.value &&
             translatedText.value !== "" &&
-            translatedSourceText.value === sourceText.value;
+            translatedSourceText.value === sourceText.value &&
+            translatedLanguages.value?.source === targetLanguage.value &&
+            translatedLanguages.value?.target === sourceLanguage.value;
 
         abort();
 
         if (hasFinishedTranslation) {
             swapRef(sourceText, translatedText);
             translatedSourceText.value = sourceText.value;
+            translatedLanguages.value = {
+                source: sourceLanguage.value,
+                target: targetLanguage.value,
+            };
         } else {
             translatedText.value = "";
         }

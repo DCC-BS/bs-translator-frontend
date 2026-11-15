@@ -154,14 +154,26 @@ export function useFileConvert(
         }
     }
 
-    const { isOverDropZone } = useDropZone(dropZoneRef, {
+    const { isOverDropZone: isOverDropZoneRaw } = useDropZone(dropZoneRef, {
         onDrop,
         multiple: false,
-        // Reject drops while busy; always preventDefault so a rejected file is
+        // Must not depend on the busy state: useDropZone re-checks validity on
+        // every drag event and skips its dragleave/drop cleanup when invalid,
+        // so a flip mid-drag would leave the overlay stuck. processFile rejects
+        // files while busy instead. Always preventDefault so a rejected file is
         // not opened by the browser instead (which would leave the page).
-        checkValidity: (items) => !isUploadDisabled.value && items.length <= 1,
+        checkValidity: (items) => items.length <= 1,
         preventDefaultForUnhandled: true,
+        onOver: (_, event) => {
+            if (isUploadDisabled.value && event.dataTransfer) {
+                event.dataTransfer.dropEffect = "none";
+            }
+        },
     });
+
+    const isOverDropZone = computed(
+        () => isOverDropZoneRaw.value && !isUploadDisabled.value,
+    );
 
     /**
      * Handles file selection from file input

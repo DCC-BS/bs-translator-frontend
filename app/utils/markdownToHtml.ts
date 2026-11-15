@@ -1,6 +1,9 @@
 import type { MDCNode } from "@nuxtjs/mdc";
 import { markdownStyle } from "~/utils/markdownStyle";
-import { safeMarkdownParserOptions } from "~/utils/sanitizeMarkdown";
+import {
+    disableFrontMatter,
+    safeMarkdownParserOptions,
+} from "~/utils/sanitizeMarkdown";
 
 /** AST prop names that differ from their HTML attribute name. */
 const ATTRIBUTE_NAMES: Record<string, string> = {
@@ -83,19 +86,30 @@ function astToHtml(node: MDCNode | MDCNode[]): string {
  */
 export async function markdownToHtml(markdown: string): Promise<string> {
     try {
-        const parsed = await parseMarkdown(markdown, safeMarkdownParserOptions);
+        const parsed = await parseMarkdown(
+            disableFrontMatter(markdown),
+            safeMarkdownParserOptions,
+        );
         if (parsed?.body) {
             const html = astToHtml(parsed.body.children);
             return createHTMLDocument(html);
         }
-        return markdown; // Fallback to original text
+        return plainTextDocument(markdown);
     } catch (error) {
         console.warn(
             "Failed to parse markdown with MDC, falling back to original text:",
             error,
         );
-        return markdown; // Fallback to original text
+        return plainTextDocument(markdown);
     }
+}
+
+/**
+ * Fallback: the unparsed markdown as escaped text, never as markup (it did
+ * not pass the sanitizer).
+ */
+function plainTextDocument(markdown: string): string {
+    return createHTMLDocument(`<pre>${escapeHtml(markdown)}</pre>`);
 }
 
 function createHTMLDocument(htmlContent: string): string {

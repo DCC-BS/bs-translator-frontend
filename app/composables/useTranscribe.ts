@@ -1,5 +1,6 @@
 import { isApiError } from "@dcc-bs/communication.bs.js";
 import type { LanguageCode } from "~/models/languages";
+import { parseStreamError, STREAM_ERROR_SEPARATOR } from "~/utils/streamError";
 
 /**
  * Composable for handling audio transcription via streaming API
@@ -47,6 +48,22 @@ export function useTranscribe() {
         }
         const reader = response.getReader();
         const decoder = new TextDecoder();
+        // Set once the backend reported a failure in the middle of the stream.
+        let errorPayload: string | undefined;
+
+        function* textBeforeError(chunk: string): Generator<string> {
+            if (errorPayload !== undefined) {
+                errorPayload += chunk;
+                return;
+            }
+            const separator = chunk.indexOf(STREAM_ERROR_SEPARATOR);
+            if (separator < 0) {
+                if (chunk) yield chunk;
+                return;
+            }
+            if (separator > 0) yield chunk.slice(0, separator);
+            errorPayload = chunk.slice(separator + 1);
+        }
 
         try {
             while (true) {
@@ -56,11 +73,16 @@ export function useTranscribe() {
                     break;
                 }
 
-                const chunk = decoder.decode(value, { stream: true });
-                if (chunk) yield chunk;
+                yield* textBeforeError(decoder.decode(value, { stream: true }));
             }
-            const tail = decoder.decode();
-            if (tail) yield tail;
+            yield* textBeforeError(decoder.decode());
+
+            if (errorPayload !== undefined) {
+                // The text so far stays; the user is told it is incomplete.
+                const streamError = parseStreamError(errorPayload);
+                error.value = streamError.message;
+                showError(new Error(errorMessage(streamError.errorId)));
+            }
         } catch (e) {
             // Aborted by the caller: stop silently.
             if (signal?.aborted) return;

@@ -355,11 +355,14 @@ function fontSizeFor(block: OcrBlock): number {
 
 // ── Selection and copy ────────────────────────────────────────────────────
 
-function toggleSelection(block: OcrBlock): void {
-    // A drag or pinch that ends on a block is not a tap.
-    if (dragDistance > 8) {
-        return;
+/** Click on a block in the photo: a drag or pinch that ends on a block is not a tap. */
+function onBlockTapped(block: OcrBlock): void {
+    if (dragDistance <= 8) {
+        toggleSelection(block);
     }
+}
+
+function toggleSelection(block: OcrBlock): void {
     const next = new Set(selectedIds.value);
     if (next.has(block.id)) {
         next.delete(block.id);
@@ -433,7 +436,7 @@ onMounted(() => {
                         width: `${(block.bbox.right - block.bbox.left) * 100}%`,
                         height: `${(block.bbox.bottom - block.bbox.top) * 100}%`,
                         fontSize: `${fontSizeFor(block)}px`,
-                    }" @click="toggleSelection(block)">
+                    }" @click="onBlockTapped(block)">
                     {{ displayText(block) }}
                 </button>
             </div>

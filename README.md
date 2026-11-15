@@ -53,20 +53,20 @@ APP_MODE=dev  # can be dev, ci, build or prod see https://dcc-bs.github.io/docum
 
 The following environment variables have defaults and can be overridden as needed:
 
-| Variable                       | Description                          | Default                                 | Type                                                |
-| ------------------------------ | ------------------------------------ | --------------------------------------- | --------------------------------------------------- |
-| **App Configuration**          |
-| `USE_FEEDBACK`                 | Enable feedback feature              | `true`                                  | boolean                                             |
-| `DUMMY`                        | Use dummy data (no backend requests) | `false`                                 | string                                              |
-| **Build-time Variables**       |
-| `LOGGER_LAYER_URI`             | Logger layer Nuxt module             | `github:DCC-BS/nuxt-layers/pino-logger` | URL                                                 |
-| **Runtime Variables**          |
-| `API_PORT`                     | Backend API port                     | `8000`                                  | port                                                |
-| `NUXT_API_URL`                 | Backend API URL                      | `http://localhost:8000` (dev)           | URL (public)                                        |
-| `NUXT_FEEDBACK_GITHUB_TOKEN`   | GitHub token for feedback            | -                                       | string (sensitive, required if `USE_FEEDBACK=true`) |
-| `LOG_LEVEL`                    | Server and browser log level         | `debug` (dev), `info` (otherwise)       | enum: trace, debug, info, warn, error, fatal        |
-| `NUXT_PUBLIC_LOGGER_LOGLEVEL`  | Runtime override of the log level    | `LOG_LEVEL`                             | enum: trace, debug, info, warn, error, fatal        |
-| `NUXT_PUBLIC_APP_CONFIG_APP_LIST_URL_TEMPLATE` | App switcher link template, `{APP_NAME}` is replaced by the app slug | `http://{APP_NAME}.localhost.ch` (required in prod) | string |
+| Variable                                       | Description                                                          | Default                                             | Type                                                |
+| ---------------------------------------------- | -------------------------------------------------------------------- | --------------------------------------------------- | --------------------------------------------------- |
+| **App Configuration**                          |
+| `USE_FEEDBACK`                                 | Enable feedback feature                                              | `true`                                              | boolean                                             |
+| `DUMMY`                                        | Use dummy data (no backend requests)                                 | `false`                                             | string                                              |
+| **Build-time Variables**                       |
+| `LOGGER_LAYER_URI`                             | Logger layer Nuxt module                                             | `github:DCC-BS/nuxt-layers/pino-logger`             | URL                                                 |
+| **Runtime Variables**                          |
+| `API_PORT`                                     | Backend API port                                                     | `8000`                                              | port                                                |
+| `NUXT_API_URL`                                 | Backend API URL                                                      | `http://localhost:8000` (dev)                       | URL (public)                                        |
+| `NUXT_FEEDBACK_GITHUB_TOKEN`                   | GitHub token for feedback                                            | -                                                   | string (sensitive, required if `USE_FEEDBACK=true`) |
+| `LOG_LEVEL`                                    | Server and browser log level                                         | `debug` (dev), `info` (otherwise)                   | enum: trace, debug, info, warn, error, fatal        |
+| `NUXT_PUBLIC_LOGGER_LOGLEVEL`                  | Runtime override of the log level                                    | `LOG_LEVEL`                                         | enum: trace, debug, info, warn, error, fatal        |
+| `NUXT_PUBLIC_APP_CONFIG_APP_LIST_URL_TEMPLATE` | App switcher link template, `{APP_NAME}` is replaced by the app slug | `http://{APP_NAME}.localhost.ch` (required in prod) | string                                              |
 
 > **Note:** Build-time variables (`LOGGER_LAYER_URI`) are resolved during `nuxt build` and must be passed as build arguments in Docker.
 

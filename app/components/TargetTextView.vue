@@ -1,7 +1,10 @@
 <script lang="ts" setup>
 import type { Language, LanguageCode } from "~/models/languages";
 import { languageMap } from "~/models/languages";
-import { safeMarkdownParserOptions } from "~/utils/sanitizeMarkdown";
+import {
+    disableFrontMatter,
+    safeMarkdownParserOptions,
+} from "~/utils/sanitizeMarkdown";
 
 const props = defineProps<{
     isTranslating?: boolean;
@@ -166,7 +169,7 @@ async function downloadWord(): Promise<void> {
     <div class="relative bg-gray-50 p-[5px] m-0 h-full w-full" :class="{ 'translating-border': props.isTranslating }">
         <div data-testid="targetMarkdown" data-tour="text-output" v-if="showMarkdown && translatedText" :dir="direction"
             class="absolute inset-0 overflow-y-auto pl-2 pb-12 prose">
-            <MDC :value="translatedText" :parser-options="safeMarkdownParserOptions" />
+            <MDC :value="disableFrontMatter(translatedText)" :parser-options="safeMarkdownParserOptions" />
         </div>
         <UTextarea data-testid="targetTextInput" v-else v-model="translatedText" class="absolute inset-0" variant="none"
             :ui="{ base: 'resize-none pb-12 transition-all duration-300 bg-gray-50 dark:bg-gray-900 h-full' }"

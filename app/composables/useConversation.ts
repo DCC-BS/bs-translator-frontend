@@ -20,6 +20,8 @@ type UserContext = {
     name: "a" | "b";
     /** Own copy, never a shared `languageMap` entry. Replace it via `setLanguage`. */
     language: Readonly<Language>;
+    /** Incremented on every language change, to detect stale async results */
+    languageRevision: number;
     conversation: UserConversation;
     /** Translations into this user's language that are not done yet */
     queuedTranslations: QueuedTranslation[];
@@ -30,6 +32,7 @@ function newContext(bgColor: string, name: "a" | "b"): UserContext {
     return {
         name,
         language: { ...languageMap.auto },
+        languageRevision: 0,
         conversation: { language: undefined, messages: [] },
         queuedTranslations: [],
         backgroundColor: bgColor,
@@ -82,7 +85,7 @@ export function useConversation() {
     );
 
     let activeTranslation:
-        | { id: string; controller: AbortController }
+        | { id: string; target: UserContext; controller: AbortController }
         | undefined;
     let disposed = false;
 
@@ -96,6 +99,12 @@ export function useConversation() {
         if (user.language.code === resolved.code) return;
 
         user.language = { ...resolved };
+        user.languageRevision++;
+
+        // A running translation into the old language is stale: translateEntry requeues it.
+        if (activeTranslation?.target === user) {
+            activeTranslation.controller.abort();
+        }
         void processQueue();
     }
 
@@ -117,9 +126,16 @@ export function useConversation() {
         const listener = other.value;
 
         if (speaker.language.code === "auto") {
+            const revision = speaker.languageRevision;
             try {
                 const result = await translationService.detectLanguage(text);
-                setLanguage(speaker, result.language);
+                // Do not override a language picked while detection was running.
+                if (
+                    speaker.languageRevision === revision &&
+                    speaker.language.code === "auto"
+                ) {
+                    setLanguage(speaker, result.language);
+                }
             } catch (error) {
                 // Keep "auto": the backend detects the source language while translating.
                 logger.warn(error, "Language detection failed");
@@ -222,7 +238,16 @@ export function useConversation() {
     ) {
         const { message } = entry;
         const controller = new AbortController();
-        activeTranslation = { id: message.id, controller };
+        const revision = target.languageRevision;
+        activeTranslation = { id: message.id, target, controller };
+
+        /** The target language changed: translate again into the new one */
+        function requeueIfStale() {
+            if (target.languageRevision === revision) return false;
+            message.status = "pending";
+            message.content = "";
+            return true;
+        }
 
         message.status = "translating";
         message.content = "";
@@ -240,11 +265,14 @@ export function useConversation() {
                 message.content += chunk;
             }
 
+            if (requeueIfStale()) return;
+
             message.status = "done";
             target.queuedTranslations = target.queuedTranslations.filter(
                 (e) => e !== entry,
             );
         } catch (error) {
+            if (requeueIfStale()) return;
             // Aborted by undo or by leaving the page: nothing to report.
             if (controller.signal.aborted) return;
 
