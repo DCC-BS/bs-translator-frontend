@@ -2,8 +2,6 @@
 import { motion } from "motion-v";
 import { CONVERTIBLE_FILE_ACCEPT } from "~/utils/constants";
 
-const router = useRouter();
-
 // Get translation states and functions from the translate composable
 const {
     tone,
@@ -79,10 +77,6 @@ function onFileSelect(event: Event): void {
         fileInputRef.value.value = "";
     }
 }
-
-function onCapturePhoto() {
-    router.push({ path: "/photo" });
-}
 </script>
 
 <template>
@@ -98,13 +92,6 @@ function onCapturePhoto() {
                         <div class="flex gap-2 flex-1">
                             <input type="file" ref="fileInputRef" class="hidden" @change="onFileSelect"
                                 :accept="CONVERTIBLE_FILE_ACCEPT" :disabled="isUploadDisabled" />
-
-                            <!-- <UButton size="xs" color="neutral" variant="ghost" icon="i-lucide-camera"
-                                @click="onCapturePhoto">
-                                <span class="hidden md:inline">
-                                    {{ t('ui.takePhoto') }}
-                                </span>
-                            </UButton> -->
                         </div>
 
                         <!-- Language selection area -->

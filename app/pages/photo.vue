@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 definePageMeta({
-    layout: false,
+    layout: "photo",
 });
 
 const router = useRouter();
@@ -22,7 +22,7 @@ function onRetake(): void {
 </script>
 
 <template>
-    <div>
+    <div class="w-full h-full">
         <OcrImage v-if="photo" :image="photo" @retake="onRetake" />
         <CameraCapture v-else @photo-captured="onPhotoCaptured" @photo-canceled="onPhotoCanceled" />
     </div>

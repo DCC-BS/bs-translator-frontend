@@ -193,7 +193,9 @@
     "navigation": {
         "languages": "Sprachen",
         "app": "BS-Übersetzer",
-        "conversation-mode": "Konversationsmodus"
+        "backToTranslator": "Zurück zum Übersetzer",
+        "conversation-mode": "Konversationsmodus",
+        "photo-mode": "Fotomodus"
     },
     "tour": {
         "welcome": {
@@ -243,6 +245,10 @@
         "conversation-mode": {
             "title": "Konversationsmodus",
             "content": "Hier kannst du in den Konversationsmodus wechseln. Dieser ermöglicht dir eine zweisprachige Echtzeit-Unterhaltung — deine Sprache wird transkribiert und übersetzt, damit du dich sprachübergreifend verständigen kannst. Jede Person spricht in ihrer eigenen Sprache und sieht oder hört die Übersetzung in ihrer eigenen Sprache."
+        },
+        "photo-mode": {
+            "title": "Fotomodus",
+            "content": "Hier kannst du in den Fotomodus wechseln. Nimm ein Foto auf oder lade ein Bild hoch, um den erkannten Text direkt auf dem Foto übersetzen zu lassen."
         }
     },
     "tooltips": {
@@ -322,6 +328,7 @@
         "message": "Eine Übersetzung oder Aufnahme läuft noch. Wenn Sie die Seite verlassen, geht sie verloren. Trotzdem verlassen?"
     },
     "photo": {
+        "backToTranslator": "Zurück zum Übersetzer",
         "recognizing": "Text wird erkannt…",
         "translating": "{done} von {total} Textblöcken übersetzt…",
         "noText": "In diesem Foto wurde kein Text gefunden.",

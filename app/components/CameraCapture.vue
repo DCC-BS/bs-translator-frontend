@@ -242,7 +242,7 @@ function cancelPhoto(): void {
 </script>
 
 <template>
-    <div class="fixed inset-0 bg-black">
+    <div class="relative w-full h-full bg-black overflow-hidden">
         <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="onFileChosen">
 
         <div v-if="state === 'error'"
@@ -262,15 +262,15 @@ function cancelPhoto(): void {
         </div>
 
         <template v-else>
-            <video ref="cameraPreviewElement" autoplay playsinline muted class="w-full h-full fixed object-cover"
+            <video ref="cameraPreviewElement" autoplay playsinline muted class="absolute inset-0 w-full h-full object-cover"
                 @loadeddata="onVideoReady" @resize="onVideoReady" />
 
             <div v-if="state === 'starting' || !isVideoReady"
-                class="fixed inset-0 flex justify-center items-center pointer-events-none">
+                class="absolute inset-0 flex justify-center items-center pointer-events-none">
                 <UIcon name="i-lucide-loader-2" class="animate-spin size-8 text-white" />
             </div>
 
-            <div class="fixed bottom-8 left-0 right-0 flex justify-center items-center gap-8">
+            <div class="absolute bottom-8 left-0 right-0 flex justify-center items-center gap-8">
                 <UButton icon="i-lucide-image-up" color="neutral" size="xl" class="rounded-full"
                     :title="t('camera.uploadFromDevice')" :aria-label="t('camera.uploadFromDevice')"
                     :disabled="isCapturing" @click="chooseFromDevice" />
@@ -283,12 +283,7 @@ function cancelPhoto(): void {
             </div>
         </template>
 
-        <div class="fixed top-0 left-0 p-3">
-            <UButton icon="i-lucide-arrow-left" variant="link" color="neutral" size="xl"
-                class="bg-gray-800 text-white rounded-full" :aria-label="t('camera.abort')" @click="cancelPhoto" />
-        </div>
-
-        <div v-if="flashSupported && state === 'live'" class="fixed top-0 right-0 p-3">
+        <div v-if="flashSupported && state === 'live'" class="absolute top-0 right-0 p-3">
             <MotionUButton :icon="torchEnabled ? 'i-lucide-flashlight' : 'i-lucide-flashlight-off'" @click="toggleTorch"
                 :initial="{ scale: 0.9 }" :animate="{ scale: 1 }" :transition="{ duration: 0.2 }"
                 :title="torchEnabled ? t('camera.flashOn') : t('camera.flashOff')" :aria-label="t('camera.toggleFlash')"

@@ -413,7 +413,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="fixed inset-0 flex flex-col bg-neutral-900">
+    <div class="relative w-full h-full flex flex-col bg-neutral-900">
         <!-- Image with the translated text laid over it -->
         <div v-show="!showTextView" ref="viewer" class="relative flex-1 overflow-hidden touch-none select-none cursor-grab"
             @wheel.prevent="onWheel" @pointerdown="onPointerDown" @pointermove="onPointerMove" @pointerup="onPointerUp"
@@ -458,7 +458,7 @@ onMounted(() => {
         </div>
 
         <!-- Top bar -->
-        <div class="fixed top-0 left-0 right-0 p-3 flex justify-between pointer-events-none">
+        <div class="absolute top-0 left-0 right-0 p-3 flex justify-between pointer-events-none">
             <UButton icon="i-lucide-camera" color="neutral" size="xl" class="rounded-full pointer-events-auto"
                 :title="t('photo.retake')" :aria-label="t('photo.retake')" @click="emit('retake')" />
             <div class="flex gap-2 pointer-events-auto">

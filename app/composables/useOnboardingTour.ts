@@ -143,6 +143,15 @@ export function useOnboardingTour() {
                 },
             },
             {
+                element: visibleTourTarget("photo-mode"),
+                popover: {
+                    title: () => t("tour.photo-mode.title"),
+                    description: () => t("tour.photo-mode.content"),
+                    side: "bottom",
+                    align: "center",
+                },
+            },
+            {
                 element: visibleTourTarget("main-content"),
                 popover: {
                     title: () => t("tour.finished.title"),

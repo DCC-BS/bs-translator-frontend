@@ -193,7 +193,9 @@
     "navigation": {
         "languages": "Languages",
         "app": "BS Translator",
-        "conversation-mode": "Conversation Mode"
+        "backToTranslator": "Back to Translator",
+        "conversation-mode": "Conversation Mode",
+        "photo-mode": "Photo Mode"
     },
     "tour": {
         "welcome": {
@@ -243,6 +245,10 @@
         "conversation-mode": {
             "title": "Conversation Mode",
             "content": "Here you can switch to Conversation Mode. This allows you to have a real-time bilingual conversation — your speech is transcribed and translated, so you can communicate across languages. Each person speaks in their own language and sees or hears the translation in their own language."
+        },
+        "photo-mode": {
+            "title": "Photo Mode",
+            "content": "Here you can switch to Photo Mode. Take a photo or upload an image to have the recognized text translated directly on the photo."
         }
     },
     "tooltips": {
@@ -322,6 +328,7 @@
         "message": "A translation or recording is still in progress. If you leave this page, it will be lost. Leave anyway?"
     },
     "photo": {
+        "backToTranslator": "Back to Translator",
         "recognizing": "Recognizing text…",
         "translating": "Translating {done} of {total} text blocks…",
         "noText": "No text found in this photo.",
