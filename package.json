@@ -36,7 +36,7 @@
         "dexie": "^4.2.1",
         "driver.js": "^1.4.0",
         "motion-v": "^2.0.0",
-        "nuxt": "^4.2.2",
+        "nuxt": "^4.6.4",
         "pino": "^10.3.1",
         "tailwindcss": "^4.2.2",
         "undici": "^8.12.3",
@@ -51,7 +51,8 @@
         "vue": "3.5.44",
         "unhead": "3.4.3",
         "@unhead/vue": "3.4.3",
-        "node-forge": "^1.4.2"
+        "node-forge": "^1.4.3",
+        "@nuxt/schema": "^4.6.4"
     },
     "devDependencies": {
         "@biomejs/biome": "2.6.4",
