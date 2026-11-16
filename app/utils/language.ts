@@ -68,3 +68,13 @@ export function fromBCP47Code(bcp47: string): Language {
 
     return getLanguage(code as FuzzyLanguage);
 }
+
+/**
+ * Whether `code` is a concrete language of this app, i.e. neither missing nor
+ * "auto" (the backend's detector also answers "auto" when it is unsure).
+ */
+export function isConcreteLanguage(
+    code: string | undefined,
+): code is Exclude<LanguageCode, "auto"> {
+    return !!code && code !== "auto" && code in languageMap;
+}

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { motion } from "motion-v";
+import { CONVERTIBLE_FILE_ACCEPT } from "~/utils/constants";
 
 const router = useRouter();
 
@@ -17,6 +18,7 @@ const {
     isTranslating,
     translate,
     abort,
+    swapTexts,
 } = useTranslate();
 
 // Register handler for setting example text during onboarding
@@ -40,19 +42,21 @@ const {
     dropZoneRef,
     isOverDropZone,
     isConverting,
-    error: conversionError,
-    fileName,
+    isUploadDisabled,
     handleFileSelect,
-    clearError,
-} = useFileConvert(sourceLanguage, (text) => {
-    sourceText.value = text;
-});
+} = useFileConvert(
+    sourceLanguage,
+    (text) => {
+        sourceText.value = text;
+    },
+    // A new file would replace the text that is being translated.
+    { disabled: isTranslating },
+);
+
+// Warn before a reload or leaving the page discards a running job.
+useLeavePageGuard(() => isTranslating.value || isConverting.value);
 
 const fileInputRef = ref<HTMLInputElement | null>(null);
-
-function swapLanguages(): void {
-    swapRef(sourceText, translatedText);
-}
 
 async function handleTranslate(): Promise<void> {
     if (sourceText.value.trim() === "" || !targetLanguage.value) return;
@@ -93,7 +97,7 @@ function onCapturePhoto() {
                     <div class="flex items-center w-full">
                         <div class="flex gap-2 flex-1">
                             <input type="file" ref="fileInputRef" class="hidden" @change="onFileSelect"
-                                accept=".txt,.doc,.docx,.pdf,.md,.html,.rtf" />
+                                :accept="CONVERTIBLE_FILE_ACCEPT" :disabled="isUploadDisabled" />
 
                             <!-- <UButton size="xs" color="neutral" variant="ghost" icon="i-lucide-camera"
                                 @click="onCapturePhoto">
@@ -108,7 +112,7 @@ function onCapturePhoto() {
                             <LanguageSelectionBar v-model:source-language="sourceLanguage"
                                 v-model:target-language="targetLanguage"
                                 :detected-source-language="detectedSourceLanguage"
-                                :is-detecting-language="isDetectingLanguage" @swap-languages="swapLanguages" />
+                                :is-detecting-language="isDetectingLanguage" @swap-languages="swapTexts" />
                         </div>
 
                         <OptionsToolBar v-model:tone="tone" v-model:domain="domain" v-model:glossary="glossary" />
@@ -117,7 +121,7 @@ function onCapturePhoto() {
                         <LanguageSelectionBar v-model:source-language="sourceLanguage"
                             v-model:target-language="targetLanguage"
                             :detected-source-language="detectedSourceLanguage"
-                            :is-detecting-language="isDetectingLanguage" @swap-languages="swapLanguages" />
+                            :is-detecting-language="isDetectingLanguage" @swap-languages="swapTexts" />
                     </div>
                 </motion.div>
             </template>
@@ -125,10 +129,9 @@ function onCapturePhoto() {
             <template #left>
                 <div class="h-full w-full relative">
                     <SourceTextView v-model="sourceText" :is-over-drop-zone="isOverDropZone"
-                        :is-converting="isConverting" :error="conversionError" :fileName="fileName"
+                        :is-converting="isConverting" :is-upload-disabled="isUploadDisabled"
                         :language-code="sourceLanguage" :detected-source-language="detectedSourceLanguage"
-                        ref="dropZoneRef" @clear-error="clearError"
-                        @trigger-file-upload="triggerFileUpload" />
+                        ref="dropZoneRef" @trigger-file-upload="triggerFileUpload" />
                 </div>
             </template>
 

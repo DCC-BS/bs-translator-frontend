@@ -32,17 +32,15 @@ export default backendHandlerBuilder()
         try {
             signal = getAbortSignal(event);
 
-            const response = await fetch(url, {
+            const response = await backendFetch(url, {
                 method: method,
                 body: form,
                 headers: forwardHeaders,
                 signal,
             });
 
-            setResponseStatus(event, response.status);
-
             if (!response.ok) {
-                return await response.json();
+                return await forwardBackendError(event, response);
             }
 
             return response;

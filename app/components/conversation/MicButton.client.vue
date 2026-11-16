@@ -10,8 +10,14 @@ const emit = defineEmits<{
     transcribed: [text: string];
 }>();
 
-const logger = useLogger();
+/** True while starting, recording, processing or transcribing */
+const busy = defineModel<boolean>("busy", { default: false });
 
+const logger = useLogger();
+const { t } = useI18n();
+const { showToast } = useUserFeedback();
+
+/** True while the recording is being transcribed */
 const isProcessing = ref(false);
 const { audioVisualization, initializeVisualization, cleanupVisualization } =
     useAudioVisualization();
@@ -23,7 +29,10 @@ const {
     startRecording: startAudioRecording,
     stopRecording: stopAudioRecording,
     isRecording: isAudioRecording,
+    isStarting,
     isProcessing: isAudioProcessing,
+    isBusy: isRecorderBusy,
+    error: recorderError,
 } = useAudioRecording({
     logger: (msg) => logger.debug("[AudioRecording]", msg),
     onRecordingStarted: (stream: MediaStream) => {
@@ -38,13 +47,33 @@ const {
             logger.error(String(e));
         }
     },
-    onError: () => {
-        cleanupVisualization();
-    },
 });
 
+const isBusy = computed(() => isRecorderBusy.value || isProcessing.value);
+
+watch(
+    isBusy,
+    (value) => {
+        busy.value = value;
+    },
+    { immediate: true },
+);
+
+/**
+ * The recorder only exposes English error strings, map them to our own messages.
+ */
+function micErrorMessage(message: string): string {
+    if (/denied|permission/i.test(message)) {
+        return t("conversation.micErrors.permissionDenied");
+    }
+    if (/no microphone|not found|not compatible/i.test(message)) {
+        return t("conversation.micErrors.noMicrophone");
+    }
+    return t("conversation.micErrors.generic");
+}
+
 const iconName = computed(() => {
-    return isAudioProcessing.value || isProcessing.value
+    return isStarting.value || isAudioProcessing.value || isProcessing.value
         ? "i-lucide-loader-2"
         : isAudioRecording.value
           ? "i-lucide-square"
@@ -93,12 +122,41 @@ async function handleTranscription(blob: Blob) {
 }
 
 async function toggleRecording() {
+    if (isStarting.value || isAudioProcessing.value || isProcessing.value) {
+        return;
+    }
+
     if (isAudioRecording.value) {
-        await stopAudioRecording();
+        await stopRecording();
     } else {
-        await startAudioRecording();
+        await startRecording();
     }
 }
+
+async function startRecording() {
+    await startAudioRecording();
+
+    // startRecording reports failures through the error ref, not by throwing.
+    if (recorderError.value) {
+        cleanupVisualization();
+        showToast(micErrorMessage(recorderError.value));
+    }
+}
+
+async function stopRecording() {
+    try {
+        await stopAudioRecording();
+    } catch (e) {
+        // the recorder has already released the microphone and reset its state
+        logger.error(e, "Failed to stop recording");
+        cleanupVisualization();
+        showToast(t("conversation.micErrors.stopFailed"));
+    }
+}
+
+onBeforeUnmount(() => {
+    busy.value = false;
+});
 
 onUnmounted(() => {
     cleanupVisualization();
@@ -143,12 +201,15 @@ onUnmounted(() => {
         <CircleButton
             @click="toggleRecording"
             color="error"
-            :disabled="isProcessing || isAudioProcessing"
+            :disabled="isStarting || isProcessing || isAudioProcessing"
         >
             <UIcon
                 :name="iconName"
                 size="24"
-                :class="{ 'animate-spin': isProcessing || isAudioProcessing }"
+                :class="{
+                    'animate-spin':
+                        isStarting || isProcessing || isAudioProcessing,
+                }"
             />
         </CircleButton>
     </UPopover>

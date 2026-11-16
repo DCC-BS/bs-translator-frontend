@@ -9,7 +9,8 @@ const tone = defineModel<Tone>("tone");
 const domain = defineModel<Domain>("domain");
 const glossary = defineModel<string>("glossary");
 
-const tabs = ref<TabsItem[]>([
+// Computed so the labels follow a locale switch.
+const tabs = computed<TabsItem[]>(() => [
     {
         label: t("ui.tone"),
         slot: "tone",

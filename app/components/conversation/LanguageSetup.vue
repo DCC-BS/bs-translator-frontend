@@ -9,8 +9,8 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-    "update:language": [language: Language];
-    "update:otherLanguage": [language: Language];
+    "update:language": [code: LanguageCode];
+    "update:otherLanguage": [code: LanguageCode];
     continue: [];
 }>();
 
@@ -18,14 +18,12 @@ const { t } = useI18n();
 
 const languageCode = computed({
     get: () => props.language.code,
-    set: (code: string) =>
-        emit("update:language", getLanguage(code as LanguageCode)),
+    set: (code: string) => emit("update:language", code as LanguageCode),
 });
 
 const otherLanguageCode = computed({
     get: () => props.otherLanguage?.code ?? "auto",
-    set: (code: string) =>
-        emit("update:otherLanguage", getLanguage(code as LanguageCode)),
+    set: (code: string) => emit("update:otherLanguage", code as LanguageCode),
 });
 
 const languageReady = computed(() => props.language.code !== "auto");

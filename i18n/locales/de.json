@@ -126,7 +126,7 @@
         "dismiss": "Verwerfen",
         "fileConvertedSuccess": "Datei erfolgreich konvertiert",
         "dropFileToConvert": "Datei zum Konvertieren ablegen",
-        "supportedFormats": "Unterstützte Formate: TXT, DOCX, PPTX, XLSX, PDF",
+        "supportedFormats": "Unterstützte Formate: PDF, DOCX, PPTX, XLSX, HTML, MD, ADOC, CSV, TXT und Bilder (PNG, JPG, TIFF, BMP, WEBP), bis 50 MB",
         "convertingFile": "Datei wird konvertiert...",
         "enterTextPlaceholder": "Text eingeben oder Datei hier ablegen...",
         "translating": "Übersetzen...",
@@ -272,7 +272,16 @@
         "test": "Testen",
         "cannotTranslateText": "Ich kann diesen Text nicht übersetzen.",
         "startRecordingMessage1": "Starte das Gespräch, indem du eine Nachricht mit dem {mic}",
-        "startRecordingMessage2": "-Button unten aufnimmst."
+        "startRecordingMessage2": "-Button unten aufnimmst.",
+        "waitingForLanguage": "Wähle unten deine Sprache oder sprich, um die Übersetzung zu sehen.",
+        "translationFailed": "Übersetzung fehlgeschlagen.",
+        "retry": "Erneut versuchen",
+        "micErrors": {
+            "permissionDenied": "Kein Zugriff auf das Mikrofon. Bitte erlaube den Mikrofonzugriff in den Browser-Einstellungen.",
+            "noMicrophone": "Kein Mikrofon gefunden. Bitte schliesse ein Mikrofon an und versuche es erneut.",
+            "generic": "Das Mikrofon konnte nicht gestartet werden. Bitte versuche es erneut.",
+            "stopFailed": "Die Aufnahme konnte nicht verarbeitet werden. Bitte versuche es erneut."
+        }
     },
     "api_error": {
         "fetch_failed": "Fetch fehlgeschlagen. Bitte versuchen Sie es erneut.",
@@ -281,17 +290,67 @@
             "errorTimeout": "Übersetzung dauerte zu lange. Versuchen Sie einen kürzeren Text.",
             "aborted": "Übersetzung abgebrochen.",
             "unexpected_error": "Ein unerwarteter Fehler ist aufgetreten. Möglicherweise ist der Server nicht verfügbar. Falls der Fehler weiterhin auftritt, verwenden Sie bitte die Feedback-Schaltfläche, um uns eine Nachricht zu senden.",
-            "invalid_json_response": "Ein unerwarteter Fehler ist aufgetreten. Möglicherweise ist der Server nicht erreichbar. Falls der Fehler weiterhin auftritt, nutzen Sie bitte die Feedback-Funktion, um uns eine Nachricht zu senden."
+            "invalid_json_response": "Ein unerwarteter Fehler ist aufgetreten. Möglicherweise ist der Server nicht erreichbar. Falls der Fehler weiterhin auftritt, nutzen Sie bitte die Feedback-Funktion, um uns eine Nachricht zu senden.",
+            "request_aborted": "Übersetzung abgebrochen.",
+            "fetch_failed": "Der Text konnte nicht gesendet werden. Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+            "translation_service_unavailable": "Der Übersetzungsdienst ist momentan nicht verfügbar. Bitte versuchen Sie es später erneut.",
+            "input_too_long": "Der Text ist zu lang. Bitte teilen Sie ihn in kürzere Abschnitte auf.",
+            "invalid_request": "Die Übersetzungsanfrage war ungültig. Bitte prüfen Sie die gewählten Sprachen und versuchen Sie es erneut."
         },
         "conversion": {
             "no_document": "Kein Dokument gefunden. Versuchen Sie, das Dokument erneut hochladen.",
             "invalid_mime_type": "Ungültiger Dokumenttyp.",
             "docling_timeout": "Konvertierung dauerte zu lange. Versuchen Sie eine kürzere Datei zu verwenden.",
-            "docling_task_failed": "Konvertierung fehlgeschlagen. Bitte versuchen Sie es erneut oder verwenden Sie eine andere Datei."
+            "docling_task_failed": "Konvertierung fehlgeschlagen. Bitte versuchen Sie es erneut oder verwenden Sie eine andere Datei.",
+            "request_aborted": "Konvertierung abgebrochen.",
+            "fetch_failed": "Die Datei konnte nicht gesendet werden. Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+            "unexpected_error": "Die Konvertierung ist unerwartet fehlgeschlagen. Möglicherweise ist der Server nicht verfügbar. Falls der Fehler weiterhin auftritt, verwenden Sie bitte die Feedback-Schaltfläche, um uns eine Nachricht zu senden.",
+            "invalid_json_response": "Die Konvertierung lieferte eine ungültige Antwort. Bitte versuchen Sie es erneut oder verwenden Sie eine andere Datei.",
+            "file_too_large": "Die Datei ist zu gross. Die maximale Grösse beträgt 50 MB.",
+            "invalid_request": "Die Datei konnte nicht verarbeitet werden. Bitte versuchen Sie es erneut oder verwenden Sie eine andere Datei."
         },
         "transcribe": {
             "errorTimeout": "Transkription dauerte zu lange. Versuchen Sie eine kürzere Aufnahme zu machen.",
-            "aborted": "Transkription abgebrochen."
+            "aborted": "Transkription abgebrochen.",
+            "fetch_failed": "Die Aufnahme konnte nicht gesendet werden. Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+            "unexpected_error": "Transkription fehlgeschlagen. Möglicherweise ist der Server nicht verfügbar. Falls der Fehler weiterhin auftritt, verwenden Sie bitte die Feedback-Schaltfläche, um uns eine Nachricht zu senden.",
+            "file_too_large": "Die Aufnahme ist zu gross. Bitte machen Sie eine kürzere Aufnahme.",
+            "invalid_request": "Die Aufnahme konnte nicht verarbeitet werden. Bitte versuchen Sie es erneut."
+        }
+    },
+    "leaveGuard": {
+        "message": "Eine Übersetzung oder Aufnahme läuft noch. Wenn Sie die Seite verlassen, geht sie verloren. Trotzdem verlassen?"
+    },
+    "photo": {
+        "recognizing": "Text wird erkannt…",
+        "translating": "{done} von {total} Textblöcken übersetzt…",
+        "noText": "In diesem Foto wurde kein Text gefunden.",
+        "retry": "Erneut versuchen",
+        "retake": "Neues Foto",
+        "fit": "An Bildschirm anpassen",
+        "showOriginal": "Originaltext anzeigen",
+        "showTranslation": "Übersetzung anzeigen",
+        "textView": "Als Text anzeigen",
+        "imageView": "Auf dem Foto anzeigen",
+        "selectAll": "Alle auswählen",
+        "clearSelection": "Auswahl aufheben",
+        "copy": "Alles kopieren",
+        "copySelected": "Auswahl kopieren",
+        "copied": "In die Zwischenablage kopiert",
+        "copyFailed": "Kopieren fehlgeschlagen",
+        "hintTouch": "Zum Zoomen zwei Finger spreizen, zum Verschieben ziehen. Tippen Sie auf einen Textblock, um ihn auszuwählen.",
+        "hintMouse": "Zum Zoomen scrollen, zum Verschieben ziehen. Klicken Sie auf einen Textblock, um ihn auszuwählen.",
+        "captureFailed": "Das Foto konnte nicht aufgenommen werden. Bitte versuchen Sie es erneut.",
+        "imageLoadFailed": "Diese Datei konnte nicht als Bild gelesen werden.",
+        "errors": {
+            "generic": "Das Foto konnte nicht übersetzt werden. Bitte versuchen Sie es erneut.",
+            "file_too_large": "Das Foto ist zu gross.",
+            "invalid_mime_type": "Dieses Bildformat wird nicht unterstützt. Bitte verwenden Sie JPEG oder PNG.",
+            "docling_timeout": "Die Texterkennung hat zu lange gedauert. Bitte versuchen Sie es erneut.",
+            "docling_task_failed": "Der Text in diesem Foto konnte nicht erkannt werden.",
+            "no_document": "Der Text in diesem Foto konnte nicht erkannt werden.",
+            "translation_service_unavailable": "Der Übersetzungsdienst ist zurzeit nicht verfügbar. Bitte versuchen Sie es später erneut.",
+            "fetch_failed": "Keine Verbindung zum Server. Bitte prüfen Sie Ihre Verbindung."
         }
     }
 }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { v4 as uuidv4 } from "uuid";
+import { parseGlossary, serializeGlossary } from "~/utils/glossary";
 
 type GlossaryEntry = {
     id: string;
@@ -138,35 +139,14 @@ function deleteRowAt(index: number): void {
 }
 
 function convertToString(glossary: GlossaryEntry[]): string {
-    const filteredGlossary = glossary.filter(
-        ({ term, description }) =>
-            term.trim().length > 0 && description.trim().length > 0,
-    );
-
-    const glossaryStr = filteredGlossary
-        .map(({ term, description }) => `${term}: ${description}`)
-        .join("; ");
-
-    return glossaryStr;
+    return serializeGlossary(glossary);
 }
 
 function fromString(glossaryStr: string): GlossaryEntry[] {
-    const glossary: GlossaryEntry[] = [];
-    const entries = glossaryStr
-        .split(";")
-        .map((entry) => entry.trim())
-        .filter((entry) => entry.length > 0);
-
-    for (const entry of entries) {
-        const [term, description] = entry.split(":").map((part) => part.trim());
-
-        if (term && description) {
-            const newId = uuidv4();
-            glossary.push({ id: newId, term, description });
-        }
-    }
-
-    return glossary;
+    return parseGlossary(glossaryStr).map((entry) => ({
+        id: uuidv4(),
+        ...entry,
+    }));
 }
 
 // Filtering is handled by visibleEntries

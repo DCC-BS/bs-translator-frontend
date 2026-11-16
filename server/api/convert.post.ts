@@ -49,24 +49,17 @@ export default backendHandlerBuilder<
         const signal = getAbortSignal(event);
 
         try {
-            const response = await fetch(url, {
+            const response = await backendFetch(url, {
                 method: method,
                 body: formData,
                 headers: forwardHeaders,
                 signal,
             });
 
-            // Set the response status to match the backend response
-            setResponseStatus(event, response.status);
-
-            // Return error response as-is to allow consumers to check with isApiError()
-            // Guard against non-JSON error responses (e.g., HTML error pages, plain text)
+            // Return the backend error (status + JSON body, e.g. 413 file_too_large)
+            // as-is so consumers can check it with isApiError()
             if (!response.ok) {
-                const contentType = response.headers.get("content-type") ?? "";
-                if (contentType.includes("application/json")) {
-                    return await response.json();
-                }
-                return await response.text();
+                return await forwardBackendError(event, response);
             }
 
             return (await response.json()) as ConversionResult;

@@ -53,19 +53,20 @@ APP_MODE=dev  # can be dev, ci, build or prod see https://dcc-bs.github.io/docum
 
 The following environment variables have defaults and can be overridden as needed:
 
-| Variable                       | Description                          | Default                                 | Type                                                |
-| ------------------------------ | ------------------------------------ | --------------------------------------- | --------------------------------------------------- |
-| **App Configuration**          |
-| `USE_FEEDBACK`                 | Enable feedback feature              | `true`                                  | boolean                                             |
-| `DUMMY`                        | Use dummy data (no backend requests) | `false`                                 | string                                              |
-| **Build-time Variables**       |
-| `LOGGER_LAYER_URI`             | Logger layer Nuxt module             | `github:DCC-BS/nuxt-layers/pino-logger` | URL                                                 |
-| **Runtime Variables**          |
-| `API_PORT`                     | Backend API port                     | `8000`                                  | port                                                |
-| `NUXT_API_URL`                 | Backend API URL                      | `http://localhost:8000` (dev)           | URL (public)                                        |
-| `NUXT_FEEDBACK_GITHUB_TOKEN`   | GitHub token for feedback            | -                                       | string (sensitive, required if `USE_FEEDBACK=true`) |
-| `NUXT_PUBLIC_LOGGER_LOG_LEVEL` | Frontend log level                   | `debug` (dev), `info` (prod)            | enum: trace, debug, info, warn, error, fatal        |
-| `LOG_LEVEL`                    | Server log level                     | `debug`                                 | enum: trace, debug, info, warn, error, fatal        |
+| Variable                                       | Description                                                                                     | Default                                             | Type                                                |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------- | --------------------------------------------------- | --------------------------------------------------- |
+| **App Configuration**                          |
+| `USE_FEEDBACK`                                 | Enable feedback feature                                                                         | `true`                                              | boolean                                             |
+| `DUMMY`                                        | Use dummy data (no backend requests)                                                            | `false`                                             | string                                              |
+| **Build-time Variables**                       |
+| `LOGGER_LAYER_URI`                             | Logger layer Nuxt module                                                                        | `github:DCC-BS/nuxt-layers/pino-logger`             | URL                                                 |
+| **Runtime Variables**                          |
+| `API_PORT`                                     | Backend API port                                                                                | `8000`                                              | port                                                |
+| `NUXT_API_URL`                                 | Backend API URL                                                                                 | `http://localhost:8000` (dev)                       | URL (public)                                        |
+| `NUXT_FEEDBACK_GITHUB_TOKEN`                   | GitHub token for feedback                                                                       | -                                                   | string (sensitive, required if `USE_FEEDBACK=true`) |
+| `LOG_LEVEL`                                    | Log level baked in at build time; at runtime it is the default of `NUXT_PUBLIC_LOGGER_LOGLEVEL` | `debug` (dev), `info` (otherwise)                   | enum: trace, debug, info, warn, error, fatal        |
+| `NUXT_PUBLIC_LOGGER_LOGLEVEL`                  | Runtime log level of the server and the browser loggers                                         | `LOG_LEVEL`                                         | enum: trace, debug, info, warn, error, fatal        |
+| `NUXT_PUBLIC_APP_CONFIG_APP_LIST_URL_TEMPLATE` | App switcher link template, `{APP_NAME}` is replaced by the app slug                            | `http://{APP_NAME}.localhost.ch` (required in prod) | string                                              |
 
 > **Note:** Build-time variables (`LOGGER_LAYER_URI`) are resolved during `nuxt build` and must be passed as build arguments in Docker.
 
@@ -150,8 +151,11 @@ This starts:
 - **Backend** (Python FastAPI)
 - **LLM Service** (vLLM with Qwen model)
 - **Faster Whisper** (Speech-to-text)
-- **Docling** (Document parsing)
-- **Nginx** (Reverse proxy)
+- **Docling** (Document parsing, OCR through GLM-OCR)
+- **GLM-OCR** (vLLM serving `zai-org/GLM-OCR` for docling)
+- **Nginx** (Reverse proxy on port 8090, only the frontend is exposed)
+
+The stack is configured through `docker/.env.schema`. The frontend is built without the feedback control by default; set `USE_FEEDBACK=true` and `NUXT_FEEDBACK_GITHUB_TOKEN` to enable it.
 
 > **Note:** Ensure you have varlock configured with Proton Pass for environment variable management.
 
@@ -227,19 +231,25 @@ The application includes a multi-stage Dockerfile for production deployment with
 
 The Dockerfile accepts the following build-time arguments:
 
-| Argument           | Default                                 | Description                   |
-| ------------------ | --------------------------------------- | ----------------------------- |
-| `LOGGER_LAYER_URI` | `github:DCC-BS/nuxt-layers/pino-logger` | Logging layer implementation. |
+| Argument           | Default                                 | Description                                                                                      |
+| ------------------ | --------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `LOGGER_LAYER_URI` | `github:DCC-BS/nuxt-layers/pino-logger` | Logging layer implementation.                                                                    |
+| `USE_FEEDBACK`     | `true`                                  | Build the feedback control. The container then requires `NUXT_FEEDBACK_GITHUB_TOKEN` at runtime. |
 
 These are resolved during `nuxt build` and must be passed as build arguments:
 
 ```bash
-# Build the image
-docker build -t bs-translator-frontend .
+# Build the image (without the feedback control)
+docker build --build-arg USE_FEEDBACK=false -t bs-translator-frontend .
 
 # Run the container
-docker run -p 3000:3000 bs-translator-frontend
+docker run -p 3000:3000 \
+  -e NUXT_API_URL=http://<backend-host>:8000 \
+  -e NUXT_PUBLIC_APP_CONFIG_APP_LIST_URL_TEMPLATE='https://{APP_NAME}.example.ch' \
+  bs-translator-frontend
 ```
+
+With the default `USE_FEEDBACK=true` build, also pass `-e NUXT_FEEDBACK_GITHUB_TOKEN=<token>`.
 
 ## License
 

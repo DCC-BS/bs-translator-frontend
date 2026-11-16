@@ -1,9 +1,15 @@
 import type { LanguageCode } from "./languages";
 
+/**
+ * Progress of a translated message. Original messages have no status.
+ */
+export type TranslationStatus = "pending" | "translating" | "done" | "failed";
+
 export type ConversationMessage = {
     id: string;
     role: "original" | "translated";
     content: string;
+    status?: TranslationStatus;
 };
 
 export type UserConversation = {

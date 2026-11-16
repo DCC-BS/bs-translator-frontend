@@ -14,10 +14,18 @@ const { isReady, abandonedRecording, deleteAbandonedRecording, getMp3Blob } =
         logger: (msg) => logger.debug("[AudioSessions]", msg),
     });
 
-const audioRecorder = ref<typeof AudioRecorder>();
+const audioRecorder = ref<InstanceType<typeof AudioRecorder>>();
 const toast = useToast();
 const isRecordingDrawerOpen = ref(false);
 const isRecording = ref(false);
+
+/**
+ * Starting, recording or finishing: closing the drawer now would unmount the
+ * recorder and lose the recording (the recorder cancels a pending start itself).
+ */
+const isRecorderBusy = computed(() => !!audioRecorder.value?.isBusy);
+
+useLeavePageGuard(isRecorderBusy);
 
 const lastAbandonedRecording = computed(() => {
     if (abandonedRecording.value && abandonedRecording.value.length > 0) {
@@ -44,10 +52,6 @@ function onRecordingStopped(file: Blob, _: string) {
     emit("onRecordingComplete", file);
 }
 
-function stopRecording() {
-    audioRecorder.value?.stopRecording();
-}
-
 async function recover() {
     if (!abandonedRecording.value) return;
 
@@ -71,7 +75,11 @@ async function recover() {
 </script>
 
 <template>
-    <UDrawer v-model:open="isRecordingDrawerOpen" @close="stopRecording">
+    <!-- Not dismissible while recording: stop it with the recorder's button. -->
+    <UDrawer
+        v-model:open="isRecordingDrawerOpen"
+        :dismissible="!isRecorderBusy"
+    >
         <UTooltip :text="t('ui.recordAudio')" :delay-duration="0">
             <UButton
                 icon="i-lucide-mic"

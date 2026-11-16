@@ -8,6 +8,8 @@ FROM ghcr.io/dcc-bs/dcc-docker-images/mise:13-slim AS build
 
 ENV APP_MODE=build
 ARG LOGGER_LAYER_URI="github:DCC-BS/nuxt-layers/pino-logger"
+# Build the feedback control into the app (it then needs NUXT_FEEDBACK_GITHUB_TOKEN at runtime)
+ARG USE_FEEDBACK=true
 ENV NODE_ENV=production
 ENV DOCKER_BUILD=1
 
@@ -53,6 +55,10 @@ RUN useradd --create-home --uid 1000 node
 ENV NODE_ENV=production
 ENV APP_MODE=prod
 ENV NITRO_PORT=3000
+# Runtime validation follows the build-time feedback decision, so the token is
+# only required when the feedback control is part of the build
+ARG USE_FEEDBACK=true
+ENV USE_FEEDBACK=${USE_FEEDBACK}
 
 # Runtime node is the one assembled from mise in the build stage
 ENV PATH="/runtime/node/bin:$PATH"

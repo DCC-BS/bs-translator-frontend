@@ -5,13 +5,25 @@ definePageMeta({
 
 const router = useRouter();
 
-function onPhotoCanceled() {
+/** The photo being translated; `undefined` while the camera is shown. */
+const photo = shallowRef<Blob>();
+
+function onPhotoCaptured(image: Blob): void {
+    photo.value = image;
+}
+
+function onPhotoCanceled(): void {
     router.push({ path: "/" });
+}
+
+function onRetake(): void {
+    photo.value = undefined;
 }
 </script>
 
 <template>
     <div>
-        <CameraCapture @photo-canceled="onPhotoCanceled" class="bg-gray-200" />
+        <OcrImage v-if="photo" :image="photo" @retake="onRetake" />
+        <CameraCapture v-else @photo-captured="onPhotoCaptured" @photo-canceled="onPhotoCanceled" />
     </div>
 </template>

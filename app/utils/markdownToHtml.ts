@@ -1,5 +1,41 @@
 import type { MDCNode } from "@nuxtjs/mdc";
 import { markdownStyle } from "~/utils/markdownStyle";
+import {
+    disableFrontMatter,
+    safeMarkdownParserOptions,
+} from "~/utils/sanitizeMarkdown";
+
+/** AST prop names that differ from their HTML attribute name. */
+const ATTRIBUTE_NAMES: Record<string, string> = {
+    className: "class",
+    htmlFor: "for",
+};
+
+function escapeHtml(value: string): string {
+    return value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
+
+/**
+ * Renders one AST prop as an HTML attribute. Boolean props follow HTML
+ * semantics: `true` emits the bare attribute, `false` omits it.
+ */
+function toAttribute(key: string, value: unknown): string | undefined {
+    if (value === undefined || value === null || value === false) {
+        return undefined;
+    }
+
+    const name = ATTRIBUTE_NAMES[key] ?? key;
+    if (value === true) {
+        return name;
+    }
+
+    const text = Array.isArray(value) ? value.join(" ") : String(value);
+    return `${name}="${escapeHtml(text)}"`;
+}
 
 /**
  * Converts MDC parsed AST node to HTML string
@@ -9,7 +45,7 @@ function astToHtml(node: MDCNode | MDCNode[]): string {
     if (!node) return "";
 
     if (typeof node === "string") {
-        return node;
+        return escapeHtml(node);
     }
 
     if (Array.isArray(node)) {
@@ -17,7 +53,7 @@ function astToHtml(node: MDCNode | MDCNode[]): string {
     }
 
     if (node.type === "text") {
-        return String(node.value || "");
+        return escapeHtml(String(node.value || ""));
     }
 
     if (node.type === "element") {
@@ -27,11 +63,8 @@ function astToHtml(node: MDCNode | MDCNode[]): string {
 
         // Build attributes string
         const attributes = Object.entries(props)
-            .filter(([, value]) => value !== undefined && value !== null)
-            .map(
-                ([key, value]) =>
-                    `${key}="${String(value).replace(/"/g, "&quot;")}"`,
-            )
+            .map(([key, value]) => toAttribute(key, value))
+            .filter((attribute) => attribute !== undefined)
             .join(" ");
 
         const attributesStr = attributes ? ` ${attributes}` : "";
@@ -53,19 +86,30 @@ function astToHtml(node: MDCNode | MDCNode[]): string {
  */
 export async function markdownToHtml(markdown: string): Promise<string> {
     try {
-        const parsed = await parseMarkdown(markdown);
+        const parsed = await parseMarkdown(
+            disableFrontMatter(markdown),
+            safeMarkdownParserOptions,
+        );
         if (parsed?.body) {
             const html = astToHtml(parsed.body.children);
             return createHTMLDocument(html);
         }
-        return markdown; // Fallback to original text
+        return plainTextDocument(markdown);
     } catch (error) {
         console.warn(
             "Failed to parse markdown with MDC, falling back to original text:",
             error,
         );
-        return markdown; // Fallback to original text
+        return plainTextDocument(markdown);
     }
+}
+
+/**
+ * Fallback: the unparsed markdown as escaped text, never as markup (it did
+ * not pass the sanitizer).
+ */
+function plainTextDocument(markdown: string): string {
+    return createHTMLDocument(`<pre>${escapeHtml(markdown)}</pre>`);
 }
 
 function createHTMLDocument(htmlContent: string): string {

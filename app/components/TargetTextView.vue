@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 import type { Language, LanguageCode } from "~/models/languages";
 import { languageMap } from "~/models/languages";
+import {
+    disableFrontMatter,
+    safeMarkdownParserOptions,
+} from "~/utils/sanitizeMarkdown";
 
 const props = defineProps<{
     isTranslating?: boolean;
@@ -48,10 +52,24 @@ function toggleMarkdown(): void {
     showMarkdown.value = !showMarkdown.value;
 }
 
+function onCopySuccess(): void {
+    copySuccess.value = true;
+    setTimeout(() => {
+        copySuccess.value = false;
+    }, 2000);
+
+    toast.add({
+        title: t("ui.copySuccess"),
+        color: "success",
+        icon: "i-lucide-check-circle",
+        duration: 2000,
+    });
+}
+
 /**
  * Copies translated text to clipboard
  * When in markdown view, copies as rich text for better formatting in Word documents
- * Falls back to plain text when rich text is not supported
+ * Falls back to plain text when rich text is not supported or fails
  */
 async function copyToClipboard(): Promise<void> {
     // Don't attempt to copy if no text is available
@@ -60,74 +78,47 @@ async function copyToClipboard(): Promise<void> {
     }
 
     // Only run in client context
-    if (import.meta.client) {
+    if (!import.meta.client || !navigator.clipboard) {
+        return;
+    }
+
+    const plainText = translatedText.value;
+
+    if (
+        showMarkdown.value &&
+        typeof navigator.clipboard.write === "function" &&
+        typeof ClipboardItem !== "undefined"
+    ) {
         try {
-            if (
-                navigator.clipboard &&
-                typeof navigator.clipboard.write === "function" &&
-                showMarkdown.value
-            ) {
-                // Convert markdown to HTML for rich text copying
-                const html = await markdownToHtml(translatedText.value);
+            // write() must be called synchronously within the click (Safari
+            // drops the user activation across an await), so the HTML is
+            // handed over as a Promise<Blob> that resolves once converted.
+            const clipboardItem = new ClipboardItem({
+                "text/html": markdownToHtml(plainText).then(
+                    (html) => new Blob([html], { type: "text/html" }),
+                ),
+                "text/plain": new Blob([plainText], { type: "text/plain" }),
+            });
 
-                const clipboardItem = new ClipboardItem({
-                    "text/html": new Blob([html], { type: "text/html" }),
-                    "text/plain": new Blob([translatedText.value], {
-                        type: "text/plain",
-                    }),
-                });
-
-                await navigator.clipboard.write([clipboardItem]);
-
-                copySuccess.value = true;
-                setTimeout(() => {
-                    copySuccess.value = false;
-                }, 2000);
-
-                // Show success toast
-                toast.add({
-                    title: t("ui.copySuccess"),
-                    color: "success",
-                    icon: "i-lucide-check-circle",
-                });
-
-                return;
-            }
-
-            if (
-                navigator.clipboard &&
-                typeof navigator.clipboard.writeText === "function"
-            ) {
-                // Fallback to plain text copying
-                await navigator.clipboard.writeText(translatedText.value);
-
-                copySuccess.value = true;
-                setTimeout(() => {
-                    copySuccess.value = false;
-                }, 2000);
-
-                // Show success toast
-                toast.add({
-                    title: t("ui.copySuccess"),
-                    color: "success",
-                    icon: "i-lucide-check-circle",
-                    duration: 2000,
-                });
-
-                return;
-            }
+            await navigator.clipboard.write([clipboardItem]);
+            onCopySuccess();
             return;
         } catch (err) {
-            logger.error(err, "Copy failed");
-            // Show error toast
-            toast.add({
-                title: t("ui.copyFailed"),
-                color: "error",
-                icon: "i-lucide-alert-circle",
-                duration: 3000,
-            });
-            return;
+            logger.warn(err, "Rich text copy failed, copying plain text");
         }
+    }
+
+    try {
+        await navigator.clipboard.writeText(plainText);
+        onCopySuccess();
+    } catch (err) {
+        logger.error(err, "Copy failed");
+        toast.add({
+            title: t("ui.copyFailed"),
+            color: "error",
+            icon: "i-lucide-alert-circle",
+            duration: 3000,
+        });
     }
 }
 
@@ -178,7 +169,7 @@ async function downloadWord(): Promise<void> {
     <div class="relative bg-gray-50 p-[5px] m-0 h-full w-full" :class="{ 'translating-border': props.isTranslating }">
         <div data-testid="targetMarkdown" data-tour="text-output" v-if="showMarkdown && translatedText" :dir="direction"
             class="absolute inset-0 overflow-y-auto pl-2 pb-12 prose">
-            <MDC :value="translatedText" />
+            <MDC :value="disableFrontMatter(translatedText)" :parser-options="safeMarkdownParserOptions" />
         </div>
         <UTextarea data-testid="targetTextInput" v-else v-model="translatedText" class="absolute inset-0" variant="none"
             :ui="{ base: 'resize-none pb-12 transition-all duration-300 bg-gray-50 dark:bg-gray-900 h-full' }"

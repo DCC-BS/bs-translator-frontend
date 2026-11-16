@@ -9,10 +9,20 @@ services:
             file: ./services.compose.yml
             service: faster_whisper
 
+    vllm-glm-ocr:
+        extends:
+            file: ./services.compose.yml
+            service: vllm-glm-ocr
+
     docling:
         extends:
             file: ./services.compose.yml
             service: docling
+        depends_on:
+            # Started, not healthy: document conversion uses RapidOCR and must keep
+            # working when GLM-OCR (photo translation only) fails to come up.
+            vllm-glm-ocr:
+                condition: service_started
 
     translator-backend:
         extends:
