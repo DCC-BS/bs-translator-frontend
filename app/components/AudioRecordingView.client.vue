@@ -18,54 +18,14 @@ const audioRecorder = ref<InstanceType<typeof AudioRecorder>>();
 const toast = useToast();
 const isRecordingDrawerOpen = ref(false);
 const isRecording = ref(false);
-/** True while the recorder waits for microphone access */
-const isStartingRecorder = ref(false);
-let isUnmounted = false;
-
-/** Closing the drawer now would unmount the recorder and lose the recording */
-const isRecorderBusy = computed(
-    () =>
-        isStartingRecorder.value ||
-        !!audioRecorder.value?.isRecording ||
-        !!audioRecorder.value?.isProcessing,
-);
-
-useLeavePageGuard(isRecorderBusy);
 
 /**
- * Starts the recorder ourselves instead of using its auto-start, so the wait
- * for microphone access counts as busy. The start cannot be cancelled: if the
- * recorder was unmounted meanwhile, stop the recording it started afterwards.
+ * Starting, recording or finishing: closing the drawer now would unmount the
+ * recorder and lose the recording (the recorder cancels a pending start itself).
  */
-async function startRecorder(recorder: InstanceType<typeof AudioRecorder>) {
-    isStartingRecorder.value = true;
-    try {
-        await recorder.startRecording();
-    } finally {
-        isStartingRecorder.value = false;
-    }
+const isRecorderBusy = computed(() => !!audioRecorder.value?.isBusy);
 
-    if (
-        (isUnmounted || audioRecorder.value !== recorder) &&
-        recorder.isRecording
-    ) {
-        try {
-            await recorder.stopRecording();
-        } catch (e) {
-            logger.error(e, "Failed to stop orphaned recording");
-        }
-    }
-}
-
-watch(audioRecorder, (recorder) => {
-    if (recorder && abandonedRecording.value?.length === 0) {
-        void startRecorder(recorder);
-    }
-});
-
-onUnmounted(() => {
-    isUnmounted = true;
-});
+useLeavePageGuard(isRecorderBusy);
 
 const lastAbandonedRecording = computed(() => {
     if (abandonedRecording.value && abandonedRecording.value.length > 0) {
@@ -164,6 +124,10 @@ async function recover() {
                         <AudioRecorder
                             ref="audioRecorder"
                             :logger="(msg: string) => logger.debug('[AudioRecorder]', msg)"
+                            :auto-start="
+                                abandonedRecording &&
+                                abandonedRecording.length === 0
+                            "
                             :show-result="false"
                             @recording-started="isRecording = true"
                             @recording-stopped="onRecordingStopped"

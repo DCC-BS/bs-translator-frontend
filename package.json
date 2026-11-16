@@ -20,7 +20,7 @@
     },
     "dependencies": {
         "@ai-sdk/vue": "^4.0.65",
-        "@dcc-bs/audio-recorder.bs.js": "^2.1.6",
+        "@dcc-bs/audio-recorder.bs.js": "^2.2.1",
         "@dcc-bs/common-ui.bs.js": "2.2.4",
         "@dcc-bs/communication.bs.js": "^0.1.5",
         "@dcc-bs/dependency-injection.bs.js": "^0.0.18",

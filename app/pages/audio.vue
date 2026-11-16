@@ -3,9 +3,8 @@ import type { AudioRecorder } from "#components";
 
 const recorder = ref<InstanceType<typeof AudioRecorder>>();
 
-useLeavePageGuard(
-    () => !!recorder.value?.isRecording || !!recorder.value?.isProcessing,
-);
+// starting (permission prompt), recording or finishing
+useLeavePageGuard(() => !!recorder.value?.isBusy);
 </script>
 
 <template>

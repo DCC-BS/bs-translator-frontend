@@ -17,13 +17,11 @@ const logger = useLogger();
 const { t } = useI18n();
 const { showToast } = useUserFeedback();
 
+/** True while the recording is being transcribed */
 const isProcessing = ref(false);
-const isStarting = ref(false);
 const { audioVisualization, initializeVisualization, cleanupVisualization } =
     useAudioVisualization();
 const transcribeAbortController = ref<AbortController>();
-/** Kept to release the microphone if the recorder fails to stop */
-let recordingStream: MediaStream | undefined;
 
 const { transcribe } = useTranscribe();
 
@@ -31,12 +29,13 @@ const {
     startRecording: startAudioRecording,
     stopRecording: stopAudioRecording,
     isRecording: isAudioRecording,
+    isStarting,
     isProcessing: isAudioProcessing,
+    isBusy: isRecorderBusy,
     error: recorderError,
 } = useAudioRecording({
     logger: (msg) => logger.debug("[AudioRecording]", msg),
     onRecordingStarted: (stream: MediaStream) => {
-        recordingStream = stream;
         initializeVisualization(stream);
     },
     onRecordingStopped: async (audioBlob: Blob) => {
@@ -50,13 +49,7 @@ const {
     },
 });
 
-const isBusy = computed(
-    () =>
-        isStarting.value ||
-        isAudioRecording.value ||
-        isAudioProcessing.value ||
-        isProcessing.value,
-);
+const isBusy = computed(() => isRecorderBusy.value || isProcessing.value);
 
 watch(
     isBusy,
@@ -141,17 +134,7 @@ async function toggleRecording() {
 }
 
 async function startRecording() {
-    isStarting.value = true;
-    recorderError.value = undefined;
-
-    try {
-        await startAudioRecording();
-    } catch (e) {
-        logger.error(e, "Failed to start recording");
-        recorderError.value = String(e);
-    } finally {
-        isStarting.value = false;
-    }
+    await startAudioRecording();
 
     // startRecording reports failures through the error ref, not by throwing.
     if (recorderError.value) {
@@ -164,16 +147,9 @@ async function stopRecording() {
     try {
         await stopAudioRecording();
     } catch (e) {
+        // the recorder has already released the microphone and reset its state
         logger.error(e, "Failed to stop recording");
-        // useAudioRecording does not expose abortRecording() and only releases
-        // the stream after a successful conversion, so stop the tracks here.
-        for (const track of recordingStream?.getTracks() ?? []) {
-            track.stop();
-        }
-        recordingStream = undefined;
         cleanupVisualization();
-        isAudioProcessing.value = false;
-        isProcessing.value = false;
         showToast(t("conversation.micErrors.stopFailed"));
     }
 }
