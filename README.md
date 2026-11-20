@@ -66,6 +66,7 @@ The following environment variables have defaults and can be overridden as neede
 | `NUXT_FEEDBACK_GITHUB_TOKEN`                   | GitHub token for feedback                                                                       | -                                                   | string (sensitive, required if `USE_FEEDBACK=true`) |
 | `LOG_LEVEL`                                    | Log level baked in at build time; at runtime it is the default of `NUXT_PUBLIC_LOGGER_LOGLEVEL` | `debug` (dev), `info` (otherwise)                   | enum: trace, debug, info, warn, error, fatal        |
 | `NUXT_PUBLIC_LOGGER_LOGLEVEL`                  | Runtime log level of the server and the browser loggers                                         | `LOG_LEVEL`                                         | enum: trace, debug, info, warn, error, fatal        |
+| `NUXT_PUBLIC_LOGGER_APP`                       | Service name in log lines (`app` field)                                                         | `bs-translator-frontend`                            | string                                              |
 | `NUXT_PUBLIC_APP_CONFIG_APP_LIST_URL_TEMPLATE` | App switcher link template, `{APP_NAME}` is replaced by the app slug                            | `http://{APP_NAME}.localhost.ch` (required in prod) | string                                              |
 
 > **Note:** Build-time variables (`LOGGER_LAYER_URI`) are resolved during `nuxt build` and must be passed as build arguments in Docker.
