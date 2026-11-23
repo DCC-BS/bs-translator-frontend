@@ -1,6 +1,6 @@
 {
     "name": "bs-translator-frontend",
-    "version": "1.6.2",
+    "version": "1.6.3",
     "private": true,
     "scripts": {
         "dev": "nuxt dev",
@@ -20,10 +20,10 @@
     },
     "dependencies": {
         "@ai-sdk/vue": "^4.0.65",
-        "@dcc-bs/audio-recorder.bs.js": "^2.2.1",
+        "@dcc-bs/audio-recorder.bs.js": "^2.3.1",
         "@dcc-bs/common-ui.bs.js": "2.2.5",
         "@dcc-bs/communication.bs.js": "^0.1.5",
-        "@dcc-bs/dependency-injection.bs.js": "^0.0.19",
+        "@dcc-bs/dependency-injection.bs.js": "^0.0.20",
         "@mohtasham/md-to-docx": "git+https://github.com/DCC-BS/md-to-docx.js#v3.0.0",
         "@nuxt/ui": "4.12.0",
         "@nuxtjs/i18n": "^10.2.1",
