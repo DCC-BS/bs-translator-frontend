@@ -84,6 +84,7 @@ varlock load
 #### Proton Pass Integration (Optional)
 
 For automatic secret retrieval from Proton Pass, ensure you have:
+
 1. Install [pass-cli](https://github.com/DCC-BS/pass-cli)
 2. Authenticate with Proton Pass: `pass-cli login`
 3. Validate environment: `varlock load`
@@ -148,6 +149,7 @@ varlock run -- docker compose up
 ```
 
 This starts:
+
 - **Frontend** (Nuxt.js app)
 - **Backend** (Python FastAPI)
 - **LLM Service** (vLLM with Qwen model)
