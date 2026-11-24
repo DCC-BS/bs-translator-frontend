@@ -53,3 +53,12 @@ export function restartTourButton(page: Page) {
         .getByRole("button")
         .filter({ visible: true });
 }
+
+/**
+ * The title of a toast with the given text. Nuxt UI (reka-ui) also writes every new
+ * toast into a hidden `aria-live` announcer span ("Notification <title>") for a moment,
+ * so a plain `getByText` sometimes matches two elements and fails in strict mode.
+ */
+export function toastTitle(page: Page, text: string | RegExp) {
+    return page.locator('[data-slot="title"]').filter({ hasText: text });
+}

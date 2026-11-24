@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import local from "../../i18n/locales/de.json" with { type: "json" };
 import localEn from "../../i18n/locales/en.json" with { type: "json" };
-import { anyLocale, skipTour } from "./helpers";
+import { anyLocale, skipTour, toastTitle } from "./helpers";
 
 const copySuccessMessage = anyLocale(
     local.ui.copySuccess,
@@ -69,7 +69,7 @@ test("Copy rich translated text", async ({ page, context }) => {
     );
 
     await page.getByTestId("copyToClipboardButton").click();
-    await expect(page.getByText(copySuccessMessage).first()).toBeVisible();
+    await expect(toastTitle(page, copySuccessMessage)).toBeVisible();
 
     // Rich copy writes an HTML flavour to the clipboard; assert on that one,
     // otherwise this test is a duplicate of the plain text copy test.
@@ -106,7 +106,7 @@ test("Copy plain translated text", async ({ page, context }) => {
 
     await page.getByTestId("toggleMarkdownButton").click();
     await page.getByTestId("copyToClipboardButton").click();
-    await expect(page.getByText(copySuccessMessage).first()).toBeVisible();
+    await expect(toastTitle(page, copySuccessMessage)).toBeVisible();
 
     const clipboard = await page.evaluate(async () => {
         return navigator.clipboard.readText();
