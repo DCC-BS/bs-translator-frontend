@@ -1,7 +1,7 @@
 import { expect, type Page, test } from "@playwright/test";
 import local from "../../i18n/locales/de.json" with { type: "json" };
 import localEn from "../../i18n/locales/en.json" with { type: "json" };
-import { anyLocale, skipTour } from "./helpers";
+import { anyLocale, skipTour, toastTitle } from "./helpers";
 
 // A 4x4 red PNG; the dummy OCR endpoint ignores the content.
 const PNG = Buffer.from(
@@ -89,7 +89,7 @@ test("A photo chosen from the device is translated", async ({ page }) => {
         })
         .click();
     await expect(
-        page.getByText(anyLocale(local.photo.copied, localEn.photo.copied)),
+        toastTitle(page, anyLocale(local.photo.copied, localEn.photo.copied)),
     ).toBeVisible();
 });
 
